@@ -6,23 +6,24 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/lixvyang/betxin.one/configs"
+	"github.com/lixvyang/betxin.one/pkg/logger"
+	"github.com/rs/zerolog/log"
 )
 
 var (
+	configFile string
 	signalChan = make(chan os.Signal, 1)
-	configFile = flag.String("f", "./configs/configs.yaml", "config file")
 )
 
 func main() {
-	flag.Parse()
-	if err := configs.Init(*configFile); err != nil {
+	flag.StringVar(&configFile, "f", "./configs/configs.yaml", "config file")
+	if err := configs.Init(configFile); err != nil {
 		log.Error().Err(err).Msgf("[configs.Init] err: %+v", err)
 	}
 
-	log.Info().Any("Conf", configs.Conf).Send()
+	log.Info().Any("Conf", configs.Conf).Msg("初始化配置成功")
+	logger.InitLogger(*configs.Conf.LogConfig)
 
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
 	signalType := <-signalChan

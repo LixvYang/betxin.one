@@ -1,0 +1,4 @@
+{"level":"info","git_revision":"","go_version":"go1.21.1","fileLogging":true,"jsonLogOutput":true,"logDirectory":"./log","fileName":"betxin.log","maxSizeMB":1,"maxBackups":3,"maxAgeInDays":7,"time":"2023-10-29T12:44:05.084613+08:00","message":"logging configured"}
+{"level":"info","git_revision":"","go_version":"go1.21.1","time":"2023-10-29T12:44:05.084886+08:00","message":"初始化日志成功"}
+{"level":"info","git_revision":"","go_version":"go1.21.1","fileLogging":true,"jsonLogOutput":true,"logDirectory":"./log","fileName":"betxin.log","maxSizeMB":1,"maxBackups":3,"maxAgeInDays":7,"localtime":true,"compress":false,"time":"2023-10-29T12:45:08.324328+08:00","message":"logging configured"}
+{"level":"info","git_revision":"","go_version":"go1.21.1","time":"2023-10-29T12:45:08.32475+08:00","message":"初始化日志成功"}
