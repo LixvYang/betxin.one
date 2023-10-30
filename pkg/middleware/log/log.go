@@ -1,4 +1,4 @@
-package logger
+package log
 
 import (
 	"time"
@@ -7,12 +7,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func GinLogger(Lg zerolog.Logger) gin.HandlerFunc {
+func GinLogger(Lg *zerolog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
-		cost := time.Since(start)
+
 		defer Lg.Info().
 			Int("status", c.Writer.Status()).
 			Str("method", c.Request.Method).
@@ -21,7 +21,7 @@ func GinLogger(Lg zerolog.Logger) gin.HandlerFunc {
 			Str("ip", c.ClientIP()).
 			Str("user-agent", c.Request.UserAgent()).
 			Str("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()).
-			Dur("cost", cost).Send()
+			Dur("cost", time.Since(start)).Send()
 
 		c.Next()
 	}

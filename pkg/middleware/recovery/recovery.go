@@ -1,7 +1,6 @@
 package recovery
 
 import (
-	"errors"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -10,12 +9,13 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
 )
 
 // GinRecovery recovers possible project panic
-func GinRecovery(Lg zerolog.Logger, stack bool) gin.HandlerFunc {
+func GinRecovery(Lg *zerolog.Logger, stack bool) gin.HandlerFunc {
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	return func(c *gin.Context) {
 		defer func() {

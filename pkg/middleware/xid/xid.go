@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func GinXid(logger zerolog.Logger) gin.HandlerFunc {
+func GinXid(logger *zerolog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		xid := xid.New().String()
 		logger.UpdateContext(func(c zerolog.Context) zerolog.Context {
