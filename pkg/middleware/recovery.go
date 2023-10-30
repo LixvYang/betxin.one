@@ -1,4 +1,4 @@
-package recovery
+package middleware
 
 import (
 	"net"
