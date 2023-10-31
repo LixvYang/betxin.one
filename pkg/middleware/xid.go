@@ -6,14 +6,44 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func GinXid(logger *zerolog.Logger) gin.HandlerFunc {
+const (
+	LoggerKey = "logger"
+	Xid       = "xid"
+)
+
+type OptionFunc func(*XidOptions)
+
+type XidOptions struct {
+	loggerKey string
+	xid       string
+}
+
+func WithLoggerKey(loggerKey string) OptionFunc {
+	return func(xo *XidOptions) {
+		xo.loggerKey = loggerKey
+	}
+}
+
+func WithXid(xid string) OptionFunc {
+	return func(xo *XidOptions) {
+		xo.xid = xid
+	}
+}
+
+func GinXid(logger *zerolog.Logger, ofs ...OptionFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		xidOptions := &XidOptions{LoggerKey, Xid}
+		for _, of := range ofs {
+			of(xidOptions)
+		}
+
 		xid := xid.New().String()
 		logger.UpdateContext(func(c zerolog.Context) zerolog.Context {
-			return c.Str("xid", xid)
+			return c.Str(xidOptions.xid, xid)
 		})
-		c.Header("xid", xid)
-		c.Set("logger", logger)
+
+		c.Header(xidOptions.xid, xid)
+		c.Set(xidOptions.loggerKey, logger)
 		c.Next()
 	}
 }

@@ -7,8 +7,7 @@ import (
 	"github.com/qiniu/qmgo"
 )
 
-type DbService struct {
-	
+type MongoService struct {
 }
 
 func Init() {
@@ -17,7 +16,7 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	cli, err := qmgo.Open(ctx, &qmgo.Config{Uri: "mongodb://localhost:27017", Database: "class", Coll: "user"})
+	// cli, err := qmgo.Open(ctx, &qmgo.Config{Uri: "mongodb://localhost:27017", Database: "class", Coll: "user"})
 
 	db := client.Database("class")
 	coll := db.Collection("user")

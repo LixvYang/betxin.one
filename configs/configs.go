@@ -16,9 +16,9 @@ type AppConfig struct {
 	MachineID int64  `mapstructure:"machine_id"`
 	Port      int    `mapstructure:"port"`
 
-	*LogConfig   `mapstructure:"log"`
-	*DbConfig    `mapstructure:"mysql"`
-	*RedisConfig `mapstructure:"redis"`
+	LogConfig   *LogConfig   `mapstructure:"log"`
+	DbConfig    *DbConfig    `mapstructure:"mysql"`
+	RedisConfig *RedisConfig `mapstructure:"redis"`
 }
 
 type DbConfig struct {
