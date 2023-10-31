@@ -16,6 +16,7 @@ import (
 func NewMySqlService() *MySQLService {
 	m := &MySQLService{}
 	if err := m.Init(); err != nil {
+		logger.Lg.Error().Err(err).Msgf("[NewMySqlService][m.Init()]")
 		panic(err)
 	}
 	m.UserModel = NewUserModel(m.db)

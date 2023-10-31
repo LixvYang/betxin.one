@@ -4,8 +4,16 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lixvyang/betxin.one/internal/model/db"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 )
+
+type BetxinHandler struct {
+	db *db.Database
+}
+
+func NewH()  {}
+
 
 type Response struct {
 	Code    int         `json:"code"`
