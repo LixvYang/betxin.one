@@ -1,8 +1,8 @@
-package user
+package topic
 
 import "github.com/gin-gonic/gin"
 
-func (u *UserHandler) Create(c *gin.Context) {
+func (t *TopicHandler) Create(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"hello": "world",
 	})

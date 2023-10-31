@@ -12,6 +12,8 @@ import (
 	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/lixvyang/betxin.one/pkg/middleware"
 	"github.com/rs/zerolog"
+
+	v1 "github.com/lixvyang/betxin.one/api/v1"
 )
 
 type Service struct {
@@ -56,6 +58,12 @@ func InitRouter() *gin.Engine {
 		middleware.GinLogger(&logger.Lg),
 		middleware.GinRecovery(&logger.Lg, true),
 	)
+
+	btxHandler := v1.NewBetxinHandler()
+	g := r.Group("/api/v1")
+	{
+		g.POST("/user", btxHandler.ITopicHandler.Create)
+	}
 
 	r.GET("/hello", func(c *gin.Context) {
 		xl := c.MustGet(consts.BetxinLoggerKey).(*zerolog.Logger)

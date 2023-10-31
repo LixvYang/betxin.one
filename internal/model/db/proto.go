@@ -9,9 +9,9 @@ type Database interface {
 }
 
 type User interface {
-	CheckUser(user_id string) int
+	CheckUser(userId string) int
 }
 
 func NewDatabse() Database {
-	return &mysql.MySQLService{}
+	return mysql.NewMySqlService()
 }

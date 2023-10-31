@@ -4,16 +4,27 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lixvyang/betxin.one/api/v1/topic"
+	"github.com/lixvyang/betxin.one/api/v1/user"
 	"github.com/lixvyang/betxin.one/internal/model/db"
+	"github.com/lixvyang/betxin.one/internal/model/redis"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 )
 
 type BetxinHandler struct {
-	db *db.Database
+	user.IUserHandler
+	topic.ITopicHandler
 }
 
-func NewH()  {}
+func NewBetxinHandler() *BetxinHandler {
+	db := db.NewDatabse()
+	rds := redis.NewIRedis()
 
+	return &BetxinHandler{
+		user.NewUserHandler(db, rds),
+		topic.NewUserHandler(db, rds),
+	}
+}
 
 type Response struct {
 	Code    int         `json:"code"`
