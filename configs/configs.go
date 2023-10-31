@@ -17,11 +17,14 @@ type AppConfig struct {
 	Port      int    `mapstructure:"port"`
 
 	LogConfig   *LogConfig   `mapstructure:"log"`
-	DbConfig    *DbConfig    `mapstructure:"mysql"`
+	MySQLConfig *MySQLConfig `mapstructure:"mysql"`
+	MongoConfig *MongoConfig `mapstructure:"mongo"`
 	RedisConfig *RedisConfig `mapstructure:"redis"`
 }
 
-type DbConfig struct {
+type MongoConfig struct{}
+
+type MySQLConfig struct {
 	Host         string `mapstructure:"host"`
 	User         string `mapstructure:"user"`
 	Password     string `mapstructure:"password"`

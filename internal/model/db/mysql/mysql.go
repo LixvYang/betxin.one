@@ -18,20 +18,22 @@ func NewMySqlService() *MySQLService {
 	if err := m.Init(); err != nil {
 		panic(err)
 	}
+	m.UserModel = NewUserModel(m.db)
 	return m
 }
 
 type MySQLService struct {
 	db *gorm.DB
+	UserModel
 }
 
 func (m *MySQLService) Init() error {
 	dns := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		configs.Conf.DbConfig.User,
-		configs.Conf.DbConfig.Password,
-		configs.Conf.DbConfig.Host,
-		configs.Conf.DbConfig.Port,
-		configs.Conf.DbConfig.DB,
+		configs.Conf.MySQLConfig.User,
+		configs.Conf.MySQLConfig.Password,
+		configs.Conf.MySQLConfig.Host,
+		configs.Conf.MySQLConfig.Port,
+		configs.Conf.MySQLConfig.DB,
 	)
 
 	var err error

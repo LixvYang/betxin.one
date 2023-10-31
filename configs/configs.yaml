@@ -27,6 +27,9 @@ mysql:
   max_open_conns: 200
   max_idel_conns: 50
 
+mongo:
+  host: "127.0.0.1"
+
 redis:
   host: "127.0.0.1"
   port: 6379
