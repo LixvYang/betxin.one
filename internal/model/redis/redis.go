@@ -14,7 +14,7 @@ var (
 )
 
 type RedisClient struct {
-	rds *redis.Client
+	Cli *redis.Client
 }
 
 func NewRedisClient() *RedisClient {
@@ -27,7 +27,7 @@ func NewRedisClient() *RedisClient {
 }
 
 func (r *RedisClient) Init() error {
-	r.rds = redis.NewClient(&redis.Options{
+	r.Cli = redis.NewClient(&redis.Options{
 		Addr:         fmt.Sprintf("%s:%d", configs.Conf.RedisConfig.Host, configs.Conf.RedisConfig.Port),
 		Password:     configs.Conf.RedisConfig.Password, // no password set
 		DB:           configs.Conf.RedisConfig.DB,       // use default DB
@@ -35,7 +35,7 @@ func (r *RedisClient) Init() error {
 		MinIdleConns: configs.Conf.RedisConfig.MinIdleConns,
 	})
 
-	res, err := r.rds.Ping(context.Background()).Result()
+	res, err := r.Cli.Ping(context.Background()).Result()
 	if err != nil {
 		logger.Lg.Panic().Err(err).Msg("redis ping error")
 		return err
@@ -45,5 +45,5 @@ func (r *RedisClient) Init() error {
 }
 
 func (r *RedisClient) Close() error {
-	return r.rds.Close()
+	return r.Cli.Close()
 }

@@ -5,7 +5,9 @@ const (
 	ERROR  = 500
 
 	// 绑定错误
-	ERROR_BIND = 0001
+	ERROR_BIND          = 0001
+	ERROR_AUTH          = 0002
+	ERROR_INVAILD_TOKEN = 0003
 
 	// ERROR_USERNAME_USED code= 1000... 用户模块的错误
 	ERROR_USERNAME_USED    = 1001
@@ -20,6 +22,7 @@ const (
 	ERROR_LIST_USER        = 1010
 	ERROR_DELETE_USER      = 1011
 	ERROR_GET_USER         = 1012
+	ERROR_OAUTH            = 1013
 
 	// code= 2000... 文章模块的错误
 	ERROR_ART_NOT_EXIST = 2001
@@ -51,6 +54,9 @@ var codeMsg = map[int]string{
 	SUCCSE:                 "OK",
 	ERROR:                  "FAIL",
 	ERROR_BIND:             "输入参数错误",
+	ERROR_AUTH:             "认证错误",
+	ERROR_INVAILD_TOKEN:    "token错误",
+	ERROR_OAUTH:            "oauth错误",
 	ERROR_USERNAME_USED:    "用户名已存在！",
 	ERROR_PASSWORD_WRONG:   "密码错误",
 	ERROR_USER_NOT_EXIST:   "用户不存在",

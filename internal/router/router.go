@@ -7,13 +7,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lixvyang/betxin.one/api/sd"
+	"github.com/lixvyang/betxin.one/api/v1/handler"
 	"github.com/lixvyang/betxin.one/configs"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/lixvyang/betxin.one/pkg/middleware"
-	"github.com/rs/zerolog"
-
-	v1 "github.com/lixvyang/betxin.one/api/v1"
 )
 
 type Service struct {
@@ -49,37 +48,26 @@ func (srv *Service) ListenAndServe() error {
 }
 
 func InitRouter() *gin.Engine {
-	r := gin.New()
+	e := gin.New()
 
-	r.Use(
-		middleware.GinXid(&logger.Lg,
-			middleware.WithLoggerKey(consts.BetxinLoggerKey),
-			middleware.WithXid(consts.BetxinXid)),
+	e.Use(
+		middleware.GinXid(&logger.Lg, middleware.WithLoggerKey(consts.LoggerKey)),
 		middleware.GinLogger(&logger.Lg),
 		middleware.GinRecovery(&logger.Lg, true),
 	)
 
-	btxHandler := v1.NewBetxinHandler()
-	g := r.Group("/api/v1")
+	btxHandler := handler.NewBetxinHandler()
+	betxinAPI := e.Group("/api/v1")
 	{
-		g.POST("/user", btxHandler.ITopicHandler.Create)
+		betxinAPI.POST("/user", btxHandler.IUserHandler.Create)
 	}
 
-	r.GET("/hello", func(c *gin.Context) {
-		xl := c.MustGet(consts.BetxinLoggerKey).(*zerolog.Logger)
-		xl.Info().Msg("Hello world")
+	{
+		betxinAPI.GET("/backend/health", sd.HealthCheck)
+		betxinAPI.GET("/backend/disk", sd.DiskCheck)
+		betxinAPI.GET("/backend/cpu", sd.CPUCheck)
+		betxinAPI.GET("/backend/ram", sd.RAMCheck)
+	}
 
-		c.JSON(200, gin.H{
-			"Hello": "World",
-		})
-	})
-
-	r.GET("/world", func(c *gin.Context) {
-		xl := c.MustGet(consts.BetxinLoggerKey).(zerolog.Logger)
-		xl.Info().Msg("Hello world")
-
-		panic("123")
-	})
-
-	return r
+	return e
 }

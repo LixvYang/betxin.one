@@ -1,6 +1,6 @@
 package consts
 
 const (
-	BetxinLoggerKey = "betxinKey"
-	BetxinXid       = "xid"
+	LoggerKey = "logger"
+	Xid       = "xid"
 )
