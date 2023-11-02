@@ -34,7 +34,7 @@ func (um *UserModel) CreateUser(user *model.User) int {
 	return errmsg.SUCCSE
 }
 
-func (um *UserModel) GetUserById(usedId string) (*model.User, int) {
+func (um *UserModel) GetUserByUid(usedId string) (*model.User, int) {
 	var user *model.User
 	if err := um.UserDB.Model(&user).Where("mixin_uuid = ?", usedId).First(&user).Error; err != nil {
 		return user, errmsg.ERROR

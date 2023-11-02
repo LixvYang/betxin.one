@@ -10,5 +10,4 @@ func (u *UserHandler) Create(c *gin.Context) {
 	v1.SendResponse(c, errmsg.SUCCSE, gin.H{
 		"Hello": "world",
 	})
-	return
 }

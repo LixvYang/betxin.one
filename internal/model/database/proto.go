@@ -13,7 +13,7 @@ type Database interface {
 
 type IUser interface {
 	CheckUser(uid string) int
-	GetUserById(uid string) (*model.User, int)
+	GetUserByUid(uid string) (*model.User, int)
 	CreateUser(user *model.User) int
 	DeleteUser(uid string) int
 	UpdateUser(user *model.User) int

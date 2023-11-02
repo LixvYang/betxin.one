@@ -43,6 +43,9 @@ func (uh *UserHandler) MixinOauth(c *gin.Context) {
 		return
 	}
 
+	// 先在自己的数据里找
+	// uh.db.GetUserByUid(req.)
+
 	authorizer := auth.New([]string{
 		"30aad5a5-e5f3-4824-9409-c2ff4152724e",
 	}, []string{

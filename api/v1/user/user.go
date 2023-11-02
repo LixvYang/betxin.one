@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/internal/model/database"
 	"github.com/lixvyang/betxin.one/internal/model/redis"
-	// "github.com/redis/go-redis/v9"
 )
 
 type UserHandler struct {
