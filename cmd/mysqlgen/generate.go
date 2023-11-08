@@ -7,6 +7,35 @@ autoCreateTime:milli
 autoUpdateTime:milli
 */
 
+/*
+
+func (t *Topic) BeforeCreate(tx *gorm.DB) error {
+	uuid, _ := uuid.NewV4()
+	t.Tid = uuid.String()
+	t.YesRatio = "50.00"
+	t.NoRatio = "50.00"
+	return nil
+}
+
+func (t *Topic) BeforeUpdate(tx *gorm.DB) error {
+	if t.IsStop || time.Now().After(time.UnixMicro(t.EndTime)) {
+		return errors.New("话题已经停止")
+	}
+	decimal.DivisionPrecision = 2
+	yesCnt, _ := decimal.NewFromString(t.YesCount)
+	totalCnt, err := decimal.NewFromString(t.TotalCount)
+	if err != nil {
+		return err
+	}
+	yesRatio := yesCnt.Div(totalCnt)
+	t.YesRatio = yesRatio.String()
+	t.NoRatio = decimal.NewFromInt(100).Sub(yesRatio).String()
+	return nil
+}
+
+
+*/
+
 import (
 	"fmt"
 	"os"

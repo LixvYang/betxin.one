@@ -23,21 +23,19 @@ type IUser interface {
 	UpdateUser(context.Context, *zerolog.Logger, *schema.User) error
 }
 
-type ITopic interface{}
-type IITopic interface {
+type ITopic interface {
 	StopTopic(context.Context, *zerolog.Logger, string) error
 	CheckTopicExist(context.Context, *zerolog.Logger, string) error
 	CheckTopicStop(context.Context, *zerolog.Logger, string) error
-	GetTopicTotalPrice(context.Context, *zerolog.Logger, string) (string, error)
-	GetTopicsByCid(context.Context, *zerolog.Logger, string) ([]*schema.Topic, int, error)
+	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, int, error)
 	GetTopicByTid(context.Context, *zerolog.Logger, string) (*schema.Topic, error)
 	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
 	DeleteTopic(context.Context, *zerolog.Logger, *schema.Topic) error
-	UpdateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
+	UpdateTopicInfo(context.Context, *zerolog.Logger, *schema.Topic) error
 	// TODO 字段
-	UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error
-	SearchTopic(context.Context, *zerolog.Logger, ...any)
-	ListTopics(context.Context, *zerolog.Logger)
+	// UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error
+	// SearchTopic(context.Context, *zerolog.Logger, ...any) ([]*schema.Topic, int, error)
+	// ListTopics(context.Context, *zerolog.Logger) ([]*schema.Topic, int, error)
 }
 
 func New(conf *configs.AppConfig) Database {

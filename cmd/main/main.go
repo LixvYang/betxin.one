@@ -9,6 +9,7 @@ import (
 	"github.com/lixvyang/betxin.one/configs"
 	"github.com/lixvyang/betxin.one/internal/router"
 	"github.com/lixvyang/betxin.one/pkg/logger"
+	"github.com/lixvyang/betxin.one/pkg/snowflake"
 	"github.com/rs/zerolog/log"
 )
 
@@ -23,9 +24,13 @@ func main() {
 	if err := configs.Init(configFile, conf); err != nil {
 		log.Error().Err(err).Msgf("[configs.Init] err: %+v", err)
 	}
-
 	log.Info().Any("conf", conf).Msg("init config succes")
 	logger.InitLogger(conf.LogConfig)
+
+	if err := snowflake.Init(conf.StartTime, conf.MachineID); err != nil {
+		logger.Lg.Panic().Err(err).Msg("[snowflake.Init] err")
+		panic(err)
+	}
 
 	srv := router.NewService(conf)
 

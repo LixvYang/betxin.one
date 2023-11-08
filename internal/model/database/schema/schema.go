@@ -19,8 +19,6 @@ type Topic struct {
 	Title         string `json:"title"`
 	Intro         string `json:"intro"`
 	Content       string `json:"content"`
-	YesRatio      string `json:"yes_ratio"`
-	NoRatio       string `json:"no_ratio"`
 	YesCount      string `json:"yes_count"`
 	NoCount       string `json:"no_count"`
 	TotalCount    string `json:"total_count"`
