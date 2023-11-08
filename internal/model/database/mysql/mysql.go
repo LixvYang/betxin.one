@@ -5,6 +5,10 @@ import (
 	"time"
 
 	"github.com/lixvyang/betxin.one/configs"
+	"github.com/lixvyang/betxin.one/internal/model/cache"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/query"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/topic"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/user"
 	"github.com/lixvyang/betxin.one/pkg/logger"
 
 	"gorm.io/driver/mysql"
@@ -13,30 +17,35 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-func NewMySqlService() *MySQLService {
+func NewMySqlService(conf *configs.AppConfig) *MySQLService {
 	m := &MySQLService{}
-	if err := m.Init(); err != nil {
+	if err := m.initDB(conf.MySQLConfig); err != nil {
 		logger.Lg.Error().Err(err).Msgf("[NewMySqlService][m.Init()]")
 		panic(err)
 	}
-	m.UserModel = NewUserModel(m.db)
+	cache := cache.New(conf.RedisConfig)
+	m.UserModel = user.NewUserModel(query.Q, cache)
+	m.TopicModel = topic.NewTopicModel(query.Q, cache)
 	return m
 }
 
 type MySQLService struct {
 	db *gorm.DB
-	UserModel
+	user.UserModel
+	topic.TopicModel
 }
 
-func (m *MySQLService) Init() error {
+func (m *MySQLService) initDB(conf *configs.MySQLConfig) error {
+
 	dns := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		configs.Conf.MySQLConfig.User,
-		configs.Conf.MySQLConfig.Password,
-		configs.Conf.MySQLConfig.Host,
-		configs.Conf.MySQLConfig.Port,
-		configs.Conf.MySQLConfig.DB,
+		conf.User,
+		conf.Password,
+		conf.Host,
+		conf.Port,
+		conf.DB,
 	)
 
+	// info, err := query.Use(m.db).Topic
 	var err error
 	m.db, err = gorm.Open(mysql.Open(dns), &gorm.Config{
 		// gorm日志模式：Warn
@@ -62,6 +71,7 @@ func (m *MySQLService) Init() error {
 	sqlDB.SetMaxIdleConns(1000)
 	sqlDB.SetMaxOpenConns(5000)
 	sqlDB.SetConnMaxLifetime(time.Hour / 2)
+	query.SetDefault(m.db)
 	return nil
 }
 

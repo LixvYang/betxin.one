@@ -1,23 +1,22 @@
 package handler
 
 import (
-	"github.com/lixvyang/betxin.one/api/v1/topic"
-	"github.com/lixvyang/betxin.one/api/v1/user"
-	"github.com/lixvyang/betxin.one/internal/model/database"
-	"github.com/lixvyang/betxin.one/internal/model/redis"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 )
 
-type BetxinHandler struct {
-	user.IUserHandler
-	topic.ITopicHandler
+type Response struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
-func NewBetxinHandler() *BetxinHandler {
-	db := database.NewDatabse()
-	rds := redis.NewRedisClient()
-
-	return &BetxinHandler{
-		user.NewUserHandler(db, rds),
-		topic.NewUserHandler(db, rds),
-	}
+func SendResponse(c *gin.Context, code int, data interface{}) {
+	c.JSON(http.StatusOK, Response{
+		Code:    code,
+		Message: errmsg.GetErrMsg(code),
+		Data:    data,
+	})
 }

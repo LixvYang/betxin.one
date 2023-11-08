@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/api/sd"
-	"github.com/lixvyang/betxin.one/api/v1/handler"
+	"github.com/lixvyang/betxin.one/api/v1/v1"
 	"github.com/lixvyang/betxin.one/configs"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/pkg/logger"
@@ -19,11 +19,11 @@ type Service struct {
 	server *http.Server
 }
 
-func NewService() *Service {
-	router := InitRouter()
+func NewService(conf *configs.AppConfig) *Service {
+	router := initRouter(conf)
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", configs.Conf.Port),
+		Addr:    fmt.Sprintf(":%d", conf.Port),
 		Handler: router,
 	}
 
@@ -47,7 +47,7 @@ func (srv *Service) ListenAndServe() error {
 	return srv.server.ListenAndServe()
 }
 
-func InitRouter() *gin.Engine {
+func initRouter(conf *configs.AppConfig) *gin.Engine {
 	e := gin.New()
 
 	e.Use(
@@ -56,17 +56,17 @@ func InitRouter() *gin.Engine {
 		middleware.GinRecovery(&logger.Lg, true),
 	)
 
-	btxHandler := handler.NewBetxinHandler()
-	betxinAPI := e.Group("/api/v1")
+	handler := v1.NewBetxinHandler(conf)
+	api := e.Group("/api/v1")
 	{
-		betxinAPI.POST("/user", btxHandler.IUserHandler.Create)
+		api.POST("/user", handler.IUserHandler.Create)
 	}
 
 	{
-		betxinAPI.GET("/backend/health", sd.HealthCheck)
-		betxinAPI.GET("/backend/disk", sd.DiskCheck)
-		betxinAPI.GET("/backend/cpu", sd.CPUCheck)
-		betxinAPI.GET("/backend/ram", sd.RAMCheck)
+		api.GET("/backend/health", sd.HealthCheck)
+		api.GET("/backend/disk", sd.DiskCheck)
+		api.GET("/backend/cpu", sd.CPUCheck)
+		api.GET("/backend/ram", sd.RAMCheck)
 	}
 
 	return e

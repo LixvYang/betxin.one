@@ -1,16 +1,18 @@
 package user
 
 import (
+	"context"
 	"fmt"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/gin-gonic/gin"
-	v1 "github.com/lixvyang/betxin.one/api/v1"
+	"github.com/lixvyang/betxin.one/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
-	"github.com/lixvyang/betxin.one/internal/model/database/model"
+	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/pkg/jwt"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/gin-gonic/gin"
 	"github.com/pandodao/passport-go/auth"
 	"github.com/pandodao/passport-go/eip4361"
 	"github.com/pandodao/passport-go/mvm"
@@ -33,13 +35,16 @@ func (uh *UserHandler) MixinOauth(c *gin.Context) {
 	var req SigninReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logger.Error().Int("errmsg", errmsg.ERROR_BIND).Msgf("bind args error: %+v", err)
-		v1.SendResponse(c, errmsg.ERROR_BIND, nil)
+		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
 		return
 	}
 
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
+	defer cancel()
+
 	if req.LoginMethod != "mixin_token" && req.LoginMethod != "mvm" {
 		logger.Error().Str("req.LoginMethod", req.LoginMethod).Msg("login_method invaild")
-		v1.SendResponse(c, errmsg.ERROR_OAUTH, nil)
+		handler.SendResponse(c, errmsg.ERROR_OAUTH, nil)
 		return
 	}
 
@@ -62,60 +67,61 @@ func (uh *UserHandler) MixinOauth(c *gin.Context) {
 		})
 		if err != nil {
 			logger.Error().Str("req.LoginMethod", req.LoginMethod).Msg("login_method invaild")
-			v1.SendResponse(c, errmsg.ERROR_OAUTH, nil)
+			handler.SendResponse(c, errmsg.ERROR_OAUTH, nil)
 			return
 		}
 
-		user := &model.User{
-			AvatarUrl:      userInfo.AvatarURL,
+		user := &schema.User{
+			AvatarURL:      userInfo.AvatarURL,
 			IdentityNumber: userInfo.IdentityNumber,
-			SessionId:      userInfo.SessionID,
-			Uid:            userInfo.UserID,
+			SessionID:      userInfo.SessionID,
+			UID:            userInfo.UserID,
 			FullName:       userInfo.FullName,
 			Biography:      userInfo.Biography,
 		}
 
-		code := uh.db.CheckUser(userInfo.UserID)
-		if code != errmsg.SUCCSE {
-			if code = uh.db.CreateUser(user); err != nil {
-				logger.Error().Int("code", code).Msg("[CheckUser][CreateUser] error")
-				v1.SendResponse(c, errmsg.ERROR_GET_USER, nil)
+		err = uh.storage.CheckUser(ctx, logger, userInfo.UserID)
+		if err != nil {
+			err = uh.storage.CreateUser(ctx, logger, user)
+			if err != nil {
+				logger.Error().Err(err).Msg("[CheckUser][CreateUser] error")
+				handler.SendResponse(c, errmsg.ERROR_GET_USER, nil)
 				return
 			}
 		} else {
-			code = uh.db.UpdateUser(user)
-			if code != errmsg.SUCCSE {
-				logger.Error().Int("code", code).Msg("[CheckUser][UpdateUser] error")
+			err = uh.storage.UpdateUser(ctx, logger, user)
+			if err != nil {
+				logger.Error().Err(err).Msg("[CheckUser][UpdateUser] error")
 			}
 		}
 
-		jwtToken, err := jwt.GenToken(user.Uid)
+		jwtToken, err := jwt.GenToken(user.UID)
 		if err != nil {
-			logger.Error().Err(err).Str("jwtToken", jwtToken).Int("code", code).Msg("[CheckUser][UpdateUser] error")
-			v1.SendResponse(c, errmsg.SUCCSE, nil)
+			logger.Error().Err(err).Str("jwtToken", jwtToken).Err(err).Msg("[CheckUser][UpdateUser] error")
+			handler.SendResponse(c, errmsg.SUCCSE, nil)
 			return
 		}
 
-		logger.Info().Str("uid", user.Uid).Msg("oauth success")
+		logger.Info().Str("uid", user.UID).Msg("oauth success")
 
-		v1.SendResponse(c, errmsg.SUCCSE, &SigninResp{
+		handler.SendResponse(c, errmsg.SUCCSE, &SigninResp{
 			Token: jwtToken,
 		})
 		return
 	case "mvm":
 		message, err := eip4361.Parse(req.SignedMsg)
 		if err != nil {
-			v1.SendResponse(c, errmsg.ERROR_AUTH, nil)
+			handler.SendResponse(c, errmsg.ERROR_AUTH, nil)
 			return
 		}
 
 		if err := message.Validate(time.Now()); err != nil {
-			v1.SendResponse(c, errmsg.ERROR_AUTH, nil)
+			handler.SendResponse(c, errmsg.ERROR_AUTH, nil)
 			return
 		}
 
 		if err := eip4361.Verify(message, req.Sign); err != nil {
-			v1.SendResponse(c, errmsg.ERROR_AUTH, nil)
+			handler.SendResponse(c, errmsg.ERROR_AUTH, nil)
 			return
 		}
 
@@ -123,16 +129,16 @@ func (uh *UserHandler) MixinOauth(c *gin.Context) {
 		jwtToken, code := uh.loginMvm(c, logger, message.Address)
 		if code != errmsg.SUCCSE {
 			logger.Error().Msgf("[uh.loginMvm] error")
-			v1.SendResponse(c, errmsg.ERROR, nil)
+			handler.SendResponse(c, errmsg.ERROR, nil)
 			return
 		}
 
-		v1.SendResponse(c, errmsg.SUCCSE, &SigninResp{
+		handler.SendResponse(c, errmsg.SUCCSE, &SigninResp{
 			Token: jwtToken,
 		})
 		return
 	default:
-		v1.SendResponse(c, errmsg.ERROR, nil)
+		handler.SendResponse(c, errmsg.ERROR, nil)
 		return
 	}
 }
@@ -158,23 +164,23 @@ func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey s
 		return "", errmsg.ERROR
 	}
 
-	user := &model.User{
-		IsMvmUser:  1,
-		Uid:        mvmUser.UserID,
+	user := &schema.User{
+		IsMvmUser:  true,
+		UID:        mvmUser.UserID,
 		FullName:   mvmUser.FullName,
 		Contract:   mvmUser.Contract,
 		PrivateKey: mvmUser.Key.PrivateKey,
-		ClientId:   mvmUser.Key.ClientID,
-		SessionId:  mvmUser.Key.SessionID,
+		ClientID:   mvmUser.Key.ClientID,
+		SessionID:  mvmUser.Key.SessionID,
 	}
 	logger.Info().Any("user", user).Msg("userInfo")
-	code := uh.db.CreateUser(user)
-	if code != errmsg.SUCCSE {
-		logger.Error().Msgf("[loginMvm][db.CreateUser(user)] err")
+	err = uh.storage.CreateUser(context.Background(), logger, user)
+	if err != nil {
+		logger.Error().Err(err).Msgf("[loginMvm][db.CreateUser(user)] err")
 		return "", errmsg.ERROR
 	}
 
-	jwtToken, err := jwt.GenToken(user.Uid)
+	jwtToken, err := jwt.GenToken(user.UID)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][jwt.GenToken] err")
 		return "", errmsg.ERROR

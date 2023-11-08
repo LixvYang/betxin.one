@@ -3,18 +3,15 @@ package topic
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/internal/model/database"
-	"github.com/lixvyang/betxin.one/internal/model/redis"
 )
 
 type TopicHandler struct {
-	db    database.ITopic
-	redis *redis.RedisClient
+	storage database.ITopic
 }
 
-func NewUserHandler(db database.ITopic, rds *redis.RedisClient) ITopicHandler {
+func NewHandler(db database.ITopic) ITopicHandler {
 	return &TopicHandler{
-		db:    db,
-		redis: rds,
+		storage: db,
 	}
 }
 

@@ -23,7 +23,7 @@ var Lg zerolog.Logger
 //
 // The output log file will be located at /var/log/service-xyz/service-xyz.log and
 // will be rolled according to configuration set.
-func InitLogger(config configs.LogConfig) {
+func InitLogger(config *configs.LogConfig) {
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 
@@ -83,7 +83,7 @@ func InitLogger(config configs.LogConfig) {
 		Msg("logging configured")
 }
 
-func newRollingFile(config configs.LogConfig) io.Writer {
+func newRollingFile(config *configs.LogConfig) io.Writer {
 	if err := os.MkdirAll(config.Directory, 0744); err != nil {
 		Lg.Error().Err(err).Str("path", config.Directory).Msg("can't create log directory")
 		return nil

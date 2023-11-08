@@ -19,14 +19,15 @@ var (
 
 func main() {
 	flag.StringVar(&configFile, "f", "./configs/configs.yaml", "config file")
-	if err := configs.Init(configFile); err != nil {
+	conf := &configs.AppConfig{}
+	if err := configs.Init(configFile, conf); err != nil {
 		log.Error().Err(err).Msgf("[configs.Init] err: %+v", err)
 	}
 
-	log.Info().Any("Conf", configs.Conf).Msg("初始化配置成功")
-	logger.InitLogger(*configs.Conf.LogConfig)
+	log.Info().Any("conf", conf).Msg("init config succes")
+	logger.InitLogger(conf.LogConfig)
 
-	srv := router.NewService()
+	srv := router.NewService(conf)
 
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
 	signalType := <-signalChan

@@ -6,8 +6,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var Conf = new(AppConfig)
-
 type AppConfig struct {
 	Name      string `mapstructure:"name"`
 	Mode      string `mapstructure:"mode"`
@@ -58,7 +56,7 @@ type LogConfig struct {
 	Compress              bool   `mapstructure:"compress"`
 }
 
-func Init(filePath string) (err error) {
+func Init(filePath string, conf *AppConfig) (err error) {
 	viper.SetConfigFile(filePath)
 
 	err = viper.ReadInConfig() // 读取配置信息
@@ -69,7 +67,7 @@ func Init(filePath string) (err error) {
 	}
 
 	// 把读取到的配置信息反序列化到 Conf 变量中
-	if err = viper.Unmarshal(Conf); err != nil {
+	if err = viper.Unmarshal(conf); err != nil {
 		log.Panic().Msgf("viper.Unmarshal failed, err:%v\n", err)
 		return err
 	}
@@ -77,7 +75,7 @@ func Init(filePath string) (err error) {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(_ fsnotify.Event) {
 		log.Info().Msg("配置文件修改了")
-		if err := viper.Unmarshal(Conf); err != nil {
+		if err := viper.Unmarshal(conf); err != nil {
 			log.Info().Msgf("viper.Unmarshal failed, err:%v\n", err)
 		}
 	})

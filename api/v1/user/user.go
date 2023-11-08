@@ -2,19 +2,18 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/lixvyang/betxin.one/internal/model/cache"
 	"github.com/lixvyang/betxin.one/internal/model/database"
-	"github.com/lixvyang/betxin.one/internal/model/redis"
 )
 
 type UserHandler struct {
-	db    database.IUser
-	redis *redis.RedisClient
+	storage database.IUser
+	redis   *cache.Cache
 }
 
-func NewUserHandler(db database.IUser, rds *redis.RedisClient) IUserHandler {
+func NewHandler(db database.IUser) IUserHandler {
 	return &UserHandler{
-		db:    db,
-		redis: rds,
+		storage: db,
 	}
 }
 
