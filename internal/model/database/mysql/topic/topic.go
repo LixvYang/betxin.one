@@ -9,6 +9,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/internal/model/cache"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/query"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/sqlmodel"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -70,7 +71,6 @@ func (um *TopicModel) GetTopicsByCid(ctx context.Context, logger *zerolog.Logger
 		return nil, 0, err
 	}
 	copier.Copy(topics, sqlTopics)
-
 	return topics, len(topics), nil
 }
 
@@ -94,18 +94,95 @@ func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger,
 	return topic, nil
 }
 
-func (um *TopicModel) CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error {
+func (um *TopicModel) CreateTopic(ctx context.Context, logger *zerolog.Logger, topic *schema.Topic) error {
+	var sqlTopic sqlmodel.Topic
+	copier.Copy(&sqlTopic, topic)
+	return um.db.Topic.WithContext(ctx).Create(&sqlTopic)
+}
+
+func (um *TopicModel) DeleteTopic(ctx context.Context, logger *zerolog.Logger, tid string) (err error) {
+	// 延时双删除
+	defer func() {
+		go func() {
+			time.Sleep(time.Second * 3)
+			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, tid)
+		}()
+	}()
+	// 缓存找
+	_, err = um.getTopicinfoFromCache(ctx, logger, tid)
+	if err != nil {
+		logger.Info().Msgf("tid: %s, not found in cache", tid)
+	} else {
+		// 删缓存
+		um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, tid)
+	}
+
+	// 数据库找
+	_, err = um.db.User.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Last()
+	if err != nil {
+		logger.Info().Msgf("tid: %s, not found in mysql", tid)
+		return
+	}
+	// 数据库删除数据
+	_, err = um.db.User.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Delete()
+	if err != nil {
+		logger.Info().Msgf("tid: %s, delete failed in mysql", tid)
+		return
+	}
+
 	return nil
 }
 
-func (um *TopicModel) DeleteTopic(context.Context, *zerolog.Logger, *schema.Topic) error {
+func (um *TopicModel) UpdateTopicInfo(ctx context.Context, logger *zerolog.Logger, topic *schema.Topic) error {
+	// 删除缓存
+	um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, topic.Tid)
+
+	// 延时双删
+	defer func() {
+		go func() {
+			time.Sleep(time.Second * 3)
+			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, topic.Tid)
+		}()
+	}()
+
+	// 更新数据
+	um.db.Transaction(func(tx *query.Query) error {
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Info().Any("recover", r).Send()
+			}
+		}()
+
+		_, err := query.Topic.WithContext(ctx).
+			Where(query.Topic.Tid.Eq(topic.Tid)).
+			Updates(sqlmodel.Topic{
+				Cid:           topic.Cid,
+				Title:         topic.Title,
+				Intro:         topic.Intro,
+				Content:       topic.Content,
+				YesRatio:      topic.YesCount,
+				NoRatio:       topic.NoCount,
+				YesCount:      topic.YesCount,
+				NoCount:       topic.NoCount,
+				TotalCount:    topic.TotalCount,
+				CollectCount:  topic.CollectCount,
+				ReadCount:     topic.ReadCount,
+				ImgURL:        topic.ImgURL,
+				IsStop:        topic.IsStop,
+				RefundEndTime: topic.RefundEndTime,
+				EndTime:       topic.EndTime,
+			})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	return nil
 }
 
-func (um *TopicModel) UpdateTopicInfo(context.Context, *zerolog.Logger, *schema.Topic) error {
-	return nil
-}
-
+// TODO 更新话题价格应该在一个事务中进行
+// 并且涉及转账支付业务
 func (um *TopicModel) UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error {
 	return nil
 }

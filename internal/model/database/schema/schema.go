@@ -2,7 +2,7 @@ package schema
 
 type User struct {
 	IdentityNumber string `json:"identity_number"`
-	UID            string `json:"uid"`
+	UID            string `json:"uid" copier:"-"`
 	FullName       string `json:"full_name"`
 	AvatarURL      string `json:"avatar_url"`
 	SessionID      string `json:"session_id"`
@@ -14,11 +14,13 @@ type User struct {
 }
 
 type Topic struct {
-	Tid           string `json:"tid"`
+	Tid           string `json:"tid" copier:"-"`
 	Cid           int64  `json:"cid"`
 	Title         string `json:"title"`
 	Intro         string `json:"intro"`
 	Content       string `json:"content"`
+	YesRatio      string `json:"yes_ratio"`
+	NoRatio       string `json:"no_ratio"`
 	YesCount      string `json:"yes_count"`
 	NoCount       string `json:"no_count"`
 	TotalCount    string `json:"total_count"`

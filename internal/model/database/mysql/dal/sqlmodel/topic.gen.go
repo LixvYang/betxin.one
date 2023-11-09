@@ -59,6 +59,11 @@ func (t *Topic) BeforeUpdate(tx *gorm.DB) error {
 	return nil
 }
 
+func (t *Topic) AfterFind(tx *gorm.DB) (err error) {
+	t.ReadCount++	
+	return
+}
+
 // TableName Topic's table name
 func (*Topic) TableName() string {
 	return TableNameTopic

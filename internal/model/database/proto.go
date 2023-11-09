@@ -30,7 +30,7 @@ type ITopic interface {
 	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, int, error)
 	GetTopicByTid(context.Context, *zerolog.Logger, string) (*schema.Topic, error)
 	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
-	DeleteTopic(context.Context, *zerolog.Logger, *schema.Topic) error
+	DeleteTopic(context.Context, *zerolog.Logger, string) error
 	UpdateTopicInfo(context.Context, *zerolog.Logger, *schema.Topic) error
 	// TODO 字段
 	// UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error

@@ -30,22 +30,10 @@ func NewUserModel(query *query.Query, cache *cache.Cache) UserModel {
 
 // CheckUser 查询用户是否存在
 func (um *UserModel) CheckUser(ctx context.Context, logger *zerolog.Logger, uid string) (err error) {
-	user := new(schema.User)
-	user, err = um.getUserinfoFromCache(ctx, logger, uid)
+	_, err = um.GetUserByUid(ctx, logger, uid)
 	if err != nil {
-		logger.Info().Msgf("uid: %s, not found in cache", uid)
-	} else {
-		// 找到了
-		return nil
-	}
-
-	sqlUser, err := um.db.User.WithContext(ctx).Where(query.User.UID.Eq(uid)).Last()
-	if err != nil {
-		logger.Info().Msgf("uid: %s, not found in mysql", uid)
 		return err
 	}
-	copier.Copy(user, sqlUser)
-	go um.encodeUserInfoToCache(ctx, logger, user)
 	return nil
 }
 
@@ -73,13 +61,13 @@ func (um *UserModel) GetUserByUid(ctx context.Context, logger *zerolog.Logger, u
 	if err != nil {
 		logger.Info().Msgf("uid: %s, not found in cache", uid)
 	} else {
-		return user, err
+		return user, nil
 	}
 	// 数据库找
 	sqlUser, err := um.db.User.WithContext(ctx).Where(query.User.UID.Eq(uid)).Last()
 	if err != nil {
 		logger.Info().Msgf("uid: %s, not found in mysql", uid)
-		return nil, err
+		return
 	}
 	copier.Copy(sqlUser, user)
 
