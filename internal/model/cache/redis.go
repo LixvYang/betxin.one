@@ -23,8 +23,8 @@ func New(conf *configs.RedisConfig) *Cache {
 	cache := &Cache{}
 	cache.cli = redis.NewClient(&redis.Options{
 		Addr:         fmt.Sprintf("%s:%d", conf.Host, conf.Port),
-		Password:     conf.Password, // no password set
-		DB:           conf.DB,       // use default DB
+		Password:     conf.Password,
+		DB:           conf.DB,
 		PoolSize:     conf.PoolSize,
 		MinIdleConns: conf.MinIdleConns,
 	})

@@ -30,7 +30,7 @@ type SigninResp struct {
 	Token string `json:"token"`
 }
 
-func (uh *UserHandler) MixinOauth(c *gin.Context) {
+func (uh *UserHandler) Connect(c *gin.Context) {
 	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
 	var req SigninReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -48,9 +48,6 @@ func (uh *UserHandler) MixinOauth(c *gin.Context) {
 		return
 	}
 
-	// 先在自己的数据里找
-	// uh.db.GetUserByUid(req.)
-
 	authorizer := auth.New([]string{
 		"30aad5a5-e5f3-4824-9409-c2ff4152724e",
 	}, []string{
@@ -60,13 +57,12 @@ func (uh *UserHandler) MixinOauth(c *gin.Context) {
 
 	switch req.LoginMethod {
 	case "mixin_token":
-		// 2. 访问用户信息
 		userInfo, err := authorizer.Authorize(c, &auth.AuthorizationParams{
 			Method:     auth.AuthMethodMixinToken,
 			MixinToken: req.MixinToken,
 		})
 		if err != nil {
-			logger.Error().Str("req.LoginMethod", req.LoginMethod).Msg("login_method invaild")
+			logger.Error().Err(err).Str("req.LoginMethod", req.LoginMethod).Msg("login_method request user info failed")
 			handler.SendResponse(c, errmsg.ERROR_OAUTH, nil)
 			return
 		}

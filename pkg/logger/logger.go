@@ -7,13 +7,28 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/lixvyang/betxin.one/configs"
 	"github.com/natefinch/lumberjack"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
 )
 
 var Lg zerolog.Logger
+
+
+// Configuration for logging
+type LogConfig struct {
+	ConsoleLoggingEnabled bool   `mapstructure:"console_logging_enabled"`
+	EncodeLogsAsJson      bool   `mapstructure:"encode_logs_as_json"`
+	FileLoggingEnabled    bool   `mapstructure:"file_logging_enabled"`
+	Directory             string `mapstructure:"directory"`
+	Filename              string `mapstructure:"filename"`
+	MaxSize               int    `mapstructure:"max_size"`
+	MaxBackups            int    `mapstructure:"max_backups"`
+	MaxAge                int    `mapstructure:"max_age"`
+	Level                 int    `mapstructure:"level"`
+	LocalTime             bool   `mapstructure:"local_time"`
+	Compress              bool   `mapstructure:"compress"`
+}
 
 // Configure sets up the logging framework
 //
@@ -23,7 +38,7 @@ var Lg zerolog.Logger
 //
 // The output log file will be located at /var/log/service-xyz/service-xyz.log and
 // will be rolled according to configuration set.
-func InitLogger(config *configs.LogConfig) {
+func InitLogger(config *LogConfig) {
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 
@@ -83,7 +98,7 @@ func InitLogger(config *configs.LogConfig) {
 		Msg("logging configured")
 }
 
-func newRollingFile(config *configs.LogConfig) io.Writer {
+func newRollingFile(config *LogConfig) io.Writer {
 	if err := os.MkdirAll(config.Directory, 0744); err != nil {
 		Lg.Error().Err(err).Str("path", config.Directory).Msg("can't create log directory")
 		return nil

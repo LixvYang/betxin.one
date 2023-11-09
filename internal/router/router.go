@@ -59,7 +59,7 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 	handler := v1.NewBetxinHandler(conf)
 	api := e.Group("/api/v1")
 	{
-		api.POST("/user", handler.IUserHandler.Create)
+		api.POST("/connect", handler.IUserHandler.Connect)
 	}
 
 	{

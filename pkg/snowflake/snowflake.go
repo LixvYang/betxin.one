@@ -14,7 +14,7 @@ func Init(startTime string, machineID int64) (err error) {
 	if err != nil {
 		return
 	}
-	sf.Epoch = st.UnixNano() / 1000000
+	sf.Epoch = st.UnixNano() / 1e6
 	node, err = sf.NewNode(machineID)
 	return
 }

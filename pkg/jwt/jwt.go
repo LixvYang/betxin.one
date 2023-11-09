@@ -8,7 +8,7 @@ import (
 
 const TokenExpireDuration = time.Hour * 2
 
-var mySecret = []byte("123456")
+var MySecret = []byte("123456")
 
 type MyClaims struct {
 	Uid                  string `json:"uid"`
@@ -26,14 +26,14 @@ func GenToken(uid string) (string, error) {
 	}
 	// 使用HS256签名算法
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	s, err := t.SignedString(mySecret)
+	s, err := t.SignedString(MySecret)
 
 	return s, err
 }
 
 func ParseJwt(tokenstring string) (*MyClaims, error) {
 	t, err := jwt.ParseWithClaims(tokenstring, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(mySecret), nil
+		return []byte(MySecret), nil
 	})
 
 	if claims, ok := t.Claims.(*MyClaims); ok && t.Valid {

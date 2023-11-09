@@ -4,7 +4,7 @@ const (
 	SUCCSE = 200
 	ERROR  = 500
 
-	// 绑定错误
+	// 绑定参数错误
 	ERROR_BIND          = 0001
 	ERROR_AUTH          = 0002
 	ERROR_INVAILD_TOKEN = 0003

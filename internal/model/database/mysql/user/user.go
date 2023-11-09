@@ -67,7 +67,7 @@ func (um *UserModel) GetUserByUid(ctx context.Context, logger *zerolog.Logger, u
 	sqlUser, err := um.db.User.WithContext(ctx).Where(query.User.UID.Eq(uid)).Last()
 	if err != nil {
 		logger.Info().Msgf("uid: %s, not found in mysql", uid)
-		return
+		return nil, err
 	}
 	copier.Copy(sqlUser, user)
 

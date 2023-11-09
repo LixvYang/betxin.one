@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/jinzhu/copier"
 	"github.com/lixvyang/betxin.one/configs"
 	"github.com/lixvyang/betxin.one/internal/router"
 	"github.com/lixvyang/betxin.one/pkg/logger"
@@ -25,7 +26,10 @@ func main() {
 		log.Error().Err(err).Msgf("[configs.Init] err: %+v", err)
 	}
 	log.Info().Any("conf", conf).Msg("init config succes")
-	logger.InitLogger(conf.LogConfig)
+
+	logConf := new(logger.LogConfig)
+	copier.Copy(logConf, conf.LogConfig)
+	logger.InitLogger(logConf)
 
 	if err := snowflake.Init(conf.StartTime, conf.MachineID); err != nil {
 		logger.Lg.Panic().Err(err).Msg("[snowflake.Init] err")
