@@ -21,7 +21,7 @@ var (
 
 func main() {
 	flag.StringVar(&configFile, "f", "./configs/configs.yaml", "config file")
-	conf := &configs.AppConfig{}
+	conf := new(configs.AppConfig)
 	if err := configs.Init(configFile, conf); err != nil {
 		log.Error().Err(err).Msgf("[configs.Init] err: %+v", err)
 	}
@@ -33,7 +33,6 @@ func main() {
 
 	if err := snowflake.Init(conf.StartTime, conf.MachineID); err != nil {
 		logger.Lg.Panic().Err(err).Msg("[snowflake.Init] err")
-		panic(err)
 	}
 
 	srv := router.NewService(conf)

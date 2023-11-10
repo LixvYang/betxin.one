@@ -60,7 +60,7 @@ func (t *Topic) BeforeUpdate(tx *gorm.DB) error {
 }
 
 func (t *Topic) AfterFind(tx *gorm.DB) (err error) {
-	t.ReadCount++	
+	t.ReadCount++
 	return
 }
 

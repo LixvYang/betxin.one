@@ -14,7 +14,6 @@ import (
 
 var Lg zerolog.Logger
 
-
 // Configuration for logging
 type LogConfig struct {
 	ConsoleLoggingEnabled bool   `mapstructure:"console_logging_enabled"`
