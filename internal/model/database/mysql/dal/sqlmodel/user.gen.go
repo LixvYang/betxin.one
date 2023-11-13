@@ -8,7 +8,7 @@ const TableNameUser = "user"
 
 // User mapped from table <user>
 type User struct {
-	ID             int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	ID             int64  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
 	IdentityNumber string `gorm:"column:identity_number;not null" json:"identity_number"`
 	UID            string `gorm:"column:uid;not null" json:"uid"`
 	FullName       string `gorm:"column:full_name" json:"full_name"`
@@ -19,8 +19,8 @@ type User struct {
 	ClientID       string `gorm:"column:client_id" json:"client_id"`
 	Contract       string `gorm:"column:contract" json:"contract"`
 	IsMvmUser      bool   `gorm:"column:is_mvm_user" json:"is_mvm_user"`
-	CreatedAt      int64  `gorm:"column:created_at;not null;autoCreateTime:milli" json:"created_at"`
-	UpdatedAt      int64  `gorm:"column:updated_at;not null;autoUpdateTime:milli" json:"updated_at"`
+	CreatedAt      int64  `gorm:"column:created_at;not null" json:"created_at"`
+	UpdatedAt      int64  `gorm:"column:updated_at;not null" json:"updated_at"`
 }
 
 // TableName User's table name

@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	LoggerKey = "logger"
-	Xid       = "xid"
+	defaultloggerKey = "logger"
+	defaultXid       = "xid"
 )
 
 type OptionFunc func(*XidOptions)
@@ -18,13 +18,13 @@ type XidOptions struct {
 	xid       string
 }
 
-func WithLoggerKey(loggerKey string) OptionFunc {
+func LoggerKey(loggerKey string) OptionFunc {
 	return func(xo *XidOptions) {
 		xo.loggerKey = loggerKey
 	}
 }
 
-func WithXid(xid string) OptionFunc {
+func Xid(xid string) OptionFunc {
 	return func(xo *XidOptions) {
 		xo.xid = xid
 	}
@@ -32,7 +32,7 @@ func WithXid(xid string) OptionFunc {
 
 func GinXid(logger *zerolog.Logger, ofs ...OptionFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		xidOptions := &XidOptions{LoggerKey, Xid}
+		xidOptions := &XidOptions{defaultloggerKey, defaultXid}
 		for _, of := range ofs {
 			of(xidOptions)
 		}

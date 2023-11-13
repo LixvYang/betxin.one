@@ -16,39 +16,69 @@ import (
 )
 
 var (
-	Q     = new(Query)
-	Topic *topic
-	User  *user
+	Q             = new(Query)
+	Category      *category
+	Collect       *collect
+	Message       *message
+	Refund        *refund
+	Snapshot      *snapshot
+	Topic         *topic
+	TopicPurchase *topicPurchase
+	User          *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	Category = &Q.Category
+	Collect = &Q.Collect
+	Message = &Q.Message
+	Refund = &Q.Refund
+	Snapshot = &Q.Snapshot
 	Topic = &Q.Topic
+	TopicPurchase = &Q.TopicPurchase
 	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:    db,
-		Topic: newTopic(db, opts...),
-		User:  newUser(db, opts...),
+		db:            db,
+		Category:      newCategory(db, opts...),
+		Collect:       newCollect(db, opts...),
+		Message:       newMessage(db, opts...),
+		Refund:        newRefund(db, opts...),
+		Snapshot:      newSnapshot(db, opts...),
+		Topic:         newTopic(db, opts...),
+		TopicPurchase: newTopicPurchase(db, opts...),
+		User:          newUser(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Topic topic
-	User  user
+	Category      category
+	Collect       collect
+	Message       message
+	Refund        refund
+	Snapshot      snapshot
+	Topic         topic
+	TopicPurchase topicPurchase
+	User          user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:    db,
-		Topic: q.Topic.clone(db),
-		User:  q.User.clone(db),
+		db:            db,
+		Category:      q.Category.clone(db),
+		Collect:       q.Collect.clone(db),
+		Message:       q.Message.clone(db),
+		Refund:        q.Refund.clone(db),
+		Snapshot:      q.Snapshot.clone(db),
+		Topic:         q.Topic.clone(db),
+		TopicPurchase: q.TopicPurchase.clone(db),
+		User:          q.User.clone(db),
 	}
 }
 
@@ -62,21 +92,39 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:    db,
-		Topic: q.Topic.replaceDB(db),
-		User:  q.User.replaceDB(db),
+		db:            db,
+		Category:      q.Category.replaceDB(db),
+		Collect:       q.Collect.replaceDB(db),
+		Message:       q.Message.replaceDB(db),
+		Refund:        q.Refund.replaceDB(db),
+		Snapshot:      q.Snapshot.replaceDB(db),
+		Topic:         q.Topic.replaceDB(db),
+		TopicPurchase: q.TopicPurchase.replaceDB(db),
+		User:          q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Topic ITopicDo
-	User  IUserDo
+	Category      ICategoryDo
+	Collect       ICollectDo
+	Message       IMessageDo
+	Refund        IRefundDo
+	Snapshot      ISnapshotDo
+	Topic         ITopicDo
+	TopicPurchase ITopicPurchaseDo
+	User          IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Topic: q.Topic.WithContext(ctx),
-		User:  q.User.WithContext(ctx),
+		Category:      q.Category.WithContext(ctx),
+		Collect:       q.Collect.WithContext(ctx),
+		Message:       q.Message.WithContext(ctx),
+		Refund:        q.Refund.WithContext(ctx),
+		Snapshot:      q.Snapshot.WithContext(ctx),
+		Topic:         q.Topic.WithContext(ctx),
+		TopicPurchase: q.TopicPurchase.WithContext(ctx),
+		User:          q.User.WithContext(ctx),
 	}
 }
 

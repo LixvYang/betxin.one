@@ -10,7 +10,6 @@ import (
 	"github.com/lixvyang/betxin.one/api/sd"
 	"github.com/lixvyang/betxin.one/api/v1/v1"
 	"github.com/lixvyang/betxin.one/configs"
-	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/lixvyang/betxin.one/pkg/middleware"
 )
@@ -51,15 +50,15 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 	e := gin.New()
 
 	e.Use(
-		middleware.GinXid(&logger.Lg, middleware.WithLoggerKey(consts.LoggerKey)),
+		middleware.GinXid(&logger.Lg),
 		middleware.GinLogger(&logger.Lg),
 		middleware.GinRecovery(&logger.Lg, true),
 	)
 
-	handler := v1.NewBetxinHandler(conf)
+	h := v1.NewBetxinHandler(conf)
 	api := e.Group("/api/v1")
 	{
-		api.POST("/connect", handler.IUserHandler.Connect)
+		api.POST("/connect", h.IUserHandler.Connect)
 	}
 
 	{

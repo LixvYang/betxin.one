@@ -3,6 +3,7 @@ package topic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -27,14 +28,12 @@ func NewTopicModel(query *query.Query, cache *cache.Cache) TopicModel {
 	}
 }
 
-func (um *TopicModel) StopTopic(ctx context.Context, logger *zerolog.Logger, tid string) error {
+func (um *TopicModel) StopTopic(ctx context.Context, logger *zerolog.Logger, tid int64) error {
 	// 删除话题缓存
-	um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, tid)
+	um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 	defer func() {
-		go func() {
-			time.Sleep(time.Second / 2)
-			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, tid)
-		}()
+		time.Sleep(time.Second >> 1)
+		um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 	}()
 
 	_, err := um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Update(query.Topic.IsStop, true)
@@ -45,7 +44,7 @@ func (um *TopicModel) StopTopic(ctx context.Context, logger *zerolog.Logger, tid
 	return nil
 }
 
-func (um *TopicModel) CheckTopicExist(ctx context.Context, logger *zerolog.Logger, tid string) error {
+func (um *TopicModel) CheckTopicExist(ctx context.Context, logger *zerolog.Logger, tid int64) error {
 	_, err := um.GetTopicByTid(ctx, logger, tid)
 	if err != nil {
 		return err
@@ -53,7 +52,7 @@ func (um *TopicModel) CheckTopicExist(ctx context.Context, logger *zerolog.Logge
 	return nil
 }
 
-func (um *TopicModel) CheckTopicStop(ctx context.Context, logger *zerolog.Logger, tid string) error {
+func (um *TopicModel) CheckTopicStop(ctx context.Context, logger *zerolog.Logger, tid int64) error {
 	topic, err := um.GetTopicByTid(ctx, logger, tid)
 	if err != nil {
 		return err
@@ -74,17 +73,17 @@ func (um *TopicModel) GetTopicsByCid(ctx context.Context, logger *zerolog.Logger
 	return topics, len(topics), nil
 }
 
-func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger, tid string) (topic *schema.Topic, err error) {
+func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger, tid int64) (topic *schema.Topic, err error) {
 	topic = new(schema.Topic)
 	topic, err = um.getTopicinfoFromCache(ctx, logger, tid)
 	if err != nil {
-		logger.Info().Msgf("tid: %s, not found in cache", tid)
+		logger.Info().Msgf("tid: %d, not found in cache", tid)
 	} else {
 		return topic, err
 	}
 	sqlTopic, err := um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Last()
 	if err != nil {
-		logger.Info().Msgf("tid: %s, not found in mysql", tid)
+		logger.Info().Msgf("tid: %d, not found in mysql", tid)
 		return nil, err
 	}
 	copier.Copy(sqlTopic, topic)
@@ -100,33 +99,33 @@ func (um *TopicModel) CreateTopic(ctx context.Context, logger *zerolog.Logger, t
 	return um.db.Topic.WithContext(ctx).Create(&sqlTopic)
 }
 
-func (um *TopicModel) DeleteTopic(ctx context.Context, logger *zerolog.Logger, tid string) (err error) {
+func (um *TopicModel) DeleteTopic(ctx context.Context, logger *zerolog.Logger, tid int64) (err error) {
 	// 延时双删除
 	defer func() {
 		go func() {
-			time.Sleep(time.Second * 3)
-			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, tid)
+			time.Sleep(time.Second >> 1)
+			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 		}()
 	}()
 	// 缓存找
 	_, err = um.getTopicinfoFromCache(ctx, logger, tid)
 	if err != nil {
-		logger.Info().Msgf("tid: %s, not found in cache", tid)
+		logger.Info().Msgf("tid: %d, not found in cache", tid)
 	} else {
 		// 删缓存
-		um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, tid)
+		um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 	}
 
 	// 数据库找
 	_, err = um.db.User.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Last()
 	if err != nil {
-		logger.Info().Msgf("tid: %s, not found in mysql", tid)
+		logger.Info().Msgf("tid: %d, not found in mysql", tid)
 		return
 	}
 	// 数据库删除数据
 	_, err = um.db.User.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Delete()
 	if err != nil {
-		logger.Info().Msgf("tid: %s, delete failed in mysql", tid)
+		logger.Info().Msgf("tid: %d, delete failed in mysql", tid)
 		return
 	}
 
@@ -135,13 +134,13 @@ func (um *TopicModel) DeleteTopic(ctx context.Context, logger *zerolog.Logger, t
 
 func (um *TopicModel) UpdateTopicInfo(ctx context.Context, logger *zerolog.Logger, topic *schema.Topic) error {
 	// 删除缓存
-	um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, topic.Tid)
+	um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", topic.Tid))
 
 	// 延时双删
 	defer func() {
 		go func() {
-			time.Sleep(time.Second * 3)
-			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, topic.Tid)
+			time.Sleep(time.Second >> 1)
+			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", topic.Tid))
 		}()
 	}()
 
@@ -187,20 +186,30 @@ func (um *TopicModel) UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *s
 	return nil
 }
 
+func (um *TopicModel) ListTopicByCid(ctx context.Context, logger *zerolog.Logger, cid int64, preId int64, pageSize int64) (topics []*schema.Topic, err error) {
+	sqlTopics, err := um.db.WithContext(ctx).Topic.Debug().Where(query.Topic.Cid.Eq(cid), query.Topic.Tid.Lte(preId), query.Topic.DeletedAt.Neq(0)).Order(query.Topic.Tid.Desc()).Find()
+	if err != nil {
+		return nil, err
+	}
+	copier.Copy(topics, sqlTopics)
+
+	return topics, nil
+}
+
 func (um *TopicModel) encodeTopicInfoToCache(ctx context.Context, logger *zerolog.Logger, data *schema.Topic) {
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		logger.Error().Msgf("encode node to bytes fail, %+v", data)
 		return
 	}
-	err = um.cache.HSet(ctx, consts.RdsHashTopicInfoKey, data.Tid, bytes)
+	err = um.cache.HSet(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", data.Tid), bytes)
 	if err != nil {
 		logger.Error().Msgf("encode topic to redis fail, %+v", data)
 	}
 }
 
-func (um *TopicModel) getTopicinfoFromCache(ctx context.Context, logger *zerolog.Logger, tid string) (*schema.Topic, error) {
-	bytes, err := um.cache.HGet(ctx, consts.RdsHashTopicInfoKey, tid)
+func (um *TopicModel) getTopicinfoFromCache(ctx context.Context, logger *zerolog.Logger, tid int64) (*schema.Topic, error) {
+	bytes, err := um.cache.HGet(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 	// 找到了数据
 	if err == nil && bytes != nil {
 		var data schema.Topic

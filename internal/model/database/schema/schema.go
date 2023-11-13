@@ -14,7 +14,7 @@ type User struct {
 }
 
 type Topic struct {
-	Tid           string `json:"tid" copier:"-"`
+	Tid           int64  `json:"tid" copier:"-"`
 	Cid           int64  `json:"cid"`
 	Title         string `json:"title"`
 	Intro         string `json:"intro"`

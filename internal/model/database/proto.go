@@ -24,14 +24,15 @@ type IUser interface {
 }
 
 type ITopic interface {
-	StopTopic(context.Context, *zerolog.Logger, string) error
-	CheckTopicExist(context.Context, *zerolog.Logger, string) error
-	CheckTopicStop(context.Context, *zerolog.Logger, string) error
+	StopTopic(context.Context, *zerolog.Logger, int64) error
+	CheckTopicExist(context.Context, *zerolog.Logger, int64) error
+	CheckTopicStop(context.Context, *zerolog.Logger, int64) error
 	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, int, error)
-	GetTopicByTid(context.Context, *zerolog.Logger, string) (*schema.Topic, error)
+	GetTopicByTid(context.Context, *zerolog.Logger, int64) (*schema.Topic, error)
 	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
-	DeleteTopic(context.Context, *zerolog.Logger, string) error
+	DeleteTopic(context.Context, *zerolog.Logger, int64) error
 	UpdateTopicInfo(context.Context, *zerolog.Logger, *schema.Topic) error
+	ListTopicByCid(context.Context, *zerolog.Logger, int64, int64, int64) ([]*schema.Topic, error)
 	// TODO 字段
 	// UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error
 	// SearchTopic(context.Context, *zerolog.Logger, ...any) ([]*schema.Topic, int, error)

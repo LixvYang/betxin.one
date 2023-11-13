@@ -28,7 +28,7 @@ func newTopic(db *gorm.DB, opts ...gen.DOOption) topic {
 	tableName := _topic.topicDo.TableName()
 	_topic.ALL = field.NewAsterisk(tableName)
 	_topic.ID = field.NewInt64(tableName, "id")
-	_topic.Tid = field.NewString(tableName, "tid")
+	_topic.Tid = field.NewInt64(tableName, "tid")
 	_topic.Cid = field.NewInt64(tableName, "cid")
 	_topic.Title = field.NewString(tableName, "title")
 	_topic.Intro = field.NewString(tableName, "intro")
@@ -44,6 +44,7 @@ func newTopic(db *gorm.DB, opts ...gen.DOOption) topic {
 	_topic.IsStop = field.NewBool(tableName, "is_stop")
 	_topic.RefundEndTime = field.NewInt64(tableName, "refund_end_time")
 	_topic.EndTime = field.NewInt64(tableName, "end_time")
+	_topic.IsDeleted = field.NewBool(tableName, "is_deleted")
 	_topic.CreatedAt = field.NewInt64(tableName, "created_at")
 	_topic.UpdatedAt = field.NewInt64(tableName, "updated_at")
 	_topic.DeletedAt = field.NewInt64(tableName, "deleted_at")
@@ -57,26 +58,27 @@ type topic struct {
 	topicDo topicDo
 
 	ALL           field.Asterisk
-	ID            field.Int64 // ID
-	Tid           field.String
-	Cid           field.Int64 // ID
-	Title         field.String
-	Intro         field.String
-	Content       field.String
-	YesRatio      field.String
-	NoRatio       field.String
-	YesCount      field.String
-	NoCount       field.String
-	TotalCount    field.String
-	CollectCount  field.Int64
-	ReadCount     field.Int64
-	ImgURL        field.String // URL
-	IsStop        field.Bool
-	RefundEndTime field.Int64
-	EndTime       field.Int64
-	CreatedAt     field.Int64
-	UpdatedAt     field.Int64
-	DeletedAt     field.Int64
+	ID            field.Int64 // 话题自增ID
+	Tid           field.Int64
+	Cid           field.Int64  // 分类ID
+	Title         field.String // 标题
+	Intro         field.String // 概述
+	Content       field.String // 内容
+	YesRatio      field.String // 赞成率
+	NoRatio       field.String // 反对率
+	YesCount      field.String // 赞成计数
+	NoCount       field.String // 反对计数
+	TotalCount    field.String // 总计数
+	CollectCount  field.Int64  // 收藏数
+	ReadCount     field.Int64  // 阅读数
+	ImgURL        field.String // 图片URL
+	IsStop        field.Bool   // 是否结束
+	RefundEndTime field.Int64  // 退款截止时间
+	EndTime       field.Int64  // 话题结束时间
+	IsDeleted     field.Bool   // 是否删除
+	CreatedAt     field.Int64  // 创建时间
+	UpdatedAt     field.Int64  // 更新时间
+	DeletedAt     field.Int64  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -94,7 +96,7 @@ func (t topic) As(alias string) *topic {
 func (t *topic) updateTableName(table string) *topic {
 	t.ALL = field.NewAsterisk(table)
 	t.ID = field.NewInt64(table, "id")
-	t.Tid = field.NewString(table, "tid")
+	t.Tid = field.NewInt64(table, "tid")
 	t.Cid = field.NewInt64(table, "cid")
 	t.Title = field.NewString(table, "title")
 	t.Intro = field.NewString(table, "intro")
@@ -110,6 +112,7 @@ func (t *topic) updateTableName(table string) *topic {
 	t.IsStop = field.NewBool(table, "is_stop")
 	t.RefundEndTime = field.NewInt64(table, "refund_end_time")
 	t.EndTime = field.NewInt64(table, "end_time")
+	t.IsDeleted = field.NewBool(table, "is_deleted")
 	t.CreatedAt = field.NewInt64(table, "created_at")
 	t.UpdatedAt = field.NewInt64(table, "updated_at")
 	t.DeletedAt = field.NewInt64(table, "deleted_at")
@@ -137,7 +140,7 @@ func (t *topic) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *topic) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 20)
+	t.fieldMap = make(map[string]field.Expr, 21)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["tid"] = t.Tid
 	t.fieldMap["cid"] = t.Cid
@@ -155,6 +158,7 @@ func (t *topic) fillFieldMap() {
 	t.fieldMap["is_stop"] = t.IsStop
 	t.fieldMap["refund_end_time"] = t.RefundEndTime
 	t.fieldMap["end_time"] = t.EndTime
+	t.fieldMap["is_deleted"] = t.IsDeleted
 	t.fieldMap["created_at"] = t.CreatedAt
 	t.fieldMap["updated_at"] = t.UpdatedAt
 	t.fieldMap["deleted_at"] = t.DeletedAt
