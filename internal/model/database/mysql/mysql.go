@@ -18,7 +18,7 @@ import (
 )
 
 func NewMySqlService(conf *configs.AppConfig) *MySQLService {
-	m := &MySQLService{}
+	m := new(MySQLService)
 	if err := m.initDB(conf.MySQLConfig); err != nil {
 		logger.Lg.Error().Err(err).Msgf("[NewMySqlService][m.Init()]")
 		panic(err)
@@ -66,10 +66,10 @@ func (m *MySQLService) initDB(conf *configs.MySQLConfig) error {
 
 	sqlDB, _ := m.db.DB()
 	// SetMaxIdleCons 设置连接池中的最大闲置连接数。
-	// SetMaxOpenCons 设置数据库的最大连接数量。
-	// SetConnMaxLifetiment 设置连接的最大可复用时间
 	sqlDB.SetMaxIdleConns(1000)
+	// SetMaxOpenCons 设置数据库的最大连接数量。
 	sqlDB.SetMaxOpenConns(5000)
+	// SetConnMaxLifetiment 设置连接的最大可复用时间
 	sqlDB.SetConnMaxLifetime(time.Hour / 2)
 	query.SetDefault(m.db)
 	return nil

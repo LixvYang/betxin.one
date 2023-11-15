@@ -1,5 +1,7 @@
 package consts
 
+import "time"
+
 const (
 	LoggerKey = "logger"
 	Xid       = "xid"
@@ -16,4 +18,9 @@ const (
 	RdsHashUserInfoKey = "betxin_user_info"
 	// hset betxin_topic_info tid {{ info }}
 	RdsHashTopicInfoKey = "betxin_topic_info"
+)
+
+const (
+	// 延时双删除时间
+	DelayedDeletionInterval = time.Second >> 1
 )

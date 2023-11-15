@@ -27,7 +27,7 @@ type ITopic interface {
 	StopTopic(context.Context, *zerolog.Logger, int64) error
 	CheckTopicExist(context.Context, *zerolog.Logger, int64) error
 	CheckTopicStop(context.Context, *zerolog.Logger, int64) error
-	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, int, error)
+	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, error)
 	GetTopicByTid(context.Context, *zerolog.Logger, int64) (*schema.Topic, error)
 	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
 	DeleteTopic(context.Context, *zerolog.Logger, int64) error

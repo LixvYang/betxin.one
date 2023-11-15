@@ -58,27 +58,27 @@ type topic struct {
 	topicDo topicDo
 
 	ALL           field.Asterisk
-	ID            field.Int64 // 话题自增ID
+	ID            field.Int64 // ID
 	Tid           field.Int64
-	Cid           field.Int64  // 分类ID
-	Title         field.String // 标题
-	Intro         field.String // 概述
-	Content       field.String // 内容
-	YesRatio      field.String // 赞成率
-	NoRatio       field.String // 反对率
-	YesCount      field.String // 赞成计数
-	NoCount       field.String // 反对计数
-	TotalCount    field.String // 总计数
-	CollectCount  field.Int64  // 收藏数
-	ReadCount     field.Int64  // 阅读数
-	ImgURL        field.String // 图片URL
-	IsStop        field.Bool   // 是否结束
-	RefundEndTime field.Int64  // 退款截止时间
-	EndTime       field.Int64  // 话题结束时间
-	IsDeleted     field.Bool   // 是否删除
-	CreatedAt     field.Int64  // 创建时间
-	UpdatedAt     field.Int64  // 更新时间
-	DeletedAt     field.Int64  // 删除时间
+	Cid           field.Int64 // ID
+	Title         field.String
+	Intro         field.String
+	Content       field.String
+	YesRatio      field.String
+	NoRatio       field.String
+	YesCount      field.String
+	NoCount       field.String
+	TotalCount    field.String
+	CollectCount  field.Int64
+	ReadCount     field.Int64
+	ImgURL        field.String // URL
+	IsStop        field.Bool
+	RefundEndTime field.Int64
+	EndTime       field.Int64
+	IsDeleted     field.Bool
+	CreatedAt     field.Int64
+	UpdatedAt     field.Int64
+	DeletedAt     field.Int64
 
 	fieldMap map[string]field.Expr
 }

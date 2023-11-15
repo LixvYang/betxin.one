@@ -14,6 +14,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"github.com/shopspring/decimal"
 )
 
 type TopicModel struct {
@@ -32,11 +33,20 @@ func (um *TopicModel) StopTopic(ctx context.Context, logger *zerolog.Logger, tid
 	// 删除话题缓存
 	um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 	defer func() {
-		time.Sleep(time.Second >> 1)
+		time.Sleep(consts.DelayedDeletionInterval)
 		um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 	}()
 
-	_, err := um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Update(query.Topic.IsStop, true)
+	originTopic, err := um.GetTopicByTid(ctx, logger, tid)
+	if err != nil {
+		return err
+	}
+	err = um.checkUpdate(originTopic)
+	if err != nil {
+		return err
+	}
+
+	_, err = um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Update(query.Topic.IsStop, true)
 	if err != nil {
 		return err
 	}
@@ -53,28 +63,28 @@ func (um *TopicModel) CheckTopicExist(ctx context.Context, logger *zerolog.Logge
 }
 
 func (um *TopicModel) CheckTopicStop(ctx context.Context, logger *zerolog.Logger, tid int64) error {
-	topic, err := um.GetTopicByTid(ctx, logger, tid)
+	sqlTopic, err := um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Last()
 	if err != nil {
 		return err
 	}
-	if topic.IsStop {
+	if sqlTopic.IsStop {
 		return errors.New("topic already stop")
 	}
 
 	return nil
 }
 
-func (um *TopicModel) GetTopicsByCid(ctx context.Context, logger *zerolog.Logger, cid int64) (topics []*schema.Topic, count int, err error) {
+func (um *TopicModel) GetTopicsByCid(ctx context.Context, logger *zerolog.Logger, cid int64) (topics []*schema.Topic, err error) {
 	sqlTopics, err := um.db.Topic.WithContext(ctx).Where(um.db.Topic.Cid.Eq(cid)).Find()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
-	copier.Copy(topics, sqlTopics)
-	return topics, len(topics), nil
+	fmt.Println(sqlTopics)
+	copier.Copy(&topics, &sqlTopics)
+	return topics, nil
 }
 
 func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger, tid int64) (topic *schema.Topic, err error) {
-	topic = new(schema.Topic)
 	topic, err = um.getTopicinfoFromCache(ctx, logger, tid)
 	if err != nil {
 		logger.Info().Msgf("tid: %d, not found in cache", tid)
@@ -86,7 +96,9 @@ func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger,
 		logger.Info().Msgf("tid: %d, not found in mysql", tid)
 		return nil, err
 	}
-	copier.Copy(sqlTopic, topic)
+
+	topic = new(schema.Topic)
+	copier.Copy(topic, sqlTopic)
 
 	go um.encodeTopicInfoToCache(ctx, logger, topic)
 
@@ -96,14 +108,14 @@ func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger,
 func (um *TopicModel) CreateTopic(ctx context.Context, logger *zerolog.Logger, topic *schema.Topic) error {
 	var sqlTopic sqlmodel.Topic
 	copier.Copy(&sqlTopic, topic)
-	return um.db.Topic.WithContext(ctx).Create(&sqlTopic)
+	return um.db.Topic.WithContext(ctx).Debug().Create(&sqlTopic)
 }
 
 func (um *TopicModel) DeleteTopic(ctx context.Context, logger *zerolog.Logger, tid int64) (err error) {
 	// 延时双删除
 	defer func() {
 		go func() {
-			time.Sleep(time.Second >> 1)
+			time.Sleep(consts.DelayedDeletionInterval)
 			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 		}()
 	}()
@@ -117,13 +129,13 @@ func (um *TopicModel) DeleteTopic(ctx context.Context, logger *zerolog.Logger, t
 	}
 
 	// 数据库找
-	_, err = um.db.User.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Last()
+	_, err = um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Last()
 	if err != nil {
 		logger.Info().Msgf("tid: %d, not found in mysql", tid)
 		return
 	}
 	// 数据库删除数据
-	_, err = um.db.User.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Delete()
+	_, err = um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Delete()
 	if err != nil {
 		logger.Info().Msgf("tid: %d, delete failed in mysql", tid)
 		return
@@ -138,45 +150,57 @@ func (um *TopicModel) UpdateTopicInfo(ctx context.Context, logger *zerolog.Logge
 
 	// 延时双删
 	defer func() {
-		go func() {
-			time.Sleep(time.Second >> 1)
-			um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", topic.Tid))
-		}()
+		um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", topic.Tid))
 	}()
 
-	// 更新数据
-	um.db.Transaction(func(tx *query.Query) error {
-		defer func() {
-			if r := recover(); r != nil {
-				logger.Info().Any("recover", r).Send()
-			}
-		}()
-
-		_, err := query.Topic.WithContext(ctx).
-			Where(query.Topic.Tid.Eq(topic.Tid)).
-			Updates(sqlmodel.Topic{
-				Cid:           topic.Cid,
-				Title:         topic.Title,
-				Intro:         topic.Intro,
-				Content:       topic.Content,
-				YesRatio:      topic.YesCount,
-				NoRatio:       topic.NoCount,
-				YesCount:      topic.YesCount,
-				NoCount:       topic.NoCount,
-				TotalCount:    topic.TotalCount,
-				CollectCount:  topic.CollectCount,
-				ReadCount:     topic.ReadCount,
-				ImgURL:        topic.ImgURL,
-				IsStop:        topic.IsStop,
-				RefundEndTime: topic.RefundEndTime,
-				EndTime:       topic.EndTime,
-			})
-		if err != nil {
-			return err
+	// 开启事务
+	tx := um.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			err := tx.Rollback()
+			panic(err)
 		}
+	}()
 
-		return nil
-	})
+	originTopic, err := um.GetTopicByTid(ctx, logger, topic.Tid)
+	if err != nil {
+		return err
+	}
+	err = um.checkUpdate(originTopic)
+	if err != nil {
+		return err
+	}
+
+	t := query.Topic
+	_, err = t.WithContext(ctx).
+		Where(t.Tid.Eq(topic.Tid)).
+		UpdateColumns(&sqlmodel.Topic{
+			Tid:           topic.Tid,
+			Cid:           topic.Cid,
+			Title:         topic.Title,
+			Intro:         topic.Intro,
+			Content:       topic.Content,
+			YesRatio:      topic.YesCount,
+			NoRatio:       topic.NoCount,
+			YesCount:      topic.YesCount,
+			NoCount:       topic.NoCount,
+			TotalCount:    topic.TotalCount,
+			CollectCount:  topic.CollectCount,
+			ReadCount:     topic.ReadCount,
+			ImgURL:        topic.ImgURL,
+			IsStop:        topic.IsStop,
+			RefundEndTime: topic.RefundEndTime,
+			EndTime:       topic.EndTime,
+		})
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -204,7 +228,7 @@ func (um *TopicModel) encodeTopicInfoToCache(ctx context.Context, logger *zerolo
 	}
 	err = um.cache.HSet(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", data.Tid), bytes)
 	if err != nil {
-		logger.Error().Msgf("encode topic to redis fail, %+v", data)
+		logger.Error().Err(err).Msgf("encode topic to redis fail, %+v", data)
 	}
 }
 
@@ -222,4 +246,26 @@ func (um *TopicModel) getTopicinfoFromCache(ctx context.Context, logger *zerolog
 	}
 	// redis错误
 	return nil, err
+}
+
+func (um *TopicModel) checkUpdate(t *schema.Topic) (err error) {
+	fmt.Println(*t)
+
+	if t.IsStop || time.Now().After(time.UnixMilli(t.EndTime)) {
+		return errors.New("topic already stop")
+	}
+	decimal.DivisionPrecision = 2
+	yesCnt, _ := decimal.NewFromString(t.YesCount)
+
+	totalCnt, err := decimal.NewFromString(t.TotalCount)
+	if err != nil {
+		return err
+	}
+	if totalCnt.Equal(decimal.NewFromFloat(0)) {
+		return nil
+	}
+	yesRatio := yesCnt.Div(totalCnt)
+	t.YesRatio = yesRatio.String()
+	t.NoRatio = decimal.NewFromInt(100).Sub(yesRatio).String()
+	return nil
 }

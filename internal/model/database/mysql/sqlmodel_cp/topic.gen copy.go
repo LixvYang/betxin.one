@@ -3,7 +3,7 @@ package sqlmodel
 import (
 	"time"
 
-	"github.com/gofrs/uuid"
+	"github.com/lixvyang/betxin.one/pkg/snowflake"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -14,7 +14,7 @@ const TableNameTopic = "topic"
 // Topic mapped from table <topic>
 type Topic struct {
 	ID            int64  `gorm:"column:id;primaryKey;autoIncrement:true;comment:ID" json:"id"` // ID
-	Tid           string `gorm:"column:tid;not null" json:"tid"`
+	Tid           int64 `gorm:"column:tid;not null" json:"tid"`
 	Cid           int64  `gorm:"column:cid;not null;comment:ID" json:"cid"` // ID
 	Title         string `gorm:"column:title;not null" json:"title"`
 	Intro         string `gorm:"column:intro;not null" json:"intro"`
@@ -36,8 +36,7 @@ type Topic struct {
 }
 
 func (t *Topic) BeforeCreate(tx *gorm.DB) error {
-	uuid, _ := uuid.NewV4()
-	t.Tid = uuid.String()
+	t.Tid = snowflake.GenID()
 	t.YesRatio = "50.00"
 	t.NoRatio = "50.00"
 	return nil
@@ -62,9 +61,4 @@ func (t *Topic) BeforeUpdate(tx *gorm.DB) error {
 func (t *Topic) AfterFind(tx *gorm.DB) (err error) {
 	t.ReadCount++
 	return
-}
-
-// TableName Topic's table name
-func (*Topic) TableName() string {
-	return TableNameTopic
 }

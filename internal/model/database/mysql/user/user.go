@@ -80,7 +80,7 @@ func (um *UserModel) DeleteUser(ctx context.Context, logger *zerolog.Logger, uid
 	// 延时双删除
 	defer func() {
 		go func() {
-			time.Sleep(time.Second * 3)
+			time.Sleep(consts.DelayedDeletionInterval)
 			um.cache.HDel(ctx, consts.RdsHashUserInfoKey, uid)
 		}()
 	}()
@@ -117,7 +117,7 @@ func (um *UserModel) UpdateUser(ctx context.Context, logger *zerolog.Logger, use
 	// 延时双删
 	defer func() {
 		go func() {
-			time.Sleep(time.Second * 3)
+			time.Sleep(consts.DelayedDeletionInterval)
 			um.cache.HDel(ctx, consts.RdsHashUserInfoKey, user.UID)
 		}()
 	}()

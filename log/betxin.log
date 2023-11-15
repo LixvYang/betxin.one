@@ -1,0 +1,2 @@
+{"level":"info","git_revision":"","go_version":"go1.21.1","fileLogging":true,"jsonLogOutput":true,"logDirectory":"./log","fileName":"betxin.log","maxSizeMB":1,"maxBackups":3,"maxAgeInDays":7,"localtime":true,"compress":false,"time":"2023-11-14T22:34:36.067313+08:00","message":"logging configured"}
+{"level":"info","git_revision":"","go_version":"go1.21.1","redis":"PONG","time":"2023-11-14T22:34:36.085728+08:00"}
