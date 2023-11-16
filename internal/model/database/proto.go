@@ -6,6 +6,7 @@ import (
 	"github.com/lixvyang/betxin.one/configs"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+
 	"github.com/rs/zerolog"
 )
 
@@ -34,7 +35,7 @@ type ITopic interface {
 	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
 	DeleteTopic(context.Context, *zerolog.Logger, int64) error
 	UpdateTopicInfo(context.Context, *zerolog.Logger, *schema.Topic) error
-	ListTopicByCid(ctx context.Context, logger *zerolog.Logger, cid int64, preId int64, pageSize int64) ([]*schema.Topic, error)
+	ListTopicByCid(c context.Context, logger *zerolog.Logger, cid int64, preId int64, pageSize int64) ([]*schema.Topic, error)
 	// TODO 字段
 	// UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error
 	// SearchTopic(context.Context, *zerolog.Logger, ...any) ([]*schema.Topic, int, error)
