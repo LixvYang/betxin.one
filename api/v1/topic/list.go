@@ -137,7 +137,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*schema.Topic) []
 		return topicDataList
 	}
 
-	collects, err := t.topicCollectHandler.GetCollectByUserId(uid)
+	collects, err := t.topicCollectHandler.GetCollectByUid(uid)
 	if err != nil {
 		return topicDataList
 	}
