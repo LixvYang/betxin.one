@@ -57,7 +57,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `category` (
         `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-        `category_name` VARCHAR(20) NOT NULL DEFAULT '',
+        `name` VARCHAR(20) NOT NULL DEFAULT '',
         PRIMARY KEY (`id`)
     ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
@@ -97,7 +97,6 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `topic_purchases`(
         `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-        `trace_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '话题购买的trace_id',
         `uid` varchar(36) NOT NULL DEFAULT '',
         `tid` BIGINT(20) NOT NULL,
         `yes_price` VARCHAR(40) NOT NULL DEFAULT '0.00000000' COMMENT '支持金额',
@@ -110,6 +109,21 @@ CREATE TABLE
         KEY idx_tid (tid),
         KEY idx_yes_price (yes_price),
         KEY idx_no_price (no_price)
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE
+    IF NOT EXISTS `bonuse` (
+        `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+        `uid` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '用户uid',
+        `tid` BIGINT(20) NOT NULL COMMENT '话题id',
+        `asset_id` VARCHAR(36) NOT NULL COMMENT '资产id',
+        `amount` VARCHAR(36) NOT NULL,
+        `memo` VARCHAR(256) NOT NULL DEFAULT '',
+        `trace_id` VARCHAR(36) NOT NULL DEFAULT '',
+        `created_at` BIGINT(13) NOT NULL DEFAULT 0,
+        `updated_at` BIGINT(13) NOT NULL DEFAULT 0,
+        `deleted_at` BIGINT(13) DEFAULT NULL,
+        PRIMARY KEY (id)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- 退款系统
@@ -146,10 +160,13 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `feedback`(
         `id` int NOT NULL AUTO_INCREMENT,
+        `fid` VARCHAR(36) NOT NULL DEFAULT '',
         `uid` varchar(36) NOT NULL DEFAULT '',
         `title` varchar(150) NOT NULL DEFAULT '',
-        `content` TEXT NOT NULL,
+        `content` VARCHAR(512) NOT NULL,
         `created_at` BIGINT(13) NOT NULL DEFAULT 0,
+        `updated_at` BIGINT(13) NOT NULL DEFAULT 0, 
+        `deleted_at` BIGINT(13) DEFAULT NULL, 
         PRIMARY KEY (`id`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
@@ -157,11 +174,11 @@ CREATE TABLE
     IF NOT EXISTS `message`(
         `id` int NOT NULL AUTO_INCREMENT,
         `uid` varchar(36) NOT NULL DEFAULT '',
-        `data` LONGTEXT NOT NULL,
+        `data` VARCHAR(512) NOT NULL,
         `conversation_id` VARCHAR(36) NOT NULL DEFAULT '',
         `recipient_id` VARCHAR(36) NOT NULL DEFAULT '',
         `message_id` VARCHAR(36) NOT NULL DEFAULT '',
         `category` VARCHAR(20) NOT NULL DEFAULT '',
         `created_at` BIGINT(13) NOT NULL DEFAULT 0,
         PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

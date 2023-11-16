@@ -17,8 +17,10 @@ import (
 
 var (
 	Q             = new(Query)
+	Bonuse        *bonuse
 	Category      *category
 	Collect       *collect
+	Feedback      *feedback
 	Message       *message
 	Refund        *refund
 	Snapshot      *snapshot
@@ -29,8 +31,10 @@ var (
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	Bonuse = &Q.Bonuse
 	Category = &Q.Category
 	Collect = &Q.Collect
+	Feedback = &Q.Feedback
 	Message = &Q.Message
 	Refund = &Q.Refund
 	Snapshot = &Q.Snapshot
@@ -42,8 +46,10 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:            db,
+		Bonuse:        newBonuse(db, opts...),
 		Category:      newCategory(db, opts...),
 		Collect:       newCollect(db, opts...),
+		Feedback:      newFeedback(db, opts...),
 		Message:       newMessage(db, opts...),
 		Refund:        newRefund(db, opts...),
 		Snapshot:      newSnapshot(db, opts...),
@@ -56,8 +62,10 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db *gorm.DB
 
+	Bonuse        bonuse
 	Category      category
 	Collect       collect
+	Feedback      feedback
 	Message       message
 	Refund        refund
 	Snapshot      snapshot
@@ -71,8 +79,10 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:            db,
+		Bonuse:        q.Bonuse.clone(db),
 		Category:      q.Category.clone(db),
 		Collect:       q.Collect.clone(db),
+		Feedback:      q.Feedback.clone(db),
 		Message:       q.Message.clone(db),
 		Refund:        q.Refund.clone(db),
 		Snapshot:      q.Snapshot.clone(db),
@@ -93,8 +103,10 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:            db,
+		Bonuse:        q.Bonuse.replaceDB(db),
 		Category:      q.Category.replaceDB(db),
 		Collect:       q.Collect.replaceDB(db),
+		Feedback:      q.Feedback.replaceDB(db),
 		Message:       q.Message.replaceDB(db),
 		Refund:        q.Refund.replaceDB(db),
 		Snapshot:      q.Snapshot.replaceDB(db),
@@ -105,8 +117,10 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
+	Bonuse        IBonuseDo
 	Category      ICategoryDo
 	Collect       ICollectDo
+	Feedback      IFeedbackDo
 	Message       IMessageDo
 	Refund        IRefundDo
 	Snapshot      ISnapshotDo
@@ -117,8 +131,10 @@ type queryCtx struct {
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
+		Bonuse:        q.Bonuse.WithContext(ctx),
 		Category:      q.Category.WithContext(ctx),
 		Collect:       q.Collect.WithContext(ctx),
+		Feedback:      q.Feedback.WithContext(ctx),
 		Message:       q.Message.WithContext(ctx),
 		Refund:        q.Refund.WithContext(ctx),
 		Snapshot:      q.Snapshot.WithContext(ctx),

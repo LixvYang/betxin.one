@@ -10,6 +10,11 @@ const TokenExpireDuration = time.Hour * 2
 
 var MySecret = []byte("123456")
 
+type JwtConfig struct {
+	Secret []byte
+	TokenExpireDuration time.Duration
+}
+
 type MyClaims struct {
 	Uid                  string `json:"uid"`
 	jwt.RegisteredClaims        // v5版本新加的方法

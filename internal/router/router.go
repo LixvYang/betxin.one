@@ -58,7 +58,12 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 	h := v1.NewBetxinHandler(conf)
 	api := e.Group("/api/v1")
 	{
+		// 用户
 		api.POST("/connect", h.IUserHandler.Connect)
+	
+		// 话题查询
+		api.POST("/topic/:cid", h.ITopicHandler.ListTopicsByCid)
+
 	}
 
 	{

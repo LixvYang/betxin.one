@@ -28,7 +28,7 @@ func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
 	tableName := _category.categoryDo.TableName()
 	_category.ALL = field.NewAsterisk(tableName)
 	_category.ID = field.NewInt64(tableName, "id")
-	_category.CategoryName = field.NewString(tableName, "category_name")
+	_category.Name = field.NewString(tableName, "name")
 
 	_category.fillFieldMap()
 
@@ -38,9 +38,9 @@ func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
 type category struct {
 	categoryDo categoryDo
 
-	ALL          field.Asterisk
-	ID           field.Int64
-	CategoryName field.String
+	ALL  field.Asterisk
+	ID   field.Int64
+	Name field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -58,7 +58,7 @@ func (c category) As(alias string) *category {
 func (c *category) updateTableName(table string) *category {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
-	c.CategoryName = field.NewString(table, "category_name")
+	c.Name = field.NewString(table, "name")
 
 	c.fillFieldMap()
 
@@ -85,7 +85,7 @@ func (c *category) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (c *category) fillFieldMap() {
 	c.fieldMap = make(map[string]field.Expr, 2)
 	c.fieldMap["id"] = c.ID
-	c.fieldMap["category_name"] = c.CategoryName
+	c.fieldMap["name"] = c.Name
 }
 
 func (c category) clone(db *gorm.DB) category {

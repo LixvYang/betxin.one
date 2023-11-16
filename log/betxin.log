@@ -1,2 +1,6 @@
 {"level":"info","git_revision":"","go_version":"go1.21.1","fileLogging":true,"jsonLogOutput":true,"logDirectory":"./log","fileName":"betxin.log","maxSizeMB":1,"maxBackups":3,"maxAgeInDays":7,"localtime":true,"compress":false,"time":"2023-11-14T22:34:36.067313+08:00","message":"logging configured"}
 {"level":"info","git_revision":"","go_version":"go1.21.1","redis":"PONG","time":"2023-11-14T22:34:36.085728+08:00"}
+{"level":"info","git_revision":"","go_version":"go1.21.1","fileLogging":true,"jsonLogOutput":true,"logDirectory":"./log","fileName":"betxin.log","maxSizeMB":1,"maxBackups":3,"maxAgeInDays":7,"localtime":true,"compress":false,"time":"2023-11-16T11:26:16.324152+08:00","message":"logging configured"}
+{"level":"info","git_revision":"","go_version":"go1.21.1","redis":"PONG","time":"2023-11-16T11:26:16.346758+08:00"}
+{"level":"info","git_revision":"","go_version":"go1.21.1","fileLogging":true,"jsonLogOutput":true,"logDirectory":"./log","fileName":"betxin.log","maxSizeMB":1,"maxBackups":3,"maxAgeInDays":7,"localtime":true,"compress":false,"time":"2023-11-16T11:26:24.955745+08:00","message":"logging configured"}
+{"level":"info","git_revision":"","go_version":"go1.21.1","redis":"PONG","time":"2023-11-16T11:26:24.979226+08:00"}

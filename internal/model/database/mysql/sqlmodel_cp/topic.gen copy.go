@@ -1,11 +1,7 @@
 package sqlmodel
 
 import (
-	"time"
-
 	"github.com/lixvyang/betxin.one/pkg/snowflake"
-	"github.com/pkg/errors"
-	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +10,7 @@ const TableNameTopic = "topic"
 // Topic mapped from table <topic>
 type Topic struct {
 	ID            int64  `gorm:"column:id;primaryKey;autoIncrement:true;comment:ID" json:"id"` // ID
-	Tid           int64 `gorm:"column:tid;not null" json:"tid"`
+	Tid           int64  `gorm:"column:tid;not null" json:"tid"`
 	Cid           int64  `gorm:"column:cid;not null;comment:ID" json:"cid"` // ID
 	Title         string `gorm:"column:title;not null" json:"title"`
 	Intro         string `gorm:"column:intro;not null" json:"intro"`
@@ -39,22 +35,6 @@ func (t *Topic) BeforeCreate(tx *gorm.DB) error {
 	t.Tid = snowflake.GenID()
 	t.YesRatio = "50.00"
 	t.NoRatio = "50.00"
-	return nil
-}
-
-func (t *Topic) BeforeUpdate(tx *gorm.DB) error {
-	if t.IsStop || time.Now().After(time.UnixMicro(t.EndTime)) {
-		return errors.New("topic already stop")
-	}
-	decimal.DivisionPrecision = 2
-	yesCnt, _ := decimal.NewFromString(t.YesCount)
-	totalCnt, err := decimal.NewFromString(t.TotalCount)
-	if err != nil {
-		return err
-	}
-	yesRatio := yesCnt.Div(totalCnt)
-	t.YesRatio = yesRatio.String()
-	t.NoRatio = decimal.NewFromInt(100).Sub(yesRatio).String()
 	return nil
 }
 

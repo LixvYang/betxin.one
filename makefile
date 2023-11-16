@@ -1,11 +1,16 @@
 .PHONY: all build run gotool clean help
 
-BINARY="bluebell"
+
+
+MAIN=./cmd/main/main.go
+
+TAG=`date +"%Y%m%d%H%M%S"`
+BINARY="betxin_"${TAG}
 
 all: gotool build
 
 build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${BINARY}
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${BINARY} ${MAIN} 
 
 run:
 	CGO_ENABLED=0 go run ./cmd/main/main.go

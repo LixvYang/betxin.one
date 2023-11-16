@@ -6,8 +6,16 @@ import (
 
 	"github.com/lixvyang/betxin.one/configs"
 	"github.com/lixvyang/betxin.one/internal/model/cache"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/bonuse"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/category"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/collect"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/query"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/feedback"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/message"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/refund"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/snapshot"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/topic"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/topicpurchase"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/user"
 	"github.com/lixvyang/betxin.one/pkg/logger"
 
@@ -20,12 +28,21 @@ import (
 func NewMySqlService(conf *configs.AppConfig) *MySQLService {
 	m := new(MySQLService)
 	if err := m.initDB(conf.MySQLConfig); err != nil {
-		logger.Lg.Error().Err(err).Msgf("[NewMySqlService][m.Init()]")
+		logger.Lg.Error().Err(err).Msg("[NewMySqlService][m.Init()] err")
 		panic(err)
 	}
 	cache := cache.New(conf.RedisConfig)
 	m.UserModel = user.NewUserModel(query.Q, cache)
 	m.TopicModel = topic.NewTopicModel(query.Q, cache)
+	m.BonuseModel = bonuse.NewBonuseModel(query.Q, cache)
+	m.CollectModel = collect.NewCollectModel(query.Q, cache)
+	m.CategoryModel = category.NewUserModel(query.Q, cache)
+	m.MessageModel = message.NewMessageModel(query.Q, cache)
+	m.SnapshotModel = snapshot.NewMessageModel(query.Q, cache)
+	m.RefundModel = refund.NewMessageModel(query.Q, cache)
+	m.TopicPurchaseModel = topicpurchase.NewTopicPurchaseModel(query.Q, cache)
+	m.FeedbackModel = feedback.NewFeedbackModel(query.Q, cache)
+
 	return m
 }
 
@@ -33,6 +50,14 @@ type MySQLService struct {
 	db *gorm.DB
 	user.UserModel
 	topic.TopicModel
+	category.CategoryModel
+	collect.CollectModel
+	bonuse.BonuseModel
+	message.MessageModel
+	snapshot.SnapshotModel
+	topicpurchase.TopicPurchaseModel
+	refund.RefundModel
+	feedback.FeedbackModel
 }
 
 func (m *MySQLService) initDB(conf *configs.MySQLConfig) error {
