@@ -21,6 +21,7 @@ gotool:
 
 clean:
 	@if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
+	rm log/*
 
 help:
 	@echo "make - 格式化 Go 代码, 并编译生成二进制文件"

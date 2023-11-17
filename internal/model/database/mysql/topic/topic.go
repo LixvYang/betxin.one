@@ -210,11 +210,11 @@ func (um *TopicModel) UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *s
 }
 
 func (um *TopicModel) ListTopicByCid(ctx context.Context, logger *zerolog.Logger, cid int64, preId int64, pageSize int64) (topics []*schema.Topic, err error) {
-	sqlTopics, err := um.db.WithContext(ctx).Topic.Debug().Where(query.Topic.Cid.Eq(cid), query.Topic.Tid.Lte(preId), query.Topic.DeletedAt.Neq(0)).Order(query.Topic.Tid.Desc()).Find()
+	sqlTopics, err := um.db.WithContext(ctx).Topic.Where(query.Topic.Cid.Eq(cid), query.Topic.Tid.Lte(preId), query.Topic.DeletedAt.Eq(0)).Limit(int(pageSize)).Order(query.Topic.Tid.Desc()).Find()
 	if err != nil {
 		return nil, err
 	}
-	copier.Copy(topics, sqlTopics)
+	copier.Copy(&topics, &sqlTopics)
 
 	return topics, nil
 }

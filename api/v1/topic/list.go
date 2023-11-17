@@ -1,6 +1,7 @@
 package topic
 
 import (
+	"math"
 	"strconv"
 	"time"
 
@@ -29,7 +30,7 @@ type ListTopicData struct {
 
 const (
 	defaultPageSize int64 = 10
-	defaultCursor   int64 = 10
+	defaultCursor   int64 = math.MaxInt64
 )
 
 func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
@@ -42,7 +43,6 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	}
 
 	pageToken := c.Query("page_token")
-
 	page := token.Token(pageToken).Decode()
 	var (
 		cursor   int64 = defaultCursor
@@ -51,15 +51,15 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 
 	if pageToken != "" {
 		// 解析分页
-		if page.NextTimeAtUTC > time.Now().Unix() || time.Now().Unix()-page.NextTimeAtUTC > int64(time.Hour)*24 {
-			logger.Error().Msgf("bad page token, key: %s", pageToken)
+		if page.NextTimeAtUTC < time.Now().UnixMilli() || time.Now().Unix()-page.NextTimeAtUTC > int64(time.Hour)*24 {
+			logger.Error().Msgf("bad page token invaild page time: %#v", page)
 			handler.SendResponse(c, errmsg.ERROR, nil)
 			return
 		}
 
 		// invaild
-		if page.PreID <= 0 || page.NextTimeAtUTC == 0 || page.NextTimeAtUTC > time.Now().Unix() || page.PageSize <= 0 {
-			logger.Error().Msgf("bad page token, key: %s", pageToken)
+		if page.PreID <= 0 || page.PageSize <= 0 {
+			logger.Error().Msgf("bad page token invaild page info, page: %#v", page)
 			return
 		}
 		cursor = page.PreID
@@ -88,11 +88,11 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	if hasPrePage {
 		prePageInfo := token.Page{
 			PreID:         topicDataList[len(topicDataList)-1].Tid,
-			NextTimeAtUTC: time.Now().Unix(),
+			NextTimeAtUTC: time.Now().Add(time.Hour * 24).UnixMilli(),
 			PageSize:      pageSize,
 		}
-		prePageToken = string(prePageInfo.Encode())
 
+		prePageToken = string(prePageInfo.Encode())
 		handler.SendResponse(c, errmsg.SUCCSE, &ListTopicByCidResp{
 			PrePageToken: prePageToken,
 			List:         topicDataList[:len(topicDataList)-1],
