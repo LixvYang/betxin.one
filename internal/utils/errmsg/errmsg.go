@@ -8,6 +8,7 @@ const (
 	ERROR_BIND          = 0001
 	ERROR_AUTH          = 0002
 	ERROR_INVAILD_TOKEN = 0003
+	ERROR_INVAILD_ARGV  = 0004
 
 	// ERROR_USERNAME_USED code= 1000... 用户模块的错误
 	ERROR_USERNAME_USED    = 1001
@@ -56,6 +57,7 @@ var codeMsg = map[int]string{
 	ERROR_BIND:             "输入参数错误",
 	ERROR_AUTH:             "认证错误",
 	ERROR_INVAILD_TOKEN:    "token错误",
+	ERROR_INVAILD_ARGV:     "参数校验错误",
 	ERROR_OAUTH:            "oauth错误",
 	ERROR_USERNAME_USED:    "用户名已存在！",
 	ERROR_PASSWORD_WRONG:   "密码错误",

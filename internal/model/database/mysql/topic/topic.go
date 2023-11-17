@@ -79,7 +79,6 @@ func (um *TopicModel) GetTopicsByCid(ctx context.Context, logger *zerolog.Logger
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(sqlTopics)
 	copier.Copy(&topics, &sqlTopics)
 	return topics, nil
 }

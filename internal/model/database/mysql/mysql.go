@@ -36,7 +36,7 @@ func NewMySqlService(conf *configs.AppConfig) *MySQLService {
 	m.TopicModel = topic.NewTopicModel(query.Q, cache)
 	m.BonuseModel = bonuse.NewBonuseModel(query.Q, cache)
 	m.CollectModel = collect.NewCollectModel(query.Q, cache)
-	m.CategoryModel = category.NewUserModel(query.Q, cache)
+	m.CategoryModel = category.NewCategoryModel(query.Q, cache)
 	m.MessageModel = message.NewMessageModel(query.Q, cache)
 	m.SnapshotModel = snapshot.NewMessageModel(query.Q, cache)
 	m.RefundModel = refund.NewMessageModel(query.Q, cache)

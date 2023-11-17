@@ -15,7 +15,7 @@ func GinLogger(Lg *zerolog.Logger) gin.HandlerFunc {
 		query := c.Request.URL.RawQuery
 
 		defer func() {
-			now := time.Since(start)
+			now := time.Since(start).Milliseconds()
 
 			Lg.Info().
 				Int("status", c.Writer.Status()).
@@ -25,7 +25,7 @@ func GinLogger(Lg *zerolog.Logger) gin.HandlerFunc {
 				Str("ip", c.ClientIP()).
 				Str("user-agent", c.Request.UserAgent()).
 				Str("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()).
-				Dur("cost", now).Send()
+				Int64("cost(ms)", now).Send()
 		}()
 
 		c.Next()

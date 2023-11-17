@@ -16,6 +16,11 @@ type Database interface {
 	ITopic
 	ICategoty
 	ICollect
+	IBonuse
+	IFeedback
+
+	IRefund
+	ITopicPurchase
 }
 
 type IUser interface {
@@ -43,12 +48,12 @@ type ITopic interface {
 }
 
 type ICategoty interface {
-	CheckCategory(name string) error
-	CreateCategory(name string) error
-	GetCategoryById(id int64) (*schema.Category, error)
+	CheckCategory(ctx context.Context, logger *zerolog.Logger, name string) error
+	CreateCategory(ctx context.Context, logger *zerolog.Logger, name string) error
+	GetCategoryById(ctx context.Context, logger *zerolog.Logger, id int64) (*schema.Category, error)
 	ListCategories() ([]*schema.Category, error)
-	UpdateCategory(id int64, name string) error
-	DeleteCategory(id int64)
+	UpdateCategory(ctx context.Context, logger *zerolog.Logger, id int64, name string) error
+	DeleteCategory(ctx context.Context, logger *zerolog.Logger, id int64) error
 }
 
 type IBonuse interface {
@@ -61,11 +66,11 @@ type IBonuse interface {
 }
 
 type ICollect interface {
-	CheckCollect(uid, tid string) (*schema.Collect, error)
-	CreateCollect(uid, tid string) error
+	CheckCollect(uid string, tid int64) (*schema.Collect, error)
+	CreateCollect(uid string, tid int64) error
 	ListCollects() ([]*schema.Collect, error)
 	GetCollectByUid(uid string) ([]*schema.Collect, error)
-	UpdateCollect(uid, tid string, status bool) (*schema.Collect, error)
+	UpdateCollect(uid string, tid int64, status bool) (*schema.Collect, error)
 }
 
 type IFeedback interface {

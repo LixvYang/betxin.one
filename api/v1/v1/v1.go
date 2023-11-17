@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/lixvyang/betxin.one/api/v1/category"
 	"github.com/lixvyang/betxin.one/api/v1/topic"
 	"github.com/lixvyang/betxin.one/api/v1/user"
 	"github.com/lixvyang/betxin.one/configs"
@@ -11,6 +12,7 @@ import (
 type BetxinHandler struct {
 	user.IUserHandler
 	topic.ITopicHandler
+	category.ICategoryHandler
 }
 
 func NewBetxinHandler(conf *configs.AppConfig) *BetxinHandler {
@@ -28,5 +30,6 @@ func NewBetxinHandler(conf *configs.AppConfig) *BetxinHandler {
 	return &BetxinHandler{
 		user.NewHandler(db),
 		topic.NewHandler(db, categoryMap),
+		category.NewHandler(db),
 	}
 }

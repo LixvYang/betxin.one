@@ -6,15 +6,6 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 )
 
-/*
-CheckCollect(uid, tid string) (*schema.Collect, error)
-	CreateCollect(uid, tid string) error
-	ListCollects() ([]*schema.Collect, error)
-	GetCollectByUserId(uid string) ([]*schema.Collect, error)
-	UpdateCollect(uid, tid string, status bool) (*schema.Collect, error)
-
-*/
-
 type CollectModel struct {
 	db    *query.Query
 	cache *cache.Cache
@@ -27,11 +18,11 @@ func NewCollectModel(query *query.Query, cache *cache.Cache) CollectModel {
 	}
 }
 
-func (cm *CollectModel) CheckCollect(uid, tid string) (*schema.Collect, error) {
+func (cm *CollectModel) CheckCollect(uid string, tid int64) (*schema.Collect, error) {
 	return nil, nil
 }
 
-func (cm *CollectModel) CreateCollect(uid, tid string) error {
+func (cm *CollectModel) CreateCollect(uid string, tid int64) error {
 	return nil
 }
 
@@ -43,6 +34,6 @@ func (cm *CollectModel) GetCollectByUid(uid string) ([]*schema.Collect, error) {
 	return nil, nil
 }
 
-func (cm *CollectModel) UpdateCollect(uid, tid string, status bool) (*schema.Collect, error) {
+func (cm *CollectModel) UpdateCollect(uid string, tid int64, status bool) (*schema.Collect, error) {
 	return nil, nil
 }

@@ -11,14 +11,10 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/internal/utils/token"
+	"github.com/pkg/errors"
 
 	"github.com/rs/zerolog"
 )
-
-type ListTopicByCidReq struct {
-	Uid       string `json:"uid"`
-	PageToken string `json:"page_token"`
-}
 
 type ListTopicByCidResp struct {
 	List         []*ListTopicData `json:"list"`
@@ -39,42 +35,31 @@ const (
 func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
 
-	cidS := c.Query("cid")
-	if cidS == "" {
-		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
-		return
-	}
-
-	cid, err := strconv.ParseInt(cidS, 0, 64)
+	cid, err := t.checkListTopicsByCidArgv(c)
 	if err != nil {
-		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
+		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
 		return
 	}
 
-	var req ListTopicByCidReq
-	err = c.ShouldBindJSON(&req)
-	if err != nil {
-		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
-		return
-	}
+	pageToken := c.Query("page_token")
 
-	page := token.Token(req.PageToken).Decode()
+	page := token.Token(pageToken).Decode()
 	var (
 		cursor   int64 = defaultCursor
 		pageSize int64 = defaultPageSize
 	)
 
-	if req.PageToken != "" {
+	if pageToken != "" {
 		// 解析分页
 		if page.NextTimeAtUTC > time.Now().Unix() || time.Now().Unix()-page.NextTimeAtUTC > int64(time.Hour)*24 {
-			logger.Error().Msgf("bad page token, key: %s", req.PageToken)
+			logger.Error().Msgf("bad page token, key: %s", pageToken)
 			handler.SendResponse(c, errmsg.ERROR, nil)
 			return
 		}
 
 		// invaild
 		if page.PreID <= 0 || page.NextTimeAtUTC == 0 || page.NextTimeAtUTC > time.Now().Unix() || page.PageSize <= 0 {
-			logger.Error().Msgf("bad page token, key: %s", req.PageToken)
+			logger.Error().Msgf("bad page token, key: %s", pageToken)
 			return
 		}
 		cursor = page.PreID
@@ -152,4 +137,26 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*schema.Topic) []
 	}
 
 	return topicDataList
+}
+
+func (t *TopicHandler) checkListTopicsByCidArgv(c *gin.Context) (int64, error) {
+
+	cidS := c.Param("cid")
+	if cidS == "" {
+		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
+		return 0, errors.New("cid error")
+	}
+
+	cid, err := strconv.ParseInt(cidS, 0, 64)
+	if err != nil {
+		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
+		return 0, errors.New("cid convert error")
+	}
+
+	_, ok := t.categoryMap[cid]
+	if !ok {
+		handler.SendResponse(c, errmsg.ERROR, nil)
+		return 0, errors.New("cid not exist")
+	}
+	return cid, nil
 }

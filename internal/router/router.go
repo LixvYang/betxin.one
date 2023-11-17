@@ -60,10 +60,13 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 	{
 		// 用户
 		api.POST("/connect", h.IUserHandler.Connect)
-	
-		// 话题查询
-		api.POST("/topic/:cid", h.ITopicHandler.ListTopicsByCid)
 
+		// 话题查询
+		api.GET("/topic/:cid", h.ITopicHandler.ListTopicsByCid)
+		api.POST("/topic", h.ITopicHandler.Create)
+
+		// 创建种类
+		api.POST("/category", h.ICategoryHandler.Create)
 	}
 
 	{
