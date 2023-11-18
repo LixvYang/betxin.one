@@ -10,6 +10,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/pkg/jwt"
+	"github.com/pkg/errors"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
@@ -39,14 +40,15 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
-	defer cancel()
-
-	if req.LoginMethod != "mixin_token" && req.LoginMethod != "mvm" {
-		logger.Error().Str("req.LoginMethod", req.LoginMethod).Msg("login_method invaild")
-		handler.SendResponse(c, errmsg.ERROR_OAUTH, nil)
+	err := uh.checkConnectArg(logger, &req)
+	if err != nil {
+		logger.Error().Int("errmsg", errmsg.ERROR_INVAILD_ARGV).Msgf("check args error: %+v", err)
+		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
 		return
 	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
+	defer cancel()
 
 	authorizer := auth.New([]string{
 		"30aad5a5-e5f3-4824-9409-c2ff4152724e",
@@ -183,4 +185,12 @@ func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey s
 	}
 
 	return jwtToken, errmsg.SUCCSE
+}
+
+func (uh *UserHandler) checkConnectArg(logger *zerolog.Logger, req *SigninReq) error {
+	if req.LoginMethod != "mixin_token" && req.LoginMethod != "mvm" {
+		logger.Error().Str("req.LoginMethod", req.LoginMethod).Msg("login_method invaild")
+		return errors.New("arg error")
+	}
+	return nil
 }

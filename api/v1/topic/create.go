@@ -21,9 +21,6 @@ type CreateTopicReq struct {
 	EndTime       int64  `json:"end_time"`
 }
 
-type CreateTopicResp struct {
-}
-
 func (t *TopicHandler) Create(c *gin.Context) {
 	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
 	var req CreateTopicReq
@@ -50,7 +47,8 @@ func (t *TopicHandler) Create(c *gin.Context) {
 		return
 	}
 	logger.Info().Any("topic", schemaTopic).Msg("[Create][CreateTopic] info")
-	handler.SendResponse(c, errmsg.SUCCSE, nil)
+
+	handler.SendResponse(c, errmsg.SUCCSE, req)
 }
 
 func (t *TopicHandler) checkCreateReq(req *CreateTopicReq) error {

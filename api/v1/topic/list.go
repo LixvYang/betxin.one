@@ -36,7 +36,7 @@ const (
 func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
 
-	cid, err := t.checkListTopicsByCidArgv(c)
+	cid, err := t.checkListTopicsByCidReq(c)
 	if err != nil {
 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
 		return
@@ -139,8 +139,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*schema.Topic) []
 	return topicDataList
 }
 
-func (t *TopicHandler) checkListTopicsByCidArgv(c *gin.Context) (int64, error) {
-
+func (t *TopicHandler) checkListTopicsByCidReq(c *gin.Context) (int64, error) {
 	cidS := c.Param("cid")
 	if cidS == "" {
 		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
