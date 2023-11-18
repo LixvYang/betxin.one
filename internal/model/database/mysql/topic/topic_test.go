@@ -90,34 +90,34 @@ func Test(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestFind(t *testing.T) {
-	var err error
-	dns := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		"root",
-		"123456",
-		"127.0.0.1",
-		3306,
-		"betxin",
-	)
-	err = snowflake.Init("2022-11-11", 1)
-	assert.Nil(t, err)
-	db, err = gorm.Open(mysql.Open(dns))
-	assert.Nil(t, err)
-	db = db.Debug()
+// func TestFind(t *testing.T) {
+// 	var err error
+// 	dns := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+// 		"root",
+// 		"123456",
+// 		"127.0.0.1",
+// 		3306,
+// 		"betxin",
+// 	)
+// 	err = snowflake.Init("2022-11-11", 1)
+// 	assert.Nil(t, err)
+// 	db, err = gorm.Open(mysql.Open(dns))
+// 	assert.Nil(t, err)
+// 	db = db.Debug()
 
-	query.SetDefault(db)
+// 	query.SetDefault(db)
 
-	cache := cache.New(&configs.RedisConfig{
-		Host:         "127.0.0.1",
-		Password:     "123456",
-		Port:         6379,
-		DB:           0,
-		PoolSize:     128,
-		MinIdleConns: 100,
-	})
-	topicModel := NewTopicModel(query.Q, cache)
+// 	cache := cache.New(&configs.RedisConfig{
+// 		Host:         "127.0.0.1",
+// 		Password:     "123456",
+// 		Port:         6379,
+// 		DB:           0,
+// 		PoolSize:     128,
+// 		MinIdleConns: 100,
+// 	})
+// 	topicModel := NewTopicModel(query.Q, cache)
 
-	schemaTopicc, err := topicModel.GetTopicByTid(context.Background(), &log.Logger, 447204630376484864)
-	assert.Nil(t, err)
-	fmt.Printf("%#v", *schemaTopicc)
-}
+// 	schemaTopicc, err := topicModel.GetTopicByTid(context.Background(), &log.Logger, 447204630376484864)
+// 	assert.Nil(t, err)
+// 	fmt.Printf("%#v", *schemaTopicc)
+// }

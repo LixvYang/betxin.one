@@ -14,19 +14,42 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"github.com/shopspring/decimal"
 )
 
+type HandlerFunc func(ctx context.Context, logger *zerolog.Logger, q *query.Query, sqlTopics ...*sqlmodel.Topic) error
+
 type TopicModel struct {
-	db    *query.Query
-	cache *cache.Cache
+	db       *query.Query
+	cache    *cache.Cache
+	handlers map[string][]HandlerFunc
 }
 
-func NewTopicModel(query *query.Query, cache *cache.Cache) TopicModel {
-	return TopicModel{
-		db:    query,
+func (um *TopicModel) Use(name string, f HandlerFunc) {
+	if um.handlers == nil {
+		um.handlers = make(map[string][]HandlerFunc)
+	}
+	um.handlers[name] = append(um.handlers[name], f)
+}
+
+func (um *TopicModel) Run(ctx context.Context, logger *zerolog.Logger, name string, sqlTopics ...*sqlmodel.Topic) error {
+	var err error
+	for _, f := range um.handlers[name] {
+		if err = f(ctx, logger, um.db, sqlTopics...); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func NewTopicModel(q *query.Query, cache *cache.Cache) TopicModel {
+	tm := TopicModel{
+		db:    q,
 		cache: cache,
 	}
+
+	tm.Use("AfterFind", tm.AfterFind)
+	tm.Use("BeforeUpdate", tm.BeforeUpdate)
+	return tm
 }
 
 func (um *TopicModel) StopTopic(ctx context.Context, logger *zerolog.Logger, tid int64) error {
@@ -37,11 +60,16 @@ func (um *TopicModel) StopTopic(ctx context.Context, logger *zerolog.Logger, tid
 		um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", tid))
 	}()
 
-	originTopic, err := um.GetTopicByTid(ctx, logger, tid)
+	sqlTopic, err := um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid), query.Topic.IsDeleted.Zero()).Last()
 	if err != nil {
+		logger.Info().Msgf("tid: %d, not found in mysql", tid)
 		return err
 	}
-	err = um.checkUpdate(originTopic)
+	// err = um.checkUpdate(originTopic)
+	// if err != nil {
+	// 	return err
+	// }
+	err = um.Run(ctx, logger, "BeforeUpdate", sqlTopic)
 	if err != nil {
 		return err
 	}
@@ -79,6 +107,8 @@ func (um *TopicModel) GetTopicsByCid(ctx context.Context, logger *zerolog.Logger
 	if err != nil {
 		return nil, err
 	}
+
+	um.Run(ctx, logger, "AfterFind", sqlTopics...)
 	copier.Copy(&topics, &sqlTopics)
 	return topics, nil
 }
@@ -98,7 +128,7 @@ func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger,
 
 	topic = new(schema.Topic)
 	copier.Copy(topic, sqlTopic)
-
+	um.Run(ctx, logger, "AfterFind", sqlTopic)
 	go um.encodeTopicInfoToCache(ctx, logger, topic)
 
 	return topic, nil
@@ -152,6 +182,21 @@ func (um *TopicModel) UpdateTopicInfo(ctx context.Context, logger *zerolog.Logge
 		um.cache.HDel(ctx, consts.RdsHashTopicInfoKey, fmt.Sprintf("%d", topic.Tid))
 	}()
 
+	sqlTopic, err := um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(topic.Tid), query.Topic.IsDeleted.Zero()).Last()
+	if err != nil {
+		logger.Info().Msgf("tid: %d, not found in mysql", topic.Tid)
+		return err
+	}
+
+	err = um.Run(ctx, logger, "BeforeUpdate", sqlTopic)
+	if err != nil {
+		return err
+	}
+	// err = um.checkUpdate(originTopic)
+	// if err != nil {
+	// 	return err
+	// }
+
 	// 开启事务
 	tx := um.db.Begin()
 	defer func() {
@@ -160,15 +205,6 @@ func (um *TopicModel) UpdateTopicInfo(ctx context.Context, logger *zerolog.Logge
 			panic(err)
 		}
 	}()
-
-	originTopic, err := um.GetTopicByTid(ctx, logger, topic.Tid)
-	if err != nil {
-		return err
-	}
-	err = um.checkUpdate(originTopic)
-	if err != nil {
-		return err
-	}
 
 	t := query.Topic
 	_, err = t.WithContext(ctx).
@@ -214,6 +250,7 @@ func (um *TopicModel) ListTopicByCid(ctx context.Context, logger *zerolog.Logger
 	if err != nil {
 		return nil, err
 	}
+	um.Run(ctx, logger, "AfterFind", sqlTopics...)
 	copier.Copy(&topics, &sqlTopics)
 
 	return topics, nil
@@ -247,26 +284,26 @@ func (um *TopicModel) getTopicinfoFromCache(ctx context.Context, logger *zerolog
 	return nil, err
 }
 
-func (um *TopicModel) checkUpdate(t *schema.Topic) (err error) {
-	if t.IsDeleted {
-		return errors.New("topic already deleted")
-	}
+// func (um *TopicModel) checkUpdate(t *schema.Topic) (err error) {
+// 	if t.IsDeleted {
+// 		return errors.New("topic already deleted")
+// 	}
 
-	if t.IsStop || time.Now().After(time.UnixMilli(t.EndTime)) {
-		return errors.New("topic already stop")
-	}
-	decimal.DivisionPrecision = 2
-	yesCnt, _ := decimal.NewFromString(t.YesCount)
+// 	if t.IsStop || time.Now().After(time.UnixMilli(t.EndTime)) {
+// 		return errors.New("topic already stop")
+// 	}
+// 	decimal.DivisionPrecision = 2
+// 	yesCnt, _ := decimal.NewFromString(t.YesCount)
 
-	totalCnt, err := decimal.NewFromString(t.TotalCount)
-	if err != nil {
-		return err
-	}
-	if totalCnt.Equal(decimal.NewFromFloat(0)) {
-		return nil
-	}
-	yesRatio := yesCnt.Div(totalCnt)
-	t.YesRatio = yesRatio.String()
-	t.NoRatio = decimal.NewFromInt(100).Sub(yesRatio).String()
-	return nil
-}
+// 	totalCnt, err := decimal.NewFromString(t.TotalCount)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if totalCnt.Equal(decimal.NewFromFloat(0)) {
+// 		return nil
+// 	}
+// 	yesRatio := yesCnt.Div(totalCnt)
+// 	t.YesRatio = yesRatio.String()
+// 	t.NoRatio = decimal.NewFromInt(100).Sub(yesRatio).String()
+// 	return nil
+// }
