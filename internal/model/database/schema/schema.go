@@ -28,6 +28,7 @@ type Topic struct {
 	ReadCount     int64  `json:"read_count"`
 	ImgURL        string `json:"img_url"`
 	IsStop        bool   `json:"is_stop"`
+	IsDeleted     bool   `json:"is_deleted"`
 	RefundEndTime int64  `json:"refund_end_time"`
 	EndTime       int64  `json:"end_time"`
 }

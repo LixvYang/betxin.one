@@ -90,7 +90,7 @@ func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger,
 	} else {
 		return topic, err
 	}
-	sqlTopic, err := um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Last()
+	sqlTopic, err := um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid), query.Topic.IsDeleted.Zero()).Last()
 	if err != nil {
 		logger.Info().Msgf("tid: %d, not found in mysql", tid)
 		return nil, err
@@ -105,9 +105,9 @@ func (um *TopicModel) GetTopicByTid(ctx context.Context, logger *zerolog.Logger,
 }
 
 func (um *TopicModel) CreateTopic(ctx context.Context, logger *zerolog.Logger, topic *schema.Topic) error {
-	var sqlTopic sqlmodel.Topic
-	copier.Copy(&sqlTopic, topic)
-	return um.db.Topic.WithContext(ctx).Debug().Create(&sqlTopic)
+	sqlTopic := new(sqlmodel.Topic)
+	copier.Copy(sqlTopic, topic)
+	return um.db.Topic.WithContext(ctx).Debug().Create(sqlTopic)
 }
 
 func (um *TopicModel) DeleteTopic(ctx context.Context, logger *zerolog.Logger, tid int64) (err error) {
@@ -134,7 +134,7 @@ func (um *TopicModel) DeleteTopic(ctx context.Context, logger *zerolog.Logger, t
 		return
 	}
 	// 数据库删除数据
-	_, err = um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Delete()
+	_, err = um.db.Topic.WithContext(ctx).Where(query.Topic.Tid.Eq(tid)).Update(query.Topic.IsDeleted, true)
 	if err != nil {
 		logger.Info().Msgf("tid: %d, delete failed in mysql", tid)
 		return
@@ -210,7 +210,7 @@ func (um *TopicModel) UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *s
 }
 
 func (um *TopicModel) ListTopicByCid(ctx context.Context, logger *zerolog.Logger, cid int64, preId int64, pageSize int64) (topics []*schema.Topic, err error) {
-	sqlTopics, err := um.db.WithContext(ctx).Topic.Where(query.Topic.Cid.Eq(cid), query.Topic.Tid.Lte(preId), query.Topic.DeletedAt.Eq(0)).Limit(int(pageSize)).Order(query.Topic.Tid.Desc()).Find()
+	sqlTopics, err := um.db.WithContext(ctx).Topic.Where(query.Topic.Cid.Eq(cid), query.Topic.Tid.Lte(preId), query.Topic.DeletedAt.Eq(0), query.Topic.IsDeleted.Zero()).Limit(int(pageSize)).Order(query.Topic.Tid.Desc()).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +248,9 @@ func (um *TopicModel) getTopicinfoFromCache(ctx context.Context, logger *zerolog
 }
 
 func (um *TopicModel) checkUpdate(t *schema.Topic) (err error) {
-	fmt.Println(*t)
+	if t.IsDeleted {
+		return errors.New("topic already deleted")
+	}
 
 	if t.IsStop || time.Now().After(time.UnixMilli(t.EndTime)) {
 		return errors.New("topic already stop")

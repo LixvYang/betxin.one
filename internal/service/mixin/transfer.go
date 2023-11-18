@@ -1,4 +1,4 @@
-package service
+package mixin
 
 // import "github.com/fox-one/mixin-sdk-go"
 
@@ -6,3 +6,4 @@ package service
 // 	c := mixin.Client{}
 // 	c.SendMessage()
 // }
+

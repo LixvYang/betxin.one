@@ -62,8 +62,11 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 		api.POST("/connect", h.IUserHandler.Connect)
 
 		// 话题查询
-		api.GET("/topic/:cid", h.ITopicHandler.ListTopicsByCid)
+		api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
 		api.POST("/topic", h.ITopicHandler.Create)
+		api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
+		api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
+		api.GET("/topic/:tid", h.ITopicHandler.Get)
 
 		// 创建种类
 		api.POST("/category", h.ICategoryHandler.Create)

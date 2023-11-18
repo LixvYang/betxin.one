@@ -24,5 +24,8 @@ func NewHandler(db database.Database, categoryMap map[int64]*schema.Category) IT
 
 type ITopicHandler interface {
 	Create(*gin.Context)
+	Delete(*gin.Context)
+	Get(*gin.Context)
 	ListTopicsByCid(*gin.Context)
+	UpdateTopicInfo(*gin.Context)
 }

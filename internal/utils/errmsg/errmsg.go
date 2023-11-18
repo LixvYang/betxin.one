@@ -45,10 +45,11 @@ const (
 	ERROR_UPDATE_BONUSE    = 4007
 
 	// code=5000... 话题错误
-	ERROR_UPDATE_TOPIC = 5001
-	ERROR_DELETE_TOPIC = 5002
-	ERROR_LIST_TOPIC   = 5003
-	ERROR_GET_TOPIC    = 5003
+	ERROR_UPDATE_TOPIC       = 5001
+	ERROR_DELETE_TOPIC       = 5002
+	ERROR_LIST_TOPIC         = 5003
+	ERROR_GET_TOPIC          = 5003
+	ERROR_TOPIC_INVAILD_NAME = 5005
 )
 
 var codeMsg = map[int]string{
@@ -88,9 +89,10 @@ var codeMsg = map[int]string{
 	ERROR_DELETE_BONUSE:    "删除奖金失败",
 	ERROR_CREATE_BONUSE:    "创建奖金失败",
 
-	ERROR_UPDATE_TOPIC: "更新话题错误",
-	ERROR_DELETE_TOPIC: "删除话题错误",
-	ERROR_LIST_TOPIC:   "查询话题列表错误",
+	ERROR_UPDATE_TOPIC:       "更新话题错误",
+	ERROR_DELETE_TOPIC:       "删除话题错误",
+	ERROR_LIST_TOPIC:         "查询话题列表错误",
+	ERROR_TOPIC_INVAILD_NAME: "invaild tid",
 }
 
 func GetErrMsg(code int) string {
