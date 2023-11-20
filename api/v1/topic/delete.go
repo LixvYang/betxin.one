@@ -12,7 +12,7 @@ import (
 
 func (th *TopicHandler) Delete(c *gin.Context) {
 	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
-	tid, err := th.checkDelete(c)
+	tid, err := th.checkTid(c)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Delete][checkDelete] error")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -30,7 +30,7 @@ func (th *TopicHandler) Delete(c *gin.Context) {
 	handler.SendResponse(c, errmsg.SUCCSE, nil)
 }
 
-func (th *TopicHandler) checkDelete(c *gin.Context) (int64, error) {
+func (th *TopicHandler) checkTid(c *gin.Context) (int64, error) {
 	tid, err := convert.StrToInt64(c.Param("tid"))
 	if err != nil || tid == 0 {
 		return 0, errors.New("[checkUpdateTopicInfoReq][StrToInt64] tid invalid")

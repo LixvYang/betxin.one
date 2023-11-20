@@ -3,7 +3,6 @@ package mixin
 type MixinService interface {
 	Transfer() error
 	SendMessage() error
-	NFTS() error
 }
 
 type Mixin struct {

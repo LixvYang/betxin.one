@@ -32,7 +32,7 @@ type GetTopicResp struct {
 func (th *TopicHandler) Get(c *gin.Context) {
 	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
 
-	tid, err := th.checkDelete(c)
+	tid, err := th.checkTid(c)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Get][checkCreate]")
 		handler.SendResponse(c, errmsg.ERROR, nil)

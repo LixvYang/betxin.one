@@ -10,8 +10,12 @@ import (
 	"github.com/lixvyang/betxin.one/api/sd"
 	"github.com/lixvyang/betxin.one/api/v1/v1"
 	"github.com/lixvyang/betxin.one/configs"
+	_ "github.com/lixvyang/betxin.one/docs"
 	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/lixvyang/betxin.one/pkg/middleware"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Service struct {
@@ -54,6 +58,7 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 		middleware.GinLogger(&logger.Lg),
 		middleware.GinRecovery(&logger.Lg, true),
 	)
+	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	h := v1.NewBetxinHandler(conf)
 	api := e.Group("/api/v1")
@@ -68,8 +73,15 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 		api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
 		api.GET("/topic/:tid", h.ITopicHandler.Get)
 
-		// 创建种类
+	}
+
+	// 管理员权限
+	{
 		api.POST("/category", h.ICategoryHandler.Create)
+		api.DELETE("/category/:id", h.ICategoryHandler.Delete)
+		api.PUT("/category/:id", h.ICategoryHandler.Update)
+		api.GET("/category/:id", h.ICategoryHandler.Get)
+		api.GET("/categories", h.ICategoryHandler.List)
 	}
 
 	{

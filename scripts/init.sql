@@ -67,12 +67,14 @@ INSERT INTO category (id, category_name) VALUES (2, 'Crypto');
 
 INSERT INTO category (id, category_name) VALUES (3, 'Sports');
 
-INSERT INTO category (id, category_name) VALUES (4, 'Politics');
+INSERT INTO category (id, category_name) VALUES (4, 'Games');
 
-INSERT INTO category (id, category_name) VALUES (5, 'New');
+INSERT INTO category (id, category_name) VALUES (5, 'News');
 
 INSERT INTO category (id, category_name) VALUES (6, 'Trending');
 
+
+INSERT INTO category (id, category_name) VALUES (7, 'Others');
 -- 转账信息系统
 
 CREATE TABLE

@@ -17,4 +17,8 @@ func NewHandler(db database.ICategoty) *CategoryHandler {
 
 type ICategoryHandler interface {
 	Create(c *gin.Context)
+	Get(c *gin.Context)
+	List(c *gin.Context)
+	Delete(c *gin.Context)
+	Update(c *gin.Context)
 }

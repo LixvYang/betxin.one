@@ -53,7 +53,7 @@ const (
 )
 
 var codeMsg = map[int]string{
-	SUCCSE:                 "OK",
+	SUCCSE:                 "SUCCESS",
 	ERROR:                  "FAIL",
 	ERROR_BIND:             "输入参数错误",
 	ERROR_AUTH:             "认证错误",
