@@ -61,20 +61,13 @@ CREATE TABLE
         PRIMARY KEY (`id`)
     ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
-INSERT INTO category (id, category_name) VALUES (1, 'Buisiness');
-
-INSERT INTO category (id, category_name) VALUES (2, 'Crypto');
-
-INSERT INTO category (id, category_name) VALUES (3, 'Sports');
-
-INSERT INTO category (id, category_name) VALUES (4, 'Games');
-
-INSERT INTO category (id, category_name) VALUES (5, 'News');
-
-INSERT INTO category (id, category_name) VALUES (6, 'Trending');
-
-
-INSERT INTO category (id, category_name) VALUES (7, 'Others');
+INSERT INTO category (id, name) VALUES (1, 'Buisiness');
+INSERT INTO category (id, name) VALUES (2, 'Crypto');
+INSERT INTO category (id, name) VALUES (3, 'Sports');
+INSERT INTO category (id, name) VALUES (4, 'Games');
+INSERT INTO category (id, name) VALUES (5, 'News');
+INSERT INTO category (id, name) VALUES (6, 'Trending');
+INSERT INTO category (id, name) VALUES (7, 'Others');
 -- 转账信息系统
 
 CREATE TABLE

@@ -63,13 +63,15 @@ func (um *UserModel) GetUserByUid(ctx context.Context, logger *zerolog.Logger, u
 	} else {
 		return user, nil
 	}
+
+	user = new(schema.User)
 	// 数据库找
 	sqlUser, err := um.db.User.WithContext(ctx).Where(query.User.UID.Eq(uid)).Last()
 	if err != nil {
 		logger.Info().Msgf("uid: %s, not found in mysql", uid)
 		return nil, err
 	}
-	copier.Copy(sqlUser, user)
+	copier.Copy(user, sqlUser)
 
 	go um.encodeUserInfoToCache(ctx, logger, user)
 	return user, nil

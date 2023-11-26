@@ -17,4 +17,5 @@ func NewHandler(db database.IUser) IUserHandler {
 
 type IUserHandler interface {
 	Connect(c *gin.Context)
+	Get(c *gin.Context)
 }

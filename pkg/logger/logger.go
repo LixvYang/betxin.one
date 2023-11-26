@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"runtime/debug"
+	"strconv"
 	"time"
 
 	"github.com/natefinch/lumberjack"
@@ -82,6 +83,7 @@ func InitLogger(config *LogConfig) {
 		Str("git_revision", gitRevision).
 		Str("go_version", buildInfo.GoVersion).
 		Timestamp().
+		CallerWithSkipFrameCount(2).
 		Logger()
 
 	Lg.Info().
@@ -111,4 +113,16 @@ func newRollingFile(config *LogConfig) io.Writer {
 		LocalTime:  config.LocalTime,
 		Compress:   config.Compress,
 	}
+}
+
+func LogShortPath(_ uintptr, file string, line int) string {
+	short := file
+	for i := len(file) - 1; i > 0; i-- {
+		if file[i] == '/' {
+			short = file[i+1:]
+			break
+		}
+	}
+	file = short
+	return file + ":" + strconv.Itoa(line)
 }

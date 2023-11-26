@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/lixvyang/betxin.one/api/v1/handler"
@@ -40,6 +39,8 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 		return
 	}
 
+	logger.Info().Any("req", req).Send()
+
 	err := uh.checkConnectArg(logger, &req)
 	if err != nil {
 		logger.Error().Int("errmsg", errmsg.ERROR_INVAILD_ARGV).Msgf("check args error: %+v", err)
@@ -53,8 +54,8 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 	authorizer := auth.New([]string{
 		"30aad5a5-e5f3-4824-9409-c2ff4152724e",
 	}, []string{
-		"localhost:4000",
-		"localhost:4000/*",
+		"localhost:3000",
+		"localhost:3000/*",
 	})
 
 	switch req.LoginMethod {
@@ -124,9 +125,9 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 		}
 
 		// get the public key from the message, and use it to login
-		jwtToken, code := uh.loginMvm(c, logger, message.Address)
-		if code != errmsg.SUCCSE {
-			logger.Error().Msgf("[uh.loginMvm] error")
+		jwtToken, err := uh.loginMvm(c, logger, message.Address)
+		if err != nil {
+			logger.Error().Err(err).Msgf("[uh.loginMvm] error")
 			handler.SendResponse(c, errmsg.ERROR, nil)
 			return
 		}
@@ -141,26 +142,30 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 	}
 }
 
-func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey string) (string, int) {
+func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey string) (string, error) {
 	addr := common.HexToAddress(pubkey)
 	mvmUser, err := mvm.GetBridgeUser(c, addr)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][mvm.GetBridgeUser] err")
-		return "", errmsg.ERROR
+		return "", err
 	}
 
 	contractAddr, err := mvm.GetUserContract(c, mvmUser.UserID)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][mvm.GetUserContract] err")
-		fmt.Printf("err mvm.GetUserContract: %v\n", err)
-		return "", errmsg.ERROR
+		return "", err
 	}
+
+	logger.Info().Any("contractAddr", contractAddr).Msg("userInfo")
 
 	// if contractAddr is not 0x000..00, it means the user has already registered a mvm account
 	emptyAddr := common.Address{}
-	if contractAddr != emptyAddr {
-		return "", errmsg.ERROR
+	if contractAddr == emptyAddr {
+		logger.Error().Err(err).Msgf("[loginMvm][mvm.emptyAddr] err")
+		return "", err
 	}
+
+	logger.Info().Msgf("user: %+v", mvmUser)
 
 	user := &schema.User{
 		IsMvmUser:  true,
@@ -172,19 +177,34 @@ func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey s
 		SessionID:  mvmUser.Key.SessionID,
 	}
 	logger.Info().Any("user", user).Msg("userInfo")
-	err = uh.storage.CreateUser(context.Background(), logger, user)
+	// err = uh.storage.CreateUser(context.Background(), logger, user)
+	// if err != nil {
+	// 	logger.Error().Err(err).Msgf("[loginMvm][db.CreateUser(user)] err")
+	// 	return "", err
+	// }
+
+	err = uh.storage.CheckUser(c, logger, user.UID)
 	if err != nil {
-		logger.Error().Err(err).Msgf("[loginMvm][db.CreateUser(user)] err")
-		return "", errmsg.ERROR
+		err = uh.storage.CreateUser(c, logger, user)
+		if err != nil {
+			logger.Error().Err(err).Msg("[CheckUser][CreateUser] error")
+			handler.SendResponse(c, errmsg.ERROR_GET_USER, nil)
+			return "", errors.New("create user err")
+		}
+	} else {
+		err = uh.storage.UpdateUser(c, logger, user)
+		if err != nil {
+			logger.Error().Err(err).Msg("[CheckUser][UpdateUser] error")
+		}
 	}
 
 	jwtToken, err := jwt.GenToken(user.UID)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][jwt.GenToken] err")
-		return "", errmsg.ERROR
+		return "", err
 	}
 
-	return jwtToken, errmsg.SUCCSE
+	return jwtToken, nil
 }
 
 func (uh *UserHandler) checkConnectArg(logger *zerolog.Logger, req *SigninReq) error {

@@ -5,6 +5,7 @@ import "time"
 const (
 	LoggerKey = "logger"
 	Xid       = "xid"
+	Uid       = "uid"
 )
 
 const (

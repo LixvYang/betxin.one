@@ -54,6 +54,7 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 	e := gin.New()
 
 	e.Use(
+		middleware.Cors(),
 		middleware.GinXid(&logger.Lg),
 		middleware.GinLogger(&logger.Lg),
 		middleware.GinRecovery(&logger.Lg, true),
@@ -72,7 +73,6 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 		api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
 		api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
 		api.GET("/topic/:tid", h.ITopicHandler.Get)
-
 	}
 
 	// 管理员权限
@@ -89,6 +89,12 @@ func initRouter(conf *configs.AppConfig) *gin.Engine {
 		api.GET("/backend/disk", sd.DiskCheck)
 		api.GET("/backend/cpu", sd.CPUCheck)
 		api.GET("/backend/ram", sd.RAMCheck)
+	}
+
+	api.Use(middleware.JWTAuthMiddleware())
+	{
+		api.GET("/user", h.IUserHandler.Get)
+
 	}
 
 	return e
