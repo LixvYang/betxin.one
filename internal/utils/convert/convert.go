@@ -17,8 +17,8 @@ func StrToInt64(s string) (int64, error) {
 	return i, nil
 }
 
-func IntToStr(t any) string {
-	return fmt.Sprintf("%v", t)
+func IntToStr(t int64) string {
+	return fmt.Sprintf("%d", t)
 }
 
 func Marshal[T any](j T) (string, error) {

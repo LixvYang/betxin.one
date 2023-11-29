@@ -1,6 +1,8 @@
 package sqlmodel
 
 import (
+	"time"
+
 	"github.com/lixvyang/betxin.one/pkg/snowflake"
 	"gorm.io/gorm"
 )
@@ -35,6 +37,8 @@ func (t *Topic) BeforeCreate(tx *gorm.DB) error {
 	t.Tid = snowflake.GenID()
 	t.YesRatio = "50.00"
 	t.NoRatio = "50.00"
+	t.CreatedAt = time.Now().UnixMilli()
+	t.UpdatedAt = time.Now().UnixMilli()
 	return nil
 }
 

@@ -47,9 +47,19 @@ CREATE TABLE
         `updated_at` BIGINT(13) NOT NULL DEFAULT 0 COMMENT '更新时间',
         `deleted_at` BIGINT(13) DEFAULT NULL COMMENT '删除时间',
         PRIMARY KEY (`id`),
-        INDEX idx_cid (cid) COMMENT '分类索引',
-        UNIQUE idx_tid (tid) COMMENT '唯一索引',
-        INDEX title_intro_content_index (title, intro, content) COMMENT '全文索引'
+        INDEX `idx_cid` (cid) COMMENT '分类索引',
+        UNIQUE `idx_tid` (tid) COMMENT '唯一索引',
+        INDEX `title_intro_content_index` (title, intro, content) COMMENT '全文索引'
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE
+    IF NOT EXISTS `tag` (
+        `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '话题自增ID',
+        `tid` BIGINT(20) NOT NULL,
+        `name` VARCHAR(20) NOT NULL DEFAULT '',
+        PRIMARY KEY (`id`),
+        KEY `idx_tid` (`tid`),
+        KEY `idx_name` (`name`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- 种类系统
@@ -62,12 +72,19 @@ CREATE TABLE
     ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 INSERT INTO category (id, name) VALUES (1, 'Buisiness');
+
 INSERT INTO category (id, name) VALUES (2, 'Crypto');
+
 INSERT INTO category (id, name) VALUES (3, 'Sports');
+
 INSERT INTO category (id, name) VALUES (4, 'Games');
+
 INSERT INTO category (id, name) VALUES (5, 'News');
+
 INSERT INTO category (id, name) VALUES (6, 'Trending');
+
 INSERT INTO category (id, name) VALUES (7, 'Others');
+
 -- 转账信息系统
 
 CREATE TABLE
@@ -160,8 +177,8 @@ CREATE TABLE
         `title` varchar(150) NOT NULL DEFAULT '',
         `content` VARCHAR(512) NOT NULL,
         `created_at` BIGINT(13) NOT NULL DEFAULT 0,
-        `updated_at` BIGINT(13) NOT NULL DEFAULT 0, 
-        `deleted_at` BIGINT(13) DEFAULT NULL, 
+        `updated_at` BIGINT(13) NOT NULL DEFAULT 0,
+        `deleted_at` BIGINT(13) DEFAULT NULL,
         PRIMARY KEY (`id`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 

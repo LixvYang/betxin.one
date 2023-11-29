@@ -2,7 +2,7 @@ package schema
 
 type User struct {
 	IdentityNumber string `json:"identity_number"`
-	UID            string `json:"uid" copier:"-"`
+	UID            string `json:"uid"`
 	FullName       string `json:"full_name"`
 	AvatarURL      string `json:"avatar_url"`
 	SessionID      string `json:"session_id"`

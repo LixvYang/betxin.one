@@ -37,13 +37,12 @@ func TestStrToInt64(t *testing.T) {
 
 func TestIntToStr(t *testing.T) {
 	tests := []struct {
-		input    interface{}
+		input    int64
 		expected string
 	}{
-		{123, "123"},
-		{-456, "-456"},
-		{3.14, "3.14"},
-		{"hello", "hello"},
+		{int64(123), "123"},
+		{int64(-456), "-456"},
+		{int64(3), "3"},
 	}
 
 	for _, test := range tests {

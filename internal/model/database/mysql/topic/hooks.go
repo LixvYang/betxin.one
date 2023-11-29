@@ -31,6 +31,7 @@ func (tm *TopicModel) BeforeUpdate(ctx context.Context, logger *zerolog.Logger, 
 				errmsg = errors.New("topic already deleted")
 				break
 			}
+			t.UpdatedAt = time.Now().UnixMilli()
 
 			if t.IsStop || time.Now().After(time.UnixMilli(t.EndTime)) {
 				errmsg = errors.New("topic already stop")

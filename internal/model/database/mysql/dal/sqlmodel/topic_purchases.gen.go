@@ -9,6 +9,7 @@ const TableNameTopicPurchase = "topic_purchases"
 // TopicPurchase mapped from table <topic_purchases>
 type TopicPurchase struct {
 	ID        int64  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	TraceID   string `gorm:"column:trace_id;not null;comment:话题购买的trace_id" json:"trace_id"` // 话题购买的trace_id
 	UID       string `gorm:"column:uid;not null" json:"uid"`
 	Tid       int64  `gorm:"column:tid;not null" json:"tid"`
 	YesPrice  string `gorm:"column:yes_price;not null;default:0.00000000;comment:支持金额" json:"yes_price"` // 支持金额

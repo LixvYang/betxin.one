@@ -10,6 +10,7 @@ import (
 	"github.com/lixvyang/betxin.one/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/internal/utils/token"
 	"github.com/pkg/errors"
@@ -22,8 +23,29 @@ type ListTopicByCidResp struct {
 	PrePageToken string           `json:"pre_page_token"`
 }
 
+type TopicItem struct {
+	Tid           string `json:"tid"`
+	Cid           int64  `json:"cid"`
+	Title         string `json:"title"`
+	Intro         string `json:"intro"`
+	Content       string `json:"content"`
+	YesRatio      string `json:"yes_ratio"`
+	NoRatio       string `json:"no_ratio"`
+	YesCount      string `json:"yes_count"`
+	NoCount       string `json:"no_count"`
+	TotalCount    string `json:"total_count"`
+	CollectCount  int64  `json:"collect_count"`
+	ReadCount     int64  `json:"read_count"`
+	ImgURL        string `json:"img_url"`
+	IsStop        bool   `json:"is_stop"`
+	IsDeleted     bool   `json:"is_deleted"`
+	RefundEndTime int64  `json:"refund_end_time"`
+	EndTime       int64  `json:"end_time"`
+}
+
 type ListTopicData struct {
-	*schema.Topic
+	*TopicItem
+	Tid       string           `json:"tid"`
 	IsCollect bool             `json:"is_collect"`
 	Category  *schema.Category `json:"category"`
 }
@@ -86,8 +108,12 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 
 	// if has pre page
 	if hasPrePage {
+		tid, err := convert.StrToInt64(topicDataList[len(topicDataList)-1].Tid)
+		if err != nil {
+			logger.Error().Err(err).Msgf("[t.ListTopicsByCid][convert.StrToInt64] err")
+		}
 		prePageInfo := token.Page{
-			PreID:         topicDataList[len(topicDataList)-1].Tid,
+			PreID:         tid,
 			NextTimeAtUTC: time.Now().Add(time.Hour * 24).UnixMilli(),
 			PageSize:      pageSize,
 		}
@@ -99,7 +125,6 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 		})
 		return
 	}
-
 	handler.SendResponse(c, errmsg.SUCCSE, &ListTopicByCidResp{
 		PrePageToken: prePageToken,
 		List:         topicDataList,
@@ -110,6 +135,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*schema.Topic) []
 	topicDataList := make([]*ListTopicData, len(args))
 	copier.Copy(&topicDataList, &args)
 	for i := 0; i < len(topicDataList); i++ {
+		topicDataList[i].Tid = convert.IntToStr(args[i].Tid)
 		topicDataList[i].Category = t.categoryMap[topicDataList[i].Cid]
 	}
 	uidS, exists := c.Get("uid")
@@ -127,9 +153,9 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*schema.Topic) []
 		return topicDataList
 	}
 
-	collectMap := make(map[int64]bool)
+	collectMap := make(map[string]bool)
 	for _, collect := range collects {
-		collectMap[collect.Tid] = collect.Status
+		collectMap[convert.IntToStr(collect.Tid)] = collect.Status
 	}
 
 	for i := 0; i < len(topicDataList); i++ {
@@ -142,19 +168,16 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*schema.Topic) []
 func (t *TopicHandler) checkListTopicsByCidReq(c *gin.Context) (int64, error) {
 	cidS := c.Param("cid")
 	if cidS == "" {
-		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
 		return 0, errors.New("cid error")
 	}
 
 	cid, err := strconv.ParseInt(cidS, 0, 64)
 	if err != nil {
-		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
 		return 0, errors.New("cid convert error")
 	}
 
 	_, ok := t.categoryMap[cid]
 	if !ok {
-		handler.SendResponse(c, errmsg.ERROR, nil)
 		return 0, errors.New("cid not exist")
 	}
 	return cid, nil

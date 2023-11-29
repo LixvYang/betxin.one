@@ -1,8 +1,6 @@
 package sqlmodel
 
 import (
-	"fmt"
-
 	"github.com/lixvyang/betxin.one/pkg/snowflake"
 	"gorm.io/gorm"
 )
@@ -29,14 +27,9 @@ type Topic struct {
 	RefundEndTime int64  `gorm:"column:refund_end_time;not null" json:"refund_end_time"`
 	EndTime       int64  `gorm:"column:end_time;not null" json:"end_time"`
 	IsDeleted     bool   `gorm:"column:is_deleted;not null" json:"is_deleted"`
-	CreatedAt     int64  `gorm:"column:created_at;not null" json:"created_at"`
-	UpdatedAt     int64  `gorm:"column:updated_at;not null" json:"updated_at"`
+	CreatedAt     int64  `gorm:"column:created_at;not null;autoCreateTime:milli" json:"created_at"`
+	UpdatedAt     int64  `gorm:"column:updated_at;not null;autoUpdateTime:milli" json:"updated_at"`
 	DeletedAt     int64  `gorm:"column:deleted_at" json:"deleted_at"`
-}
-
-// TableName Topic's table name
-func (*Topic) TableName() string {
-	return TableNameTopic
 }
 
 func (t *Topic) BeforeCreate(tx *gorm.DB) error {
@@ -46,8 +39,7 @@ func (t *Topic) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (t *Topic) BeforeFind(tx *gorm.DB) error {
-	t.ReadCount++
-	fmt.Println(t.ReadCount)
-	return nil
+// TableName Topic's table name
+func (*Topic) TableName() string {
+	return TableNameTopic
 }

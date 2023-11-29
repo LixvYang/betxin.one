@@ -5,12 +5,13 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/lixvyang/betxin.one/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/rs/zerolog"
 )
 
 type GetTopicResp struct {
-	Tid           int64  `json:"tid"`
+	Tid           string `json:"tid"`
 	Cid           int64  `json:"cid"`
 	Title         string `json:"title"`
 	Intro         string `json:"intro"`
@@ -47,7 +48,9 @@ func (th *TopicHandler) Get(c *gin.Context) {
 	}
 	getTopicResp := new(GetTopicResp)
 	copier.Copy(getTopicResp, topic)
-	logger.Info().Any("topic", topic).Msg("[Get]")
+	getTopicResp.Tid = convert.IntToStr(topic.Tid)
 	
+	logger.Info().Any("topic", topic).Msg("[Get]")
+
 	handler.SendResponse(c, errmsg.SUCCSE, getTopicResp)
 }
