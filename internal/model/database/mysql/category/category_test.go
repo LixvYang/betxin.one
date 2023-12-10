@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lixvyang/betxin.one/configs"
+	configs "github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/model/cache"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/query"
 	"github.com/rs/zerolog/log"

@@ -5,7 +5,7 @@ import (
 	"github.com/lixvyang/betxin.one/api/v1/category"
 	"github.com/lixvyang/betxin.one/api/v1/topic"
 	"github.com/lixvyang/betxin.one/api/v1/user"
-	"github.com/lixvyang/betxin.one/configs"
+	configs "github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/model/database"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 )

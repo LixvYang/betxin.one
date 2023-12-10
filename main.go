@@ -7,7 +7,7 @@ import (
 	"syscall"
 
 	"github.com/jinzhu/copier"
-	"github.com/lixvyang/betxin.one/configs"
+	"github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/router"
 	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/lixvyang/betxin.one/pkg/snowflake"
@@ -20,9 +20,9 @@ var (
 )
 
 func main() {
-	flag.StringVar(&configFile, "f", "./configs/configs.yaml", "config file")
-	conf := new(configs.AppConfig)
-	if err := configs.Init(configFile, conf); err != nil {
+	flag.StringVar(&configFile, "f", "./config/config.yaml", "config file")
+	conf := new(config.AppConfig)
+	if err := config.Init(configFile, conf); err != nil {
 		log.Error().Err(err).Msgf("[configs.Init] err: %+v", err)
 	}
 	log.Info().Any("conf", conf).Msg("init config succes")

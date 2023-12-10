@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"github.com/lixvyang/betxin.one/configs"
+	configs "github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 

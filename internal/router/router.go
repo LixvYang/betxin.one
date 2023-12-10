@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/api/sd"
 	"github.com/lixvyang/betxin.one/api/v1/v1"
-	"github.com/lixvyang/betxin.one/configs"
+	configs "github.com/lixvyang/betxin.one/config"
 	_ "github.com/lixvyang/betxin.one/docs"
 	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/lixvyang/betxin.one/pkg/middleware"

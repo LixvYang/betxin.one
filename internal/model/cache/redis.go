@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lixvyang/betxin.one/configs"
+	configs "github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/redis/go-redis/v9"
 )

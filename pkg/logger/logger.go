@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 	"runtime/debug"
-	"strconv"
 	"time"
 
 	"github.com/natefinch/lumberjack"
@@ -113,16 +112,4 @@ func newRollingFile(config *LogConfig) io.Writer {
 		LocalTime:  config.LocalTime,
 		Compress:   config.Compress,
 	}
-}
-
-func LogShortPath(_ uintptr, file string, line int) string {
-	short := file
-	for i := len(file) - 1; i > 0; i-- {
-		if file[i] == '/' {
-			short = file[i+1:]
-			break
-		}
-	}
-	file = short
-	return file + ":" + strconv.Itoa(line)
 }
