@@ -29,7 +29,7 @@ func main() {
 
 	logConf := new(logger.LogConfig)
 	copier.Copy(logConf, conf.LogConfig)
-	logger.InitLogger(logConf)
+	logger.New(logConf)
 
 	if err := snowflake.Init(conf.StartTime, conf.MachineID); err != nil {
 		logger.Lg.Panic().Err(err).Msg("[snowflake.Init] err")

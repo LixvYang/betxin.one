@@ -1,50 +1,32 @@
 package main
 
 import (
-	"flag"
+	"context"
 	"os"
-	"os/signal"
-	"syscall"
 
-	"github.com/jinzhu/copier"
-	"github.com/lixvyang/betxin.one/config"
-	"github.com/lixvyang/betxin.one/internal/router"
-	"github.com/lixvyang/betxin.one/pkg/logger"
-	"github.com/lixvyang/betxin.one/pkg/snowflake"
-	"github.com/rs/zerolog/log"
+	"github.com/lixvyang/betxin.one/cmd/root"
+	"github.com/lixvyang/betxin.one/internal/session"
 )
 
 var (
-	configFile string
-	signalChan = make(chan os.Signal, 1)
+	version = "2.0.0"
 )
 
 func main() {
-	flag.StringVar(&configFile, "f", "./config/config.yaml", "config file")
-	conf := new(config.AppConfig)
-	if err := config.Init(configFile, conf); err != nil {
-		log.Error().Err(err).Msgf("[configs.Init] err: %+v", err)
-	}
-	log.Info().Any("conf", conf).Msg("init config succes")
+	ctx := context.Background()
+	s := &session.Session{Version: version}
+	ctx = session.With(ctx, s)
 
-	logConf := new(logger.LogConfig)
-	copier.Copy(logConf, conf.LogConfig)
-	logger.InitLogger(logConf)
-
-	if err := snowflake.Init(conf.StartTime, conf.MachineID); err != nil {
-		logger.Lg.Panic().Err(err).Msg("[snowflake.Init] err")
+	expandedArgs := []string{}
+	if len(os.Args) > 0 {
+		expandedArgs = os.Args[1:]
 	}
 
-	srv := router.NewService(conf)
+	rootCmd := root.NewCmdRoot(version)
 
-	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
-	signalType := <-signalChan
-	signal.Stop(signalChan)
-
-	if err := srv.Shutdown(); err != nil {
-		logger.Lg.Fatal().Msgf("Server ShutDown: %+v", err)
+	rootCmd.SetArgs(expandedArgs)
+	if err := rootCmd.ExecuteContext(ctx); err != nil {
+		rootCmd.PrintErrln("execute failed:", err)
+		os.Exit(1)
 	}
-
-	log.Info().Msgf("On Signal: <%s>", signalType)
-	log.Info().Msg("Exit command received. Exiting...")
 }

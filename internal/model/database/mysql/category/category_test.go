@@ -35,7 +35,7 @@ func Test(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 
-	cache := cache.New(&configs.RedisConfig{
+	cache := cache.New(&log.Logger, &configs.RedisConfig{
 		Host:         "127.0.0.1",
 		Password:     "123456",
 		Port:         6379,

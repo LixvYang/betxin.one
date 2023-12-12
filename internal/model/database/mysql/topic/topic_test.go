@@ -36,7 +36,7 @@ func Test(t *testing.T) {
 
 	query.SetDefault(db)
 
-	cache := cache.New(&configs.RedisConfig{
+	cache := cache.New(&log.Logger, &configs.RedisConfig{
 		Host:         "127.0.0.1",
 		Password:     "123456",
 		Port:         6379,

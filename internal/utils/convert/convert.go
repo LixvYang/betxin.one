@@ -7,8 +7,6 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
-
 func StrToInt64(s string) (int64, error) {
 	i, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
@@ -22,7 +20,7 @@ func IntToStr(t int64) string {
 }
 
 func Marshal[T any](j T) (string, error) {
-	a, err := json.Marshal(j)
+	a, err := jsoniter.Marshal(j)
 	if err != nil {
 		return "", err
 	}
@@ -30,5 +28,5 @@ func Marshal[T any](j T) (string, error) {
 }
 
 func Unmarshal[T any](s string, data T) error {
-	return json.Unmarshal([]byte(s), &data)
+	return jsoniter.Unmarshal([]byte(s), &data)
 }

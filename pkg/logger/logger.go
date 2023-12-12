@@ -9,10 +9,9 @@ import (
 
 	"github.com/natefinch/lumberjack"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
 )
-
-var Lg zerolog.Logger
 
 // Configuration for logging
 type LogConfig struct {
@@ -37,7 +36,7 @@ type LogConfig struct {
 //
 // The output log file will be located at /var/log/service-xyz/service-xyz.log and
 // will be rolled according to configuration set.
-func InitLogger(config *LogConfig) {
+func New(config *LogConfig) *zerolog.Logger {
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 
@@ -76,7 +75,7 @@ func InitLogger(config *LogConfig) {
 		}
 	}
 
-	Lg = zerolog.New(mw).
+	Lg := zerolog.New(mw).
 		Level(zerolog.Level(logLevel)).
 		With().
 		Str("git_revision", gitRevision).
@@ -96,11 +95,13 @@ func InitLogger(config *LogConfig) {
 		Bool("localtime", config.LocalTime).
 		Bool("compress", config.Compress).
 		Msg("logging configured")
+
+	return &Lg
 }
 
 func newRollingFile(config *LogConfig) io.Writer {
 	if err := os.MkdirAll(config.Directory, 0744); err != nil {
-		Lg.Error().Err(err).Str("path", config.Directory).Msg("can't create log directory")
+		log.Error().Err(err).Str("path", config.Directory).Msg("can't create log directory")
 		return nil
 	}
 

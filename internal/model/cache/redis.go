@@ -7,8 +7,8 @@ import (
 	"time"
 
 	configs "github.com/lixvyang/betxin.one/config"
-	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog"
 )
 
 var (
@@ -19,7 +19,7 @@ type Cache struct {
 	cli *redis.Client
 }
 
-func New(conf *configs.RedisConfig) *Cache {
+func New(logger *zerolog.Logger, conf *configs.RedisConfig) *Cache {
 	cache := &Cache{}
 	cache.cli = redis.NewClient(&redis.Options{
 		Addr:         fmt.Sprintf("%s:%d", conf.Host, conf.Port),
@@ -31,10 +31,10 @@ func New(conf *configs.RedisConfig) *Cache {
 
 	res, err := cache.cli.Ping(context.Background()).Result()
 	if err != nil {
-		logger.Lg.Panic().Err(err).Msg("redis ping error")
+		logger.Panic().Err(err).Msg("redis ping error")
 		panic(err)
 	}
-	logger.Lg.Info().Str("redis", res).Send()
+	logger.Info().Str("redis", res).Send()
 	return cache
 }
 

@@ -17,7 +17,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/topic"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/topicpurchase"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/user"
-	"github.com/lixvyang/betxin.one/pkg/logger"
+	"github.com/rs/zerolog"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -25,13 +25,13 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-func NewMySqlService(conf *configs.AppConfig) *MySQLService {
+func NewMySqlService(logger *zerolog.Logger, conf *configs.AppConfig) *MySQLService {
 	m := new(MySQLService)
-	if err := m.initDB(conf.MySQLConfig); err != nil {
-		logger.Lg.Error().Err(err).Msg("[NewMySqlService][m.Init()] err")
+	if err := m.initDB(logger, conf.MySQLConfig); err != nil {
+		logger.Error().Err(err).Msg("[NewMySqlService][m.Init()] err")
 		panic(err)
 	}
-	cache := cache.New(conf.RedisConfig)
+	cache := cache.New(logger, conf.RedisConfig)
 	m.UserModel = user.NewUserModel(query.Q, cache)
 	m.TopicModel = topic.NewTopicModel(query.Q, cache)
 	m.BonuseModel = bonuse.NewBonuseModel(query.Q, cache)
@@ -60,7 +60,7 @@ type MySQLService struct {
 	feedback.FeedbackModel
 }
 
-func (m *MySQLService) initDB(conf *configs.MySQLConfig) error {
+func (m *MySQLService) initDB(logger *zerolog.Logger, conf *configs.MySQLConfig) error {
 
 	dns := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.User,
@@ -85,7 +85,7 @@ func (m *MySQLService) initDB(conf *configs.MySQLConfig) error {
 		},
 	})
 	if err != nil {
-		logger.Lg.Panic().Msgf("连接数据库失败,请检查参数: %+v", err)
+		logger.Panic().Msgf("连接数据库失败,请检查参数: %+v", err)
 		return err
 	}
 

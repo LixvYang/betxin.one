@@ -11,8 +11,8 @@ import (
 	"github.com/lixvyang/betxin.one/api/v1/v1"
 	configs "github.com/lixvyang/betxin.one/config"
 	_ "github.com/lixvyang/betxin.one/docs"
-	"github.com/lixvyang/betxin.one/pkg/logger"
 	"github.com/lixvyang/betxin.one/pkg/middleware"
+	"github.com/rs/zerolog"
 
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -22,8 +22,8 @@ type Service struct {
 	server *http.Server
 }
 
-func NewService(conf *configs.AppConfig) *Service {
-	router := initRouter(conf)
+func NewService(logger *zerolog.Logger, conf *configs.AppConfig) *Service {
+	router := initRouter(logger, conf)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", conf.Port),
@@ -32,7 +32,7 @@ func NewService(conf *configs.AppConfig) *Service {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Lg.Fatal().Msgf("listen: %s+v\n", err)
+			logger.Fatal().Msgf("listen: %s+v\n", err)
 		}
 	}()
 
@@ -50,18 +50,18 @@ func (srv *Service) ListenAndServe() error {
 	return srv.server.ListenAndServe()
 }
 
-func initRouter(conf *configs.AppConfig) *gin.Engine {
+func initRouter(logger *zerolog.Logger, conf *configs.AppConfig) *gin.Engine {
 	e := gin.New()
 
 	e.Use(
 		middleware.Cors(),
-		middleware.GinXid(&logger.Lg),
-		middleware.GinLogger(&logger.Lg),
-		middleware.GinRecovery(&logger.Lg, true),
+		middleware.GinXid(logger),
+		middleware.GinLogger(logger),
+		middleware.GinRecovery(logger, true),
 	)
 	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	h := v1.NewBetxinHandler(conf)
+	h := v1.NewBetxinHandler(logger, conf)
 	api := e.Group("/api/v1")
 	{
 		// 用户

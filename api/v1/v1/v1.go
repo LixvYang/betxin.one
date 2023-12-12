@@ -8,6 +8,7 @@ import (
 	configs "github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/model/database"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+	"github.com/rs/zerolog"
 )
 
 type BetxinHandler struct {
@@ -17,8 +18,8 @@ type BetxinHandler struct {
 	bonuse.IBonuseHandler
 }
 
-func NewBetxinHandler(conf *configs.AppConfig) *BetxinHandler {
-	db := database.New(conf)
+func NewBetxinHandler(logger *zerolog.Logger,conf *configs.AppConfig) *BetxinHandler {
+	db := database.New(logger, conf)
 
 	categorys, err := db.ListCategories()
 	if err != nil {

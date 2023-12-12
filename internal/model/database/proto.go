@@ -109,6 +109,6 @@ type ITopicPurchase interface {
 	CreateTopicPurchase(*schema.TopicPurchase) error
 }
 
-func New(conf *configs.AppConfig) Database {
-	return mysql.NewMySqlService(conf)
+func New(logger *zerolog.Logger, conf *configs.AppConfig) Database {
+	return mysql.NewMySqlService(logger, conf)
 }
