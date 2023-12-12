@@ -1,6 +1,7 @@
 package root
 
 import (
+	"github.com/lixvyang/betxin.one/cmd/gen"
 	"github.com/lixvyang/betxin.one/cmd/httpd"
 	"github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/session"
@@ -44,7 +45,7 @@ func NewCmdRoot(version string) *cobra.Command {
 	// cmd.AddCommand(echo.NewCmdEcho())
 	// cmd.AddCommand(migrate.NewCmdMigrate())
 	// cmd.AddCommand(worker.NewCmdWorker())
-	// cmd.AddCommand(gen.NewCmdGen())
+	cmd.AddCommand(gen.NewCmdGen())
 
 	return cmd
 }
