@@ -3,14 +3,10 @@ package main
 import (
 	"flag"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/jinzhu/copier"
 	"github.com/lixvyang/betxin.one/config"
-	"github.com/lixvyang/betxin.one/internal/router"
 	"github.com/lixvyang/betxin.one/pkg/logger"
-	"github.com/lixvyang/betxin.one/pkg/snowflake"
 	"github.com/rs/zerolog/log"
 )
 
@@ -31,20 +27,20 @@ func main() {
 	copier.Copy(logConf, conf.LogConfig)
 	logger.New(logConf)
 
-	if err := snowflake.Init(conf.StartTime, conf.MachineID); err != nil {
-		logger.Lg.Panic().Err(err).Msg("[snowflake.Init] err")
-	}
+	// if err := snowflake.Init(conf.StartTime, conf.MachineID); err != nil {
+	// 	logger.Lg.Panic().Err(err).Msg("[snowflake.Init] err")
+	// }
 
-	srv := router.NewService(conf)
+	// srv := router.NewService(conf)
 
-	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
-	signalType := <-signalChan
-	signal.Stop(signalChan)
+	// signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
+	// signalType := <-signalChan
+	// signal.Stop(signalChan)
 
-	if err := srv.Shutdown(); err != nil {
-		logger.Lg.Fatal().Msgf("Server ShutDown: %+v", err)
-	}
+	// if err := srv.Shutdown(); err != nil {
+	// 	logger.Lg.Fatal().Msgf("Server ShutDown: %+v", err)
+	// }
 
-	log.Info().Msgf("On Signal: <%s>", signalType)
+	// log.Info().Msgf("On Signal: <%s>", signalType)
 	log.Info().Msg("Exit command received. Exiting...")
 }

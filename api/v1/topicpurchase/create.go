@@ -24,5 +24,4 @@ func (tph *TopicPurchaseHandler) Create(c *gin.Context) {
 
 	// 1. 获取uid
 
-
 }

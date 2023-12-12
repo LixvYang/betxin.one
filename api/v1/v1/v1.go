@@ -18,7 +18,7 @@ type BetxinHandler struct {
 	bonuse.IBonuseHandler
 }
 
-func NewBetxinHandler(logger *zerolog.Logger,conf *configs.AppConfig) *BetxinHandler {
+func NewBetxinHandler(logger *zerolog.Logger, conf *configs.AppConfig) *BetxinHandler {
 	db := database.New(logger, conf)
 
 	categorys, err := db.ListCategories()

@@ -6,4 +6,3 @@ package mixin
 // 	c := mixin.Client{}
 // 	c.SendMessage()
 // }
-

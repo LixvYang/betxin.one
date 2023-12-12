@@ -11,7 +11,7 @@ const TokenExpireDuration = time.Hour * 2
 var MySecret = []byte("123456")
 
 type JwtConfig struct {
-	Secret []byte
+	Secret              []byte
 	TokenExpireDuration time.Duration
 }
 

@@ -5,7 +5,6 @@ go 1.21.1
 require (
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/ethereum/go-ethereum v1.12.0
-	github.com/fox-one/mixin-sdk-go v1.7.12
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang-jwt/jwt/v5 v5.0.0
@@ -48,6 +47,7 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fkgi/abnf v1.0.0 // indirect
+	github.com/fox-one/mixin-sdk-go v1.7.12 // indirect
 	github.com/fox-one/msgpack v1.0.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect

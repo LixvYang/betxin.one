@@ -49,7 +49,7 @@ func (th *TopicHandler) Get(c *gin.Context) {
 	getTopicResp := new(GetTopicResp)
 	copier.Copy(getTopicResp, topic)
 	getTopicResp.Tid = convert.IntToStr(topic.Tid)
-	
+
 	logger.Info().Any("topic", topic).Msg("[Get]")
 
 	handler.SendResponse(c, errmsg.SUCCSE, getTopicResp)
