@@ -14,6 +14,11 @@ build:
 
 run:
 	CGO_ENABLED=0 go run ./cmd/main/main.go
+gen:
+	CGO_ENABLED=0 go run main.go gen -f ./config/config.yaml
+
+httpd:
+	CGO_ENABLED=0 go run main.go httpd -f ./config/config.yaml
 
 gotool:
 	CGO_ENABLED=0 go fmt ./...

@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/lixvyang/betxin.one/internal/consts"
@@ -10,6 +9,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/query"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/sqlmodel"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
@@ -165,11 +165,12 @@ func (um *UserModel) ListUser(ctx context.Context, logger *zerolog.Logger, offse
 }
 
 func (um *UserModel) encodeUserInfoToCache(ctx context.Context, logger *zerolog.Logger, userInfo *schema.User) {
-	bytes, err := json.Marshal(userInfo)
+	bytes, err := convert.Marshal(userInfo)
 	if err != nil {
 		logger.Error().Msgf("encode node to bytes fail, %+v", userInfo)
 		return
 	}
+
 	err = um.cache.HSet(ctx, consts.RdsHashUserInfoKey, userInfo.UID, bytes)
 	if err != nil {
 		logger.Error().Msgf("encode user to redis fail, %+v", userInfo)
@@ -181,7 +182,7 @@ func (um *UserModel) getUserinfoFromCache(ctx context.Context, logger *zerolog.L
 	// 找到了数据
 	if err == nil && bytes != nil {
 		var userInfo schema.User
-		json.Unmarshal(bytes, &userInfo)
+		convert.Unmarshal(bytes, &userInfo)
 		return &userInfo, nil
 	}
 	// 没有找到数据

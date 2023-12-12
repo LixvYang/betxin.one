@@ -4,6 +4,7 @@ port: 9091
 version: "v0.1.3"
 start_time: "2020-07-01"
 machine_id: 1
+driver: "mysql"
 
 log:
   console_logging_enabled: true 
@@ -23,7 +24,7 @@ mysql:
   port: 3306
   user: "root"
   password: "123456"
-  dbname: "betxin"
+  dbname: "betxin_test"
   max_open_conns: 200
   max_idel_conns: 50
 

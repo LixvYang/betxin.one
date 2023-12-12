@@ -37,14 +37,9 @@ func NewCmdRoot(version string) *cobra.Command {
 	}
 
 	// load config
-
 	cmd.PersistentFlags().StringVarP(&opt.configFile, "file", "f", "./config/config.yaml", "config file path")
 
 	cmd.AddCommand(httpd.NewCmdHttpd())
-	// cmd.AddCommand(wss.NewCmdWss())
-	// cmd.AddCommand(echo.NewCmdEcho())
-	// cmd.AddCommand(migrate.NewCmdMigrate())
-	// cmd.AddCommand(worker.NewCmdWorker())
 	cmd.AddCommand(gen.NewCmdGen())
 
 	return cmd

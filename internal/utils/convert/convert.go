@@ -19,14 +19,14 @@ func IntToStr(t int64) string {
 	return fmt.Sprintf("%d", t)
 }
 
-func Marshal[T any](j T) (string, error) {
+func Marshal[T any](j T) ([]byte, error) {
 	a, err := jsoniter.Marshal(j)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(a), nil
+	return a, nil
 }
 
-func Unmarshal[T any](s string, data T) error {
-	return jsoniter.Unmarshal([]byte(s), &data)
+func Unmarshal[T any](b []byte, data T) error {
+	return jsoniter.Unmarshal(b, &data)
 }

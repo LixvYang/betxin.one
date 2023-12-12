@@ -32,7 +32,7 @@ func (s *Session) WithConf(conf *config.AppConfig) *Session {
 
 func (s *Session) WithLogger(conf *config.LogConfig) *Session {
 	logConf := new(logger.LogConfig)
-	copier.Copy(conf, logConf)
+	copier.Copy(logConf, conf)
 	s.Logger = logger.New(logConf)
 	return s
 }

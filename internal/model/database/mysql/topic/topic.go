@@ -2,7 +2,6 @@ package topic
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -12,6 +11,8 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/query"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/sqlmodel"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
+
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
@@ -257,7 +258,7 @@ func (um *TopicModel) ListTopicByCid(ctx context.Context, logger *zerolog.Logger
 }
 
 func (um *TopicModel) encodeTopicInfoToCache(ctx context.Context, logger *zerolog.Logger, data *schema.Topic) {
-	bytes, err := json.Marshal(data)
+	bytes, err := convert.Marshal(data)
 	if err != nil {
 		logger.Error().Msgf("encode node to bytes fail, %+v", data)
 		return
@@ -273,7 +274,7 @@ func (um *TopicModel) getTopicinfoFromCache(ctx context.Context, logger *zerolog
 	// 找到了数据
 	if err == nil && bytes != nil {
 		var data schema.Topic
-		json.Unmarshal(bytes, &data)
+		convert.Unmarshal(bytes, &data)
 		return &data, nil
 	}
 	// 没有找到数据

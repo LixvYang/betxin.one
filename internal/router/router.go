@@ -67,12 +67,15 @@ func initRouter(logger *zerolog.Logger, conf *configs.AppConfig) *gin.Engine {
 		// 用户
 		api.POST("/connect", h.IUserHandler.Connect)
 
-		// 话题查询
+		// 话题相关
 		api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
 		api.POST("/topic", h.ITopicHandler.Create)
 		api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
 		api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
 		api.GET("/topic/:tid", h.ITopicHandler.Get)
+
+		// 话题购买
+		// api.POST("/topic/purchase")
 	}
 
 	// 管理员权限

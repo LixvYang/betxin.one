@@ -2,11 +2,11 @@ package cache
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
-	configs "github.com/lixvyang/betxin.one/config"
+	"github.com/lixvyang/betxin.one/config"
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 )
@@ -19,7 +19,7 @@ type Cache struct {
 	cli *redis.Client
 }
 
-func New(logger *zerolog.Logger, conf *configs.RedisConfig) *Cache {
+func New(logger *zerolog.Logger, conf *config.RedisConfig) *Cache {
 	cache := &Cache{}
 	cache.cli = redis.NewClient(&redis.Options{
 		Addr:         fmt.Sprintf("%s:%d", conf.Host, conf.Port),
@@ -56,7 +56,8 @@ func (r *Cache) GetRes(ctx context.Context, key string, res any) (err error) {
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(ret, &res); err != nil {
+
+	if err = convert.Unmarshal(ret, &res); err != nil {
 		return err
 	}
 	return nil

@@ -2,7 +2,8 @@ package token
 
 import (
 	"encoding/base64"
-	"encoding/json"
+
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
 )
 
 type Token string
@@ -14,7 +15,7 @@ type Page struct {
 }
 
 func (p Page) Encode() Token {
-	b, err := json.Marshal(p)
+	b, err := convert.Marshal(p)
 	if err != nil {
 		return Token("")
 	}
@@ -30,7 +31,7 @@ func (t Token) Decode() Page {
 	if err != nil {
 		return result
 	}
-	err = json.Unmarshal(bytes, &result)
+	err = convert.Unmarshal(bytes, &result)
 	if err != nil {
 		return result
 	}

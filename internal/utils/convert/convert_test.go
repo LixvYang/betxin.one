@@ -85,7 +85,7 @@ func TestUnmarshal(t *testing.T) {
 
 	for _, test := range tests {
 		var result TestStruct
-		err := Unmarshal(test.input, &result)
+		err := Unmarshal([]byte(test.input), &result)
 		assert.NoError(t, err)
 		assert.Equal(t, test.expected.Age, result.Age)
 		assert.Equal(t, test.expected.Name, result.Name)
