@@ -65,6 +65,10 @@ func Init(conf *config.AppConfig) (*Handler, error) {
 		return nil, err
 	}
 
+	if err := goose.SetDialect(conf.Driver); err != nil {
+		return nil, err
+	}
+
 	defaultHandler = &Handler{
 		DB: db,
 	}

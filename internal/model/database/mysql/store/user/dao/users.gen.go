@@ -30,8 +30,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
 	_user.ID = field.NewInt64(tableName, "id")
-	_user.IdentityNumber = field.NewString(tableName, "identity_number")
 	_user.UID = field.NewString(tableName, "uid")
+	_user.IdentityNumber = field.NewString(tableName, "identity_number")
 	_user.FullName = field.NewString(tableName, "full_name")
 	_user.AvatarURL = field.NewString(tableName, "avatar_url")
 	_user.SessionID = field.NewString(tableName, "session_id")
@@ -40,8 +40,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.ClientID = field.NewString(tableName, "client_id")
 	_user.Contract = field.NewString(tableName, "contract")
 	_user.IsMvmUser = field.NewBool(tableName, "is_mvm_user")
-	_user.CreatedAt = field.NewInt64(tableName, "created_at")
-	_user.UpdatedAt = field.NewInt64(tableName, "updated_at")
+	_user.CreatedAt = field.NewTime(tableName, "created_at")
+	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 
 	_user.fillFieldMap()
 
@@ -53,8 +53,8 @@ type user struct {
 
 	ALL            field.Asterisk
 	ID             field.Int64
-	IdentityNumber field.String
 	UID            field.String
+	IdentityNumber field.String
 	FullName       field.String
 	AvatarURL      field.String
 	SessionID      field.String
@@ -63,8 +63,8 @@ type user struct {
 	ClientID       field.String
 	Contract       field.String
 	IsMvmUser      field.Bool
-	CreatedAt      field.Int64
-	UpdatedAt      field.Int64
+	CreatedAt      field.Time
+	UpdatedAt      field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -82,8 +82,8 @@ func (u user) As(alias string) *user {
 func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt64(table, "id")
-	u.IdentityNumber = field.NewString(table, "identity_number")
 	u.UID = field.NewString(table, "uid")
+	u.IdentityNumber = field.NewString(table, "identity_number")
 	u.FullName = field.NewString(table, "full_name")
 	u.AvatarURL = field.NewString(table, "avatar_url")
 	u.SessionID = field.NewString(table, "session_id")
@@ -92,8 +92,8 @@ func (u *user) updateTableName(table string) *user {
 	u.ClientID = field.NewString(table, "client_id")
 	u.Contract = field.NewString(table, "contract")
 	u.IsMvmUser = field.NewBool(table, "is_mvm_user")
-	u.CreatedAt = field.NewInt64(table, "created_at")
-	u.UpdatedAt = field.NewInt64(table, "updated_at")
+	u.CreatedAt = field.NewTime(table, "created_at")
+	u.UpdatedAt = field.NewTime(table, "updated_at")
 
 	u.fillFieldMap()
 
@@ -112,8 +112,8 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (u *user) fillFieldMap() {
 	u.fieldMap = make(map[string]field.Expr, 13)
 	u.fieldMap["id"] = u.ID
-	u.fieldMap["identity_number"] = u.IdentityNumber
 	u.fieldMap["uid"] = u.UID
+	u.fieldMap["identity_number"] = u.IdentityNumber
 	u.fieldMap["full_name"] = u.FullName
 	u.fieldMap["avatar_url"] = u.AvatarURL
 	u.fieldMap["session_id"] = u.SessionID

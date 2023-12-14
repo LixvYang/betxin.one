@@ -2,23 +2,24 @@ package core
 
 import (
 	"context"
+	"time"
 )
 
 type (
 	User struct {
-		ID             int64  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-		IdentityNumber string `gorm:"column:identity_number;not null" json:"identity_number"`
-		UID            string `gorm:"column:uid;not null" json:"uid"`
-		FullName       string `gorm:"column:full_name" json:"full_name"`
-		AvatarURL      string `gorm:"column:avatar_url" json:"avatar_url"`
-		SessionID      string `gorm:"column:session_id" json:"session_id"`
-		Biography      string `gorm:"column:biography" json:"biography"`
-		PrivateKey     string `gorm:"column:private_key" json:"private_key"`
-		ClientID       string `gorm:"column:client_id" json:"client_id"`
-		Contract       string `gorm:"column:contract" json:"contract"`
-		IsMvmUser      bool   `gorm:"column:is_mvm_user" json:"is_mvm_user"`
-		CreatedAt      int64  `gorm:"column:created_at;not null" json:"created_at"`
-		UpdatedAt      int64  `gorm:"column:updated_at;not null" json:"updated_at"`
+		ID             int64     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+		UID            string    `gorm:"column:uid;not null" json:"uid"`
+		IdentityNumber string    `gorm:"column:identity_number;not null" json:"identity_number"`
+		FullName       string    `gorm:"column:full_name" json:"full_name"`
+		AvatarURL      string    `gorm:"column:avatar_url" json:"avatar_url"`
+		SessionID      string    `gorm:"column:session_id" json:"session_id"`
+		Biography      string    `gorm:"column:biography" json:"biography"`
+		PrivateKey     string    `gorm:"column:private_key" json:"private_key"`
+		ClientID       string    `gorm:"column:client_id" json:"client_id"`
+		Contract       string    `gorm:"column:contract" json:"contract"`
+		IsMvmUser      bool      `gorm:"column:is_mvm_user" json:"is_mvm_user"`
+		CreatedAt      time.Time `gorm:"column:created_at;not null" json:"created_at"`
+		UpdatedAt      time.Time `gorm:"column:updated_at;not null" json:"updated_at"`
 	}
 
 	UserStore interface {
