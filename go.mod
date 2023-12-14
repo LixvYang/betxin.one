@@ -13,6 +13,7 @@ require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/pandodao/passport-go v1.1.2
 	github.com/pkg/errors v0.9.1
+	github.com/pressly/goose/v3 v3.16.0
 	github.com/qiniu/qmgo v1.1.8
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/rs/xid v1.5.0
@@ -75,7 +76,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.17.0 // indirect
+	github.com/klauspost/compress v1.17.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -92,6 +93,7 @@ require (
 	github.com/relvacode/iso8601 v1.3.0 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
+	github.com/sethvargo/go-retry v0.2.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
@@ -109,8 +111,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	github.com/zeebo/blake3 v0.2.3 // indirect
 	go.mongodb.org/mongo-driver v1.11.6 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.6.0 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
