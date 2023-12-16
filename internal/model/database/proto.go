@@ -5,22 +5,15 @@ import (
 
 	configs "github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 
 	"github.com/rs/zerolog"
 )
 
 type Database interface {
-	Close() error
-	IUser
-	ITopic
-	ICategoty
-	ICollect
-	IBonuse
-	IFeedback
-
-	IRefund
-	ITopicPurchase
+	core.TopicStore
+	core.UserStore
 }
 
 type IUser interface {

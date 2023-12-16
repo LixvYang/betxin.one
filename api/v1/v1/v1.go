@@ -6,8 +6,6 @@ import (
 	"github.com/lixvyang/betxin.one/api/v1/topic"
 	"github.com/lixvyang/betxin.one/api/v1/user"
 	configs "github.com/lixvyang/betxin.one/config"
-	"github.com/lixvyang/betxin.one/internal/model/database"
-	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/rs/zerolog"
 )
 
@@ -19,21 +17,21 @@ type BetxinHandler struct {
 }
 
 func NewBetxinHandler(logger *zerolog.Logger, conf *configs.AppConfig) *BetxinHandler {
-	db := database.New(logger, conf)
+	// db := database.New(logger, conf)
 
-	categorys, err := db.ListCategories()
-	if err != nil {
-		panic(err)
-	}
-	categoryMap := make(map[int64]*schema.Category)
-	for _, category := range categorys {
-		categoryMap[category.ID] = category
-	}
+	// categorys, err := db.ListCategories()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// categoryMap := make(map[int64]*schema.Category)
+	// for _, category := range categorys {
+	// 	categoryMap[category.ID] = category
+	// }
 
 	return &BetxinHandler{
-		user.NewHandler(db),
-		topic.NewHandler(db, categoryMap),
-		category.NewHandler(db),
-		bonuse.NewHandler(db),
+		// user.NewHandler(db),
+		// topic.NewHandler(db, categoryMap),
+		// category.NewHandler(db),
+		// bonuse.NewHandler(db),
 	}
 }

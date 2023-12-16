@@ -13,13 +13,14 @@ type TopicHandler struct {
 }
 
 func NewHandler(db database.Database, categoryMap map[int64]*schema.Category) ITopicHandler {
-	topicHandler := &TopicHandler{
-		storage:             db,
-		topicCollectHandler: db,
-		categoryMap:         categoryMap,
-	}
+	return nil
+	// topicHandler := &TopicHandler{
+	// 	storage:             db,
+	// 	topicCollectHandler: db,
+	// 	categoryMap:         categoryMap,
+	// }
 
-	return topicHandler
+	// return topicHandler
 }
 
 type ITopicHandler interface {

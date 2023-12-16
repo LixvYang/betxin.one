@@ -25,5 +25,13 @@ type (
 		// FROM @@table
 		// WHERE name = @name;
 		GetCategoryByName(ctx context.Context, name string) (*Category, error)
+
+		// INSERT 
+		// (name)
+		// VALUES
+		// (@name);
+		CreateCategory(ctx context.Context, name string) (int64, error)
+
+		
 	}
 )

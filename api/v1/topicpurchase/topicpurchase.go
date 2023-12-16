@@ -11,7 +11,8 @@ type TopicPurchaseHandler struct {
 }
 
 func NewHandler(db database.Database) ITopicPurchaseHandler {
-	return &TopicPurchaseHandler{db, db}
+	return nil
+	// return &TopicPurchaseHandler{db, db}
 }
 
 type ITopicPurchaseHandler interface {

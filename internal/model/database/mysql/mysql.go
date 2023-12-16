@@ -5,18 +5,9 @@ import (
 	"time"
 
 	configs "github.com/lixvyang/betxin.one/config"
-	"github.com/lixvyang/betxin.one/internal/model/cache"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/bonuse"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/category"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/collect"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/dal/query"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/feedback"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/message"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/refund"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/snapshot"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/topic"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/topicpurchase"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/user"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/topic"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/user"
 	"github.com/rs/zerolog"
 
 	"gorm.io/driver/mysql"
@@ -31,37 +22,41 @@ func NewMySqlService(logger *zerolog.Logger, conf *configs.AppConfig) *MySQLServ
 		logger.Error().Err(err).Msg("[NewMySqlService][m.Init()] err")
 		panic(err)
 	}
-	cache := cache.New(logger, conf.RedisConfig)
-	m.UserModel = user.NewUserModel(query.Q, cache)
-	m.TopicModel = topic.NewTopicModel(query.Q, cache)
-	m.BonuseModel = bonuse.NewBonuseModel(query.Q, cache)
-	m.CollectModel = collect.NewCollectModel(query.Q, cache)
-	m.CategoryModel = category.NewCategoryModel(query.Q, cache)
-	m.MessageModel = message.NewMessageModel(query.Q, cache)
-	m.SnapshotModel = snapshot.NewMessageModel(query.Q, cache)
-	m.RefundModel = refund.NewMessageModel(query.Q, cache)
-	m.TopicPurchaseModel = topicpurchase.NewTopicPurchaseModel(query.Q, cache)
-	m.FeedbackModel = feedback.NewFeedbackModel(query.Q, cache)
+	// cache := cache.New(logger, conf.RedisConfig)
+	// m.UserModel = user.NewUserModel(query.Q, cache)
+	// m.TopicModel = topic.NewTopicModel(query.Q, cache)
+	// m.BonuseModel = bonuse.NewBonuseModel(query.Q, cache)
+	// m.CollectModel = collect.NewCollectModel(query.Q, cache)
+	// m.CategoryModel = category.NewCategoryModel(query.Q, cache)
+	// m.MessageModel = message.NewMessageModel(query.Q, cache)
+	// m.SnapshotModel = snapshot.NewMessageModel(query.Q, cache)
+	// m.RefundModel = refund.NewMessageModel(query.Q, cache)
+	// m.TopicPurchaseModel = topicpurchase.NewTopicPurchaseModel(query.Q, cache)
+	// m.FeedbackModel = feedback.NewFeedbackModel(query.Q, cache)
+
+	m.UserStore = user.New(nil)
+	m.TopicStore = topic.New(nil)
 
 	return m
 }
 
 type MySQLService struct {
 	db *gorm.DB
-	user.UserModel
-	topic.TopicModel
-	category.CategoryModel
-	collect.CollectModel
-	bonuse.BonuseModel
-	message.MessageModel
-	snapshot.SnapshotModel
-	topicpurchase.TopicPurchaseModel
-	refund.RefundModel
-	feedback.FeedbackModel
+	core.UserStore
+	core.TopicStore
+	// user.UserModel
+	// topic.TopicModel
+	// category.CategoryModel
+	// collect.CollectModel
+	// bonuse.BonuseModel
+	// message.MessageModel
+	// snapshot.SnapshotModel
+	// topicpurchase.TopicPurchaseModel
+	// refund.RefundModel
+	// feedback.FeedbackModel
 }
 
 func (m *MySQLService) initDB(logger *zerolog.Logger, conf *configs.MySQLConfig) error {
-
 	dns := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.User,
 		conf.Password,
@@ -96,7 +91,7 @@ func (m *MySQLService) initDB(logger *zerolog.Logger, conf *configs.MySQLConfig)
 	sqlDB.SetMaxOpenConns(5000)
 	// SetConnMaxLifetiment 设置连接的最大可复用时间
 	sqlDB.SetConnMaxLifetime(time.Hour / 2)
-	query.SetDefault(m.db)
+	// query.SetDefault(m.db)
 	return nil
 }
 
