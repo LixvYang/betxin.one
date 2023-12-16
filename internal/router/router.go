@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lixvyang/betxin.one/api/sd"
 	"github.com/lixvyang/betxin.one/api/v1/v1"
 	configs "github.com/lixvyang/betxin.one/config"
 	_ "github.com/lixvyang/betxin.one/docs"
@@ -67,36 +66,36 @@ func initRouter(logger *zerolog.Logger, conf *configs.AppConfig) *gin.Engine {
 		// 用户
 		api.POST("/connect", h.IUserHandler.Connect)
 
-		// 话题相关
-		api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
-		api.POST("/topic", h.ITopicHandler.Create)
-		api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
-		api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
-		api.GET("/topic/:tid", h.ITopicHandler.Get)
+		// 	// 话题相关
+		// 	api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
+		// 	api.POST("/topic", h.ITopicHandler.Create)
+		// 	api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
+		// 	api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
+		// 	api.GET("/topic/:tid", h.ITopicHandler.Get)
 
-		// 话题购买
-		// api.POST("/topic/purchase")
-	}
+		// 	// 话题购买
+		// 	// api.POST("/topic/purchase")
+		// }
 
-	// 管理员权限
-	{
-		api.POST("/category", h.ICategoryHandler.Create)
-		api.DELETE("/category/:id", h.ICategoryHandler.Delete)
-		api.PUT("/category/:id", h.ICategoryHandler.Update)
-		api.GET("/category/:id", h.ICategoryHandler.Get)
-		api.GET("/categories", h.ICategoryHandler.List)
-	}
+		// // 管理员权限
+		// {
+		// 	api.POST("/category", h.ICategoryHandler.Create)
+		// 	api.DELETE("/category/:id", h.ICategoryHandler.Delete)
+		// 	api.PUT("/category/:id", h.ICategoryHandler.Update)
+		// 	api.GET("/category/:id", h.ICategoryHandler.Get)
+		// 	api.GET("/categories", h.ICategoryHandler.List)
+		// }
 
-	{
-		api.GET("/backend/health", sd.HealthCheck)
-		api.GET("/backend/disk", sd.DiskCheck)
-		api.GET("/backend/cpu", sd.CPUCheck)
-		api.GET("/backend/ram", sd.RAMCheck)
-	}
+		// {
+		// 	api.GET("/backend/health", sd.HealthCheck)
+		// 	api.GET("/backend/disk", sd.DiskCheck)
+		// 	api.GET("/backend/cpu", sd.CPUCheck)
+		// 	api.GET("/backend/ram", sd.RAMCheck)
+		// }
 
-	api.Use(middleware.JWTAuthMiddleware())
-	{
-		api.GET("/user", h.IUserHandler.Get)
+		// api.Use(middleware.JWTAuthMiddleware())
+		// {
+		// 	api.GET("/user", h.IUserHandler.Get)
 
 	}
 

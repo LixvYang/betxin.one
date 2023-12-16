@@ -3,16 +3,16 @@ package topic
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/internal/model/database"
-	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
 )
 
 type TopicHandler struct {
-	storage             database.ITopic
-	topicCollectHandler database.ICollect
-	categoryMap         map[int64]*schema.Category
+	// storage             database.ITopic
+	// topicCollectHandler database.ICollect
+	// categoryMap         map[int64]*schema.Category
 }
 
-func NewHandler(db database.Database, categoryMap map[int64]*schema.Category) ITopicHandler {
+func NewHandler(db database.Database, categoryMap map[int64]*core.Category) ITopicHandler {
 	return nil
 	// topicHandler := &TopicHandler{
 	// 	storage:             db,

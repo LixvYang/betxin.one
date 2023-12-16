@@ -6,6 +6,8 @@ import (
 
 	configs "github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/category"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/topic"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/user"
 	"github.com/rs/zerolog"
@@ -22,20 +24,11 @@ func NewMySqlService(logger *zerolog.Logger, conf *configs.AppConfig) *MySQLServ
 		logger.Error().Err(err).Msg("[NewMySqlService][m.Init()] err")
 		panic(err)
 	}
-	// cache := cache.New(logger, conf.RedisConfig)
-	// m.UserModel = user.NewUserModel(query.Q, cache)
-	// m.TopicModel = topic.NewTopicModel(query.Q, cache)
-	// m.BonuseModel = bonuse.NewBonuseModel(query.Q, cache)
-	// m.CollectModel = collect.NewCollectModel(query.Q, cache)
-	// m.CategoryModel = category.NewCategoryModel(query.Q, cache)
-	// m.MessageModel = message.NewMessageModel(query.Q, cache)
-	// m.SnapshotModel = snapshot.NewMessageModel(query.Q, cache)
-	// m.RefundModel = refund.NewMessageModel(query.Q, cache)
-	// m.TopicPurchaseModel = topicpurchase.NewTopicPurchaseModel(query.Q, cache)
-	// m.FeedbackModel = feedback.NewFeedbackModel(query.Q, cache)
 
-	m.UserStore = user.New(nil)
-	m.TopicStore = topic.New(nil)
+	h := store.MustInit(conf)
+	m.UserStore = user.New(h)
+	m.TopicStore = topic.New(h)
+	m.CategoryStore = category.New(h)
 
 	return m
 }
@@ -44,16 +37,7 @@ type MySQLService struct {
 	db *gorm.DB
 	core.UserStore
 	core.TopicStore
-	// user.UserModel
-	// topic.TopicModel
-	// category.CategoryModel
-	// collect.CollectModel
-	// bonuse.BonuseModel
-	// message.MessageModel
-	// snapshot.SnapshotModel
-	// topicpurchase.TopicPurchaseModel
-	// refund.RefundModel
-	// feedback.FeedbackModel
+	core.CategoryStore
 }
 
 func (m *MySQLService) initDB(logger *zerolog.Logger, conf *configs.MySQLConfig) error {
@@ -91,7 +75,6 @@ func (m *MySQLService) initDB(logger *zerolog.Logger, conf *configs.MySQLConfig)
 	sqlDB.SetMaxOpenConns(5000)
 	// SetConnMaxLifetiment 设置连接的最大可复用时间
 	sqlDB.SetConnMaxLifetime(time.Hour / 2)
-	// query.SetDefault(m.db)
 	return nil
 }
 

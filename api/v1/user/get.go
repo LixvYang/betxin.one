@@ -30,7 +30,7 @@ func (uh *UserHandler) Get(c *gin.Context) {
 
 	logger.Info().Str("uid", uid).Send()
 
-	user, err := uh.storage.GetUserByUid(c, logger, uid)
+	user, err := uh.UserStore.GetUserByUid(c, uid)
 	if err != nil {
 		logger.Error().Err(err).Msg("[uh.Get][GetUserByUid] err")
 		handler.SendResponse(c, errmsg.ERROR_GET_USER, nil)

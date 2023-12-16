@@ -37,8 +37,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.SessionID = field.NewString(tableName, "session_id")
 	_user.Biography = field.NewString(tableName, "biography")
 	_user.PrivateKey = field.NewString(tableName, "private_key")
-	_user.ClientID = field.NewString(tableName, "client_id")
 	_user.Contract = field.NewString(tableName, "contract")
+	_user.MvmPublicKey = field.NewString(tableName, "mvm_public_key")
 	_user.IsMvmUser = field.NewBool(tableName, "is_mvm_user")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -60,8 +60,8 @@ type user struct {
 	SessionID      field.String
 	Biography      field.String
 	PrivateKey     field.String
-	ClientID       field.String
 	Contract       field.String
+	MvmPublicKey   field.String
 	IsMvmUser      field.Bool
 	CreatedAt      field.Time
 	UpdatedAt      field.Time
@@ -89,8 +89,8 @@ func (u *user) updateTableName(table string) *user {
 	u.SessionID = field.NewString(table, "session_id")
 	u.Biography = field.NewString(table, "biography")
 	u.PrivateKey = field.NewString(table, "private_key")
-	u.ClientID = field.NewString(table, "client_id")
 	u.Contract = field.NewString(table, "contract")
+	u.MvmPublicKey = field.NewString(table, "mvm_public_key")
 	u.IsMvmUser = field.NewBool(table, "is_mvm_user")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
@@ -119,8 +119,8 @@ func (u *user) fillFieldMap() {
 	u.fieldMap["session_id"] = u.SessionID
 	u.fieldMap["biography"] = u.Biography
 	u.fieldMap["private_key"] = u.PrivateKey
-	u.fieldMap["client_id"] = u.ClientID
 	u.fieldMap["contract"] = u.Contract
+	u.fieldMap["mvm_public_key"] = u.MvmPublicKey
 	u.fieldMap["is_mvm_user"] = u.IsMvmUser
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
@@ -200,7 +200,7 @@ type IUserDo interface {
 
 	GetUserByUid(ctx context.Context, uid string) (result *core.User, err error)
 	GetUserByUids(ctx context.Context, uids []string) (result []*core.User, err error)
-	CreateUser(ctx context.Context, user *core.User) (result string, err error)
+	CreateUser(ctx context.Context, user *core.User) (err error)
 	UpdateUserInfo(ctx context.Context, uid string, user *core.User) (err error)
 }
 
@@ -208,14 +208,14 @@ type IUserDo interface {
 //
 //	*
 //
-// FROM @@table
+// FROM user
 // WHERE uid = @uid;
 func (u userDo) GetUserByUid(ctx context.Context, uid string) (result *core.User, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
 	params = append(params, uid)
-	generateSQL.WriteString("SELECT * FROM users WHERE uid = ?; ")
+	generateSQL.WriteString("SELECT * FROM user WHERE uid = ?; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = u.UnderlyingDB().Raw(generateSQL.String(), params...).Take(&result) // ignore_security_alert
@@ -228,14 +228,14 @@ func (u userDo) GetUserByUid(ctx context.Context, uid string) (result *core.User
 //
 //	*
 //
-// FROM @@table
+// FROM user
 // WHERE uid in (@uids);
 func (u userDo) GetUserByUids(ctx context.Context, uids []string) (result []*core.User, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
 	params = append(params, uids)
-	generateSQL.WriteString("SELECT * FROM users WHERE uid in (?); ")
+	generateSQL.WriteString("SELECT * FROM user WHERE uid in (?); ")
 
 	var executeSQL *gorm.DB
 	executeSQL = u.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert
@@ -247,11 +247,11 @@ func (u userDo) GetUserByUids(ctx context.Context, uids []string) (result []*cor
 // INSERT INTO user
 //
 //	(
-//		"full_name", "avatar_url",
-//		"uid", "identity_number",
-//		"session_id", "is_mvm_user",
-//		"biography", "private_key",
-//		"client_id", "contract"
+//		`full_name`, `avatar_url`,
+//		`uid`, `identity_number`,
+//		`session_id`, `is_mvm_user`,
+//		`biography`, `private_key`,
+//		`mvm_public_key`, `contract`
 //	)
 //
 // VALUES
@@ -259,12 +259,11 @@ func (u userDo) GetUserByUids(ctx context.Context, uids []string) (result []*cor
 //	(
 //		@user.FullName, @user.AvatarURL,
 //		@user.UID, @user.IdentityNumber,
+//		@user.SessionID, @user.IsMvmUser,
 //		@user.Biography, @user.PrivateKey,
-//		@user.ClientID, @user.Contract
-//	)
-//
-// RETURNING uid;
-func (u userDo) CreateUser(ctx context.Context, user *core.User) (result string, err error) {
+//		@user.MvmPublicKey, @user.Contract
+//	);
+func (u userDo) CreateUser(ctx context.Context, user *core.User) (err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
@@ -272,25 +271,27 @@ func (u userDo) CreateUser(ctx context.Context, user *core.User) (result string,
 	params = append(params, user.AvatarURL)
 	params = append(params, user.UID)
 	params = append(params, user.IdentityNumber)
+	params = append(params, user.SessionID)
+	params = append(params, user.IsMvmUser)
 	params = append(params, user.Biography)
 	params = append(params, user.PrivateKey)
-	params = append(params, user.ClientID)
+	params = append(params, user.MvmPublicKey)
 	params = append(params, user.Contract)
-	generateSQL.WriteString("INSERT INTO user ( \"full_name\", \"avatar_url\", \"uid\", \"identity_number\", \"session_id\", \"is_mvm_user\", \"biography\", \"private_key\", \"client_id\", \"contract\" ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? ) RETURNING uid; ")
+	generateSQL.WriteString("INSERT INTO user ( `full_name`, `avatar_url`, `uid`, `identity_number`, `session_id`, `is_mvm_user`, `biography`, `private_key`, `mvm_public_key`, `contract` ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ); ")
 
 	var executeSQL *gorm.DB
-	executeSQL = u.UnderlyingDB().Raw(generateSQL.String(), params...).Take(&result) // ignore_security_alert
+	executeSQL = u.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert
 	err = executeSQL.Error
 
 	return
 }
 
-// UPDATE @@table
+// UPDATE user
 //
 //	{{set}}
-//	  "full_name"=@user.FullName,
-//	  "avatar_url"=@user.AvatarURL,
-//	  "biography"=@user.Biography
+//	  `full_name`=@user.FullName,
+//	  `avatar_url`=@user.AvatarURL,
+//	  `biography`=@user.Biography
 //	{{end}}
 //
 // WHERE
@@ -300,12 +301,12 @@ func (u userDo) UpdateUserInfo(ctx context.Context, uid string, user *core.User)
 	var params []interface{}
 
 	var generateSQL strings.Builder
-	generateSQL.WriteString("UPDATE users ")
+	generateSQL.WriteString("UPDATE user ")
 	var setSQL0 strings.Builder
 	params = append(params, user.FullName)
 	params = append(params, user.AvatarURL)
 	params = append(params, user.Biography)
-	setSQL0.WriteString("\"full_name\"=?, \"avatar_url\"=?, \"biography\"=? ")
+	setSQL0.WriteString("`full_name`=?, `avatar_url`=?, `biography`=? ")
 	helper.JoinSetBuilder(&generateSQL, setSQL0)
 	params = append(params, uid)
 	generateSQL.WriteString("WHERE \"uid\" = ?; ")

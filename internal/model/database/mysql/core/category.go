@@ -26,12 +26,21 @@ type (
 		// WHERE name = @name;
 		GetCategoryByName(ctx context.Context, name string) (*Category, error)
 
-		// INSERT 
+		// INSERT INTO @@table
 		// (name)
 		// VALUES
 		// (@name);
-		CreateCategory(ctx context.Context, name string) (int64, error)
+		CreateCategory(ctx context.Context, name string) error
 
-		
+		// DELETE
+		// FROM @@table
+		// WHERE
+		// name = @name;
+		DeleteCategory(ctx context.Context, name string) error
+
+		// Update @@table SET
+		// name = @category.Name
+		// WHERE id = @category.ID;
+		UpdateCategory(ctx context.Context, category *Category) error
 	}
 )

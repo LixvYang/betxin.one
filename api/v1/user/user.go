@@ -2,16 +2,18 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lixvyang/betxin.one/internal/model/database"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
 )
 
 type UserHandler struct {
-	storage database.IUser
+	core.UserStore
+	core.UserService
 }
 
-func NewHandler(db database.IUser) IUserHandler {
+func NewHandler(userStore core.UserStore, userService core.UserService) IUserHandler {
 	return &UserHandler{
-		storage: db,
+		userStore,
+		userService,
 	}
 }
 

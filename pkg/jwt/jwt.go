@@ -7,7 +7,6 @@ import (
 )
 
 const TokenExpireDuration = time.Hour * 2
-
 var MySecret = []byte("123456")
 
 type JwtConfig struct {
@@ -24,9 +23,9 @@ func GenToken(uid string) (string, error) {
 	claims := MyClaims{
 		Uid: uid,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 过期时间24小时
-			IssuedAt:  jwt.NewNumericDate(time.Now()),                     // 签发时间
-			NotBefore: jwt.NewNumericDate(time.Now()),                     // 生效时间
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * 365 * time.Hour)), // 过期时间24小时
+			IssuedAt:  jwt.NewNumericDate(time.Now()),                           // 签发时间
+			NotBefore: jwt.NewNumericDate(time.Now()),                           // 生效时间
 		},
 	}
 	// 使用HS256签名算法

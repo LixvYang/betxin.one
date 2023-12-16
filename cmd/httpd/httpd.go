@@ -16,6 +16,7 @@ func NewCmdHttpd() *cobra.Command {
 		Short: "start the httpd daemon",
 		Run: func(cmd *cobra.Command, args []string) {
 			s := session.From(cmd.Context())
+			
 			srv := router.NewService(s.Logger, s.Conf)
 
 			signalChan := make(chan os.Signal, 1)

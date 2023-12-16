@@ -2,12 +2,6 @@ package topic
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
-	"github.com/lixvyang/betxin.one/api/v1/handler"
-	"github.com/lixvyang/betxin.one/internal/consts"
-	"github.com/lixvyang/betxin.one/internal/utils/convert"
-	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
-	"github.com/rs/zerolog"
 )
 
 type GetTopicResp struct {
@@ -31,26 +25,26 @@ type GetTopicResp struct {
 }
 
 func (th *TopicHandler) Get(c *gin.Context) {
-	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
+	// logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
 
-	tid, err := th.checkTid(c)
-	if err != nil {
-		logger.Error().Err(err).Msg("[Get][checkCreate]")
-		handler.SendResponse(c, errmsg.ERROR, nil)
-		return
-	}
+	// tid, err := th.checkTid(c)
+	// if err != nil {
+	// 	logger.Error().Err(err).Msg("[Get][checkCreate]")
+	// 	handler.SendResponse(c, errmsg.ERROR, nil)
+	// 	return
+	// }
 
-	topic, err := th.storage.GetTopicByTid(c, logger, tid)
-	if err != nil {
-		logger.Error().Err(err).Msg("[Get][storage.GetTopicByTid]")
-		handler.SendResponse(c, errmsg.ERROR, nil)
-		return
-	}
-	getTopicResp := new(GetTopicResp)
-	copier.Copy(getTopicResp, topic)
-	getTopicResp.Tid = convert.IntToStr(topic.Tid)
+	// topic, err := th.storage.GetTopicByTid(c, logger, tid)
+	// if err != nil {
+	// 	logger.Error().Err(err).Msg("[Get][storage.GetTopicByTid]")
+	// 	handler.SendResponse(c, errmsg.ERROR, nil)
+	// 	return
+	// }
+	// getTopicResp := new(GetTopicResp)
+	// copier.Copy(getTopicResp, topic)
+	// getTopicResp.Tid = convert.IntToStr(topic.Tid)
 
-	logger.Info().Any("topic", topic).Msg("[Get]")
+	// logger.Info().Any("topic", topic).Msg("[Get]")
 
-	handler.SendResponse(c, errmsg.SUCCSE, getTopicResp)
+	// handler.SendResponse(c, errmsg.SUCCSE, getTopicResp)
 }

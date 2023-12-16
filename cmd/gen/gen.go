@@ -9,6 +9,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store"
 	_ "github.com/lixvyang/betxin.one/internal/model/database/mysql/store/user"
 	_ "github.com/lixvyang/betxin.one/internal/model/database/mysql/store/topic"
+	_ "github.com/lixvyang/betxin.one/internal/model/database/mysql/store/category"
 	"github.com/lixvyang/betxin.one/internal/session"
 )
 

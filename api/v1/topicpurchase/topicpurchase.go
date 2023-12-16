@@ -6,8 +6,8 @@ import (
 )
 
 type TopicPurchaseHandler struct {
-	topic          database.ITopic
-	topicPurchaase database.ITopicPurchase
+	// topic          database.ITopic
+	// topicPurchaase database.ITopicPurchase
 }
 
 func NewHandler(db database.Database) ITopicPurchaseHandler {

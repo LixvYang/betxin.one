@@ -32,45 +32,45 @@ type (
 	TopicStore interface {
 		// SELECT
 		// 	*
-		// FROM @@table
+		// FROM topic
 		// WHERE uid in (@tids) AND deleted_at IS NULL;
 		GetTopicsByTids(ctx context.Context, tids []string) ([]*Topic, error)
 
 		// SELECT
 		// *
-		// FROM @@table
+		// FROM topic
 		// WHERE cid = @cid AND deleted_at IS NULL;
 		GetTopicsByCid(ctx context.Context, cid int64) ([]*Topic, error)
 
 		// SELECT
 		// *
-		// FROM @@table
+		// FROM topic
 		// WHERE tid = @tid AND deleted_at IS NULL;
 		GetTopicByTid(ctx context.Context, tid string) (*Topic, error)
 
-		// UPDATE @@table
+		// UPDATE topic
 		// {{set}}
-		//   "deleted_at" = NOW()
+		//   `deleted_at` = NOW()
 		// {{end}}
 		// WHERE
 		// 	"tid" = @tid;
 		DeleteTopic(ctx context.Context, tid string) error
 
-		// UPDATE @@table
+		// UPDATE topic
 		// {{set}}
-		//   "is_stop" = 1
+		//   `is_stop` = 1
 		// {{end}}
 		// WHERE
 		// 	"tid" = @tid;
 		StopTopic(ctx context.Context, tid string) error
 
-		// INSERT INTO @@table
+		// INSERT INTO topic
 		// 	(
-		// 		"tid","cid","title","intro",
-		// 		"content","yes_ratio","no_ratio","yes_count",
-		// 		"no_count","total_count","collect_count","read_count",
-		// 		"img_url","is_stop","refund_end_time","end_time",
-		// 		"created_at","updated_at","deleted_at"
+		// 		`tid`,`cid`,`title`,intro,
+		// 		`content`,`yes_ratio`,`no_ratio`,`yes_count`,
+		// 		`no_count`,`total_count`,`collect_count`,`read_count`,
+		// 		`img_url`,`is_stop`,`refund_end_time`,`end_time`,
+		// 		`created_at`,`updated_at`,`deleted_at`
 		// 	)
 		// VALUES
 		// 	(
@@ -84,7 +84,7 @@ type (
 
 		// SELECT
 		// *
-		// FROM @@table
+		// FROM topic
 		// WHERE "cid" = @cid AND
 		// "created_at" <= @created_at AND
 		// "deleted_at" = NULL AND
