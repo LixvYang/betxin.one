@@ -9,14 +9,15 @@ import (
 
 func Test(t *testing.T) {
 	assert := assert.New(t)
+	now := time.Now()
 	p := Page{
-		PreID:         1233,
+		CreatedAt:     now,
 		NextTimeAtUTC: time.Now().UnixMilli(),
 		PageSize:      10,
 	}
 	encodeStr := p.Encode()
 	newPage := encodeStr.Decode()
-	assert.Equal(newPage.PreID, p.PreID)
+	assert.True(newPage.CreatedAt.Equal(p.CreatedAt))
 	assert.Equal(newPage.NextTimeAtUTC, p.NextTimeAtUTC)
 	assert.Equal(newPage.PageSize, p.PageSize)
 }

@@ -50,6 +50,11 @@ const (
 	ERROR_LIST_TOPIC         = 5003
 	ERROR_GET_TOPIC          = 5003
 	ERROR_TOPIC_INVAILD_NAME = 5005
+
+	// 收藏错误
+	ERROR_CREATE_COLLECT         = 6001
+	ERROR_CREATE_ALREADY_COLLECT = 6002
+	ERROR_NOT_COLLECT            = 6003
 )
 
 var codeMsg = map[int]string{
@@ -93,6 +98,10 @@ var codeMsg = map[int]string{
 	ERROR_DELETE_TOPIC:       "删除话题错误",
 	ERROR_LIST_TOPIC:         "查询话题列表错误",
 	ERROR_TOPIC_INVAILD_NAME: "invaild tid",
+
+	ERROR_CREATE_COLLECT:         "创建收藏失败",
+	ERROR_CREATE_ALREADY_COLLECT: "收藏已存在",
+	ERROR_NOT_COLLECT:            "收藏不存在",
 }
 
 func GetErrMsg(code int) string {

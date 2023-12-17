@@ -41,8 +41,8 @@ CREATE TABLE
         `refund_end_time` TIMESTAMP DEFAULT NULL,
         `end_time` TIMESTAMP DEFAULT NULL,
         `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
-        `create_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        `update_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         `deleted_at` TIMESTAMP DEFAULT NULL,
         PRIMARY KEY (`id`),
         INDEX `idx_cid` (cid),
@@ -86,7 +86,7 @@ CREATE TABLE
         `amount` VARCHAR(36) NOT NULL,
         `opening_balance` VARCHAR(40) NOT NULL,
         `closing_balance` VARCHAR(40) NOT NULL,
-        `create_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`),
         INDEX `idx_trace_id` (`trace_id`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
@@ -96,12 +96,12 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `topic_purchases`(
         `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-        `uid` varchar(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `tid` BIGINT(20) NOT NULL,
         `yes_price` VARCHAR(40) NOT NULL DEFAULT '0.00000000',
         `no_price` VARCHAR(40) NOT NULL DEFAULT '0.00000000',
-        `create_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        `update_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updaed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         `deleted_at` TIMESTAMP DEFAULT NULL,
         PRIMARY KEY (id),
         UNIQUE KEY idx_uid_tid (uid, tid),
@@ -113,14 +113,14 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `bonuse` (
         `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-        `uid` VARCHAR(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `tid` BIGINT(20) NOT NULL,
         `asset_id` VARCHAR(36) NOT NULL,
         `amount` VARCHAR(36) NOT NULL,
         `memo` VARCHAR(256) NOT NULL,
         `trace_id` VARCHAR(36) NOT NULL,
-        `create_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        `update_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updaed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         `deleted_at` TIMESTAMP DEFAULT NULL,
         PRIMARY KEY (id)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
@@ -130,7 +130,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `refund`(
         `id` int NOT NULL AUTO_INCREMENT,
-        `uid` varchar(36) NOT NULL,
+        `uid` varchar(255) NOT NULL,
         `asset_id` VARCHAR(36) NOT NULL,
         `trace_id` VARCHAR(36) NOT NULL,
         `price` VARCHAR(40) NOT NULL DEFAULT '0.00000000',
@@ -147,11 +147,11 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `collect`(
         `id` int NOT NULL AUTO_INCREMENT,
-        `uid` varchar(36) NOT NULL DEFAULT '',
-        `tid` BIGINT(20) NOT NULL,
+        `uid` varchar(255) NOT NULL DEFAULT '',
+        `tid` VARCHAR(36) NOT NULL,
         `status` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'status',
-        `create_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        `update_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`),
         UNIQUE KEY `idx_uid_tid` (`uid`, `tid`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
@@ -160,11 +160,11 @@ CREATE TABLE
     IF NOT EXISTS `feedback`(
         `id` int NOT NULL AUTO_INCREMENT,
         `fid` VARCHAR(36) NOT NULL DEFAULT '',
-        `uid` varchar(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `title` varchar(150) NOT NULL DEFAULT '',
         `content` VARCHAR(512) NOT NULL,
-        `create_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        `update_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updaed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         `deleted_at` TIMESTAMP DEFAULT NULL,
         PRIMARY KEY (`id`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
@@ -172,13 +172,13 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `message`(
         `id` int NOT NULL AUTO_INCREMENT,
-        `uid` varchar(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `data` VARCHAR(512) NOT NULL,
         `conversation_id` VARCHAR(36) NOT NULL DEFAULT '',
         `recipient_id` VARCHAR(36) NOT NULL DEFAULT '',
         `message_id` VARCHAR(36) NOT NULL DEFAULT '',
         `category` VARCHAR(20) NOT NULL DEFAULT '',
-        `create_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 

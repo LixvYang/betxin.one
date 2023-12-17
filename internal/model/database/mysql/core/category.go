@@ -11,34 +11,34 @@ type (
 	CategoryStore interface {
 		// SELECT
 		// 	*
-		// FROM @@table
+		// FROM category
 		// WHERE id = @id;
 		GetCategoryById(ctx context.Context, id int64) (*Category, error)
 
 		// SELECT
 		// *
-		// FROM @@table;
+		// FROM category;
 		ListCategories(ctx context.Context) ([]*Category, error)
 
 		// SELECT
 		// 	*
-		// FROM @@table
+		// FROM category
 		// WHERE name = @name;
 		GetCategoryByName(ctx context.Context, name string) (*Category, error)
 
-		// INSERT INTO @@table
+		// INSERT INTO category
 		// (name)
 		// VALUES
 		// (@name);
 		CreateCategory(ctx context.Context, name string) error
 
 		// DELETE
-		// FROM @@table
+		// FROM category
 		// WHERE
 		// name = @name;
 		DeleteCategory(ctx context.Context, name string) error
 
-		// Update @@table SET
+		// Update category SET
 		// name = @category.Name
 		// WHERE id = @category.ID;
 		UpdateCategory(ctx context.Context, category *Category) error

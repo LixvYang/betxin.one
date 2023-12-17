@@ -165,14 +165,14 @@ type ICategoryDo interface {
 //
 //	*
 //
-// FROM @@table
+// FROM category
 // WHERE id = @id;
 func (c categoryDo) GetCategoryById(ctx context.Context, id int64) (result *core.Category, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
 	params = append(params, id)
-	generateSQL.WriteString("SELECT * FROM categories WHERE id = ?; ")
+	generateSQL.WriteString("SELECT * FROM category WHERE id = ?; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Take(&result) // ignore_security_alert
@@ -183,10 +183,10 @@ func (c categoryDo) GetCategoryById(ctx context.Context, id int64) (result *core
 
 // SELECT
 // *
-// FROM @@table;
+// FROM category;
 func (c categoryDo) ListCategories(ctx context.Context) (result []*core.Category, err error) {
 	var generateSQL strings.Builder
-	generateSQL.WriteString("SELECT * FROM categories; ")
+	generateSQL.WriteString("SELECT * FROM category; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Raw(generateSQL.String()).Find(&result) // ignore_security_alert
@@ -199,14 +199,14 @@ func (c categoryDo) ListCategories(ctx context.Context) (result []*core.Category
 //
 //	*
 //
-// FROM @@table
+// FROM category
 // WHERE name = @name;
 func (c categoryDo) GetCategoryByName(ctx context.Context, name string) (result *core.Category, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
 	params = append(params, name)
-	generateSQL.WriteString("SELECT * FROM categories WHERE name = ?; ")
+	generateSQL.WriteString("SELECT * FROM category WHERE name = ?; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Take(&result) // ignore_security_alert
@@ -215,7 +215,7 @@ func (c categoryDo) GetCategoryByName(ctx context.Context, name string) (result 
 	return
 }
 
-// INSERT INTO @@table
+// INSERT INTO category
 // (name)
 // VALUES
 // (@name);
@@ -224,7 +224,7 @@ func (c categoryDo) CreateCategory(ctx context.Context, name string) (err error)
 
 	var generateSQL strings.Builder
 	params = append(params, name)
-	generateSQL.WriteString("INSERT INTO categories (name) VALUES (?); ")
+	generateSQL.WriteString("INSERT INTO category (name) VALUES (?); ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert
@@ -234,7 +234,7 @@ func (c categoryDo) CreateCategory(ctx context.Context, name string) (err error)
 }
 
 // DELETE
-// FROM @@table
+// FROM category
 // WHERE
 // name = @name;
 func (c categoryDo) DeleteCategory(ctx context.Context, name string) (err error) {
@@ -242,7 +242,7 @@ func (c categoryDo) DeleteCategory(ctx context.Context, name string) (err error)
 
 	var generateSQL strings.Builder
 	params = append(params, name)
-	generateSQL.WriteString("DELETE FROM categories WHERE name = ?; ")
+	generateSQL.WriteString("DELETE FROM category WHERE name = ?; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert
@@ -251,7 +251,7 @@ func (c categoryDo) DeleteCategory(ctx context.Context, name string) (err error)
 	return
 }
 
-// Update @@table SET
+// Update category SET
 // name = @category.Name
 // WHERE id = @category.ID;
 func (c categoryDo) UpdateCategory(ctx context.Context, category *core.Category) (err error) {
@@ -260,7 +260,7 @@ func (c categoryDo) UpdateCategory(ctx context.Context, category *core.Category)
 	var generateSQL strings.Builder
 	params = append(params, category.Name)
 	params = append(params, category.ID)
-	generateSQL.WriteString("Update categories SET name = ? WHERE id = ?; ")
+	generateSQL.WriteString("Update category SET name = ? WHERE id = ?; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert

@@ -2,6 +2,7 @@ package token
 
 import (
 	"encoding/base64"
+	"time"
 
 	"github.com/lixvyang/betxin.one/internal/utils/convert"
 )
@@ -9,7 +10,7 @@ import (
 type Token string
 
 type Page struct {
-	PreID         int64 `json:"pre_id"`
+	CreatedAt     time.Time `json:"created_at"`
 	NextTimeAtUTC int64 `json:"next_time_at_utc"`
 	PageSize      int64 `json:"page_size"`
 }

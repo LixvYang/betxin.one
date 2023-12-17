@@ -1,11 +1,12 @@
 package user
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
-	"github.com/lixvyang/betxin.one/api/v1/handler"
+	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 	"github.com/rs/zerolog"
 )
 

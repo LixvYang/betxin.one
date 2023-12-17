@@ -11,6 +11,7 @@ type Database interface {
 	core.TopicStore
 	core.UserStore
 	core.CategoryStore
+	core.CollectStore
 }
 
 // type IUser interface {

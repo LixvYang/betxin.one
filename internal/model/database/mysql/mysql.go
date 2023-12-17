@@ -8,6 +8,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/category"
+	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/collect"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/topic"
 	"github.com/lixvyang/betxin.one/internal/model/database/mysql/store/user"
 	"github.com/rs/zerolog"
@@ -29,6 +30,7 @@ func NewMySqlService(logger *zerolog.Logger, conf *configs.AppConfig) *MySQLServ
 	m.UserStore = user.New(h)
 	m.TopicStore = topic.New(h)
 	m.CategoryStore = category.New(h)
+	m.CollectStore = collect.New(h)
 
 	return m
 }
@@ -38,6 +40,7 @@ type MySQLService struct {
 	core.UserStore
 	core.TopicStore
 	core.CategoryStore
+	core.CollectStore
 }
 
 func (m *MySQLService) initDB(logger *zerolog.Logger, conf *configs.MySQLConfig) error {

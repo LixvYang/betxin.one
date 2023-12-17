@@ -6,7 +6,7 @@ CREATE TABLE
     IF NOT EXISTS `user` (
         `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
         `identity_number` varchar(36) NOT NULL DEFAULT "",
-        `uid` varchar(36) NOT NULL,
+        `uid` varchar(255) NOT NULL,
         `full_name` varchar(255) DEFAULT NULL,
         `avatar_url` varchar(255) DEFAULT NULL,
         `session_id` varchar(255) DEFAULT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `topic_purchases`(
         `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-        `uid` varchar(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `tid` BIGINT(20) NOT NULL,
         `yes_price` VARCHAR(40) NOT NULL DEFAULT '0.00000000' COMMENT '支持金额',
         `no_price` VARCHAR(40) NOT NULL DEFAULT '0.00000000' COMMENT '反对金额',
@@ -126,7 +126,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `bonuse` (
         `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-        `uid` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '用户uid',
+        `uid` varchar(255) NOT NULL DEFAULT '' COMMENT '用户uid',
         `tid` BIGINT(20) NOT NULL COMMENT '话题id',
         `asset_id` VARCHAR(36) NOT NULL COMMENT '资产id',
         `amount` VARCHAR(36) NOT NULL,
@@ -143,7 +143,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `refund`(
         `id` int NOT NULL AUTO_INCREMENT,
-        `uid` varchar(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `asset_id` VARCHAR(36) NOT NULL DEFAULT '',
         `trace_id` VARCHAR(36) NOT NULL DEFAULT '',
         `price` VARCHAR(40) NOT NULL DEFAULT '0.00000000' COMMENT '退款金额',
@@ -160,7 +160,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `collect`(
         `id` int NOT NULL AUTO_INCREMENT,
-        `uid` varchar(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `tid` BIGINT(20) NOT NULL,
         `status` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '状态',
         `created_at` BIGINT(13) NOT NULL DEFAULT 0,
@@ -173,7 +173,7 @@ CREATE TABLE
     IF NOT EXISTS `feedback`(
         `id` int NOT NULL AUTO_INCREMENT,
         `fid` VARCHAR(36) NOT NULL DEFAULT '',
-        `uid` varchar(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `title` varchar(150) NOT NULL DEFAULT '',
         `content` VARCHAR(512) NOT NULL,
         `created_at` BIGINT(13) NOT NULL DEFAULT 0,
@@ -185,7 +185,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS `message`(
         `id` int NOT NULL AUTO_INCREMENT,
-        `uid` varchar(36) NOT NULL DEFAULT '',
+        `uid` varchar(255) NOT NULL DEFAULT '',
         `data` VARCHAR(512) NOT NULL,
         `conversation_id` VARCHAR(36) NOT NULL DEFAULT '',
         `recipient_id` VARCHAR(36) NOT NULL DEFAULT '',

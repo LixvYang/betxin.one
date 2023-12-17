@@ -235,6 +235,7 @@ type ITopicDo interface {
 	StopTopic(ctx context.Context, tid string) (err error)
 	CreateTopic(ctx context.Context, topic *core.Topic) (err error)
 	ListTopicsByCid(ctx context.Context, cid int64, created_at time.Time, page_size int64) (result []*core.Topic, err error)
+	UpdateTopicInfo(ctx context.Context, topic *core.Topic) (err error)
 }
 
 // SELECT
@@ -293,25 +294,16 @@ func (t topicDo) GetTopicByTid(ctx context.Context, tid string) (result *core.To
 	return
 }
 
-// UPDATE topic
-// {{set}}
-//
-//	`deleted_at` = NOW()
-//
-// {{end}}
+// DELETE FROM topic
 // WHERE
 //
-//	"tid" = @tid;
+//	`tid` = @tid;
 func (t topicDo) DeleteTopic(ctx context.Context, tid string) (err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
-	generateSQL.WriteString("UPDATE topic ")
-	var setSQL0 strings.Builder
-	setSQL0.WriteString("`deleted_at` = NOW() ")
-	helper.JoinSetBuilder(&generateSQL, setSQL0)
 	params = append(params, tid)
-	generateSQL.WriteString("WHERE \"tid\" = ?; ")
+	generateSQL.WriteString("DELETE FROM topic WHERE `tid` = ?; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = t.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert
@@ -328,7 +320,7 @@ func (t topicDo) DeleteTopic(ctx context.Context, tid string) (err error) {
 // {{end}}
 // WHERE
 //
-//	"tid" = @tid;
+//	`tid` = @tid;
 func (t topicDo) StopTopic(ctx context.Context, tid string) (err error) {
 	var params []interface{}
 
@@ -338,7 +330,7 @@ func (t topicDo) StopTopic(ctx context.Context, tid string) (err error) {
 	setSQL0.WriteString("`is_stop` = 1 ")
 	helper.JoinSetBuilder(&generateSQL, setSQL0)
 	params = append(params, tid)
-	generateSQL.WriteString("WHERE \"tid\" = ?; ")
+	generateSQL.WriteString("WHERE `tid` = ?; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = t.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert
@@ -350,7 +342,7 @@ func (t topicDo) StopTopic(ctx context.Context, tid string) (err error) {
 // INSERT INTO topic
 //
 //	(
-//		`tid`,`cid`,`title`,intro,
+//		`tid`,`cid`,`title`,`intro`,
 //		`content`,`yes_ratio`,`no_ratio`,`yes_count`,
 //		`no_count`,`total_count`,`collect_count`,`read_count`,
 //		`img_url`,`is_stop`,`refund_end_time`,`end_time`,
@@ -364,7 +356,7 @@ func (t topicDo) StopTopic(ctx context.Context, tid string) (err error) {
 //		@topic.Content,"50.00","50.00","0",
 //		"0","0","0","0",
 //		@topic.ImgURL,0,@topic.RefundEndTime,@topic.EndTime,
-//		NOW(),NOW(),NULL,
+//		NOW(),NOW(),NULL
 //	);
 func (t topicDo) CreateTopic(ctx context.Context, topic *core.Topic) (err error) {
 	var params []interface{}
@@ -378,7 +370,7 @@ func (t topicDo) CreateTopic(ctx context.Context, topic *core.Topic) (err error)
 	params = append(params, topic.ImgURL)
 	params = append(params, topic.RefundEndTime)
 	params = append(params, topic.EndTime)
-	generateSQL.WriteString("INSERT INTO topic ( `tid`,`cid`,`title`,intro, `content`,`yes_ratio`,`no_ratio`,`yes_count`, `no_count`,`total_count`,`collect_count`,`read_count`, `img_url`,`is_stop`,`refund_end_time`,`end_time`, `created_at`,`updated_at`,`deleted_at` ) VALUES ( ?,?,?,?, ?,\"50.00\",\"50.00\",\"0\", \"0\",\"0\",\"0\",\"0\", ?,0,?,?, NOW(),NOW(),NULL, ); ")
+	generateSQL.WriteString("INSERT INTO topic ( `tid`,`cid`,`title`,`intro`, `content`,`yes_ratio`,`no_ratio`,`yes_count`, `no_count`,`total_count`,`collect_count`,`read_count`, `img_url`,`is_stop`,`refund_end_time`,`end_time`, `created_at`,`updated_at`,`deleted_at` ) VALUES ( ?,?,?,?, ?,\"50.00\",\"50.00\",\"0\", \"0\",\"0\",\"0\",\"0\", ?,0,?,?, NOW(),NOW(),NULL ); ")
 
 	var executeSQL *gorm.DB
 	executeSQL = t.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert
@@ -390,11 +382,11 @@ func (t topicDo) CreateTopic(ctx context.Context, topic *core.Topic) (err error)
 // SELECT
 // *
 // FROM topic
-// WHERE "cid" = @cid AND
-// "created_at" <= @created_at AND
-// "deleted_at" = NULL AND
-// "is_stop" = 0
-// ORDER BY "created_at" DESC
+// WHERE `cid` = @cid AND
+// `created_at` <= @created_at AND
+// `deleted_at` IS NULL AND
+// `is_stop` = 0
+// ORDER BY `created_at` DESC
 // LIMIT @page_size;
 func (t topicDo) ListTopicsByCid(ctx context.Context, cid int64, created_at time.Time, page_size int64) (result []*core.Topic, err error) {
 	var params []interface{}
@@ -403,10 +395,55 @@ func (t topicDo) ListTopicsByCid(ctx context.Context, cid int64, created_at time
 	params = append(params, cid)
 	params = append(params, created_at)
 	params = append(params, page_size)
-	generateSQL.WriteString("SELECT * FROM topic WHERE \"cid\" = ? AND \"created_at\" <= ? AND \"deleted_at\" = NULL AND \"is_stop\" = 0 ORDER BY \"created_at\" DESC LIMIT ?; ")
+	generateSQL.WriteString("SELECT * FROM topic WHERE `cid` = ? AND `created_at` <= ? AND `deleted_at` IS NULL AND `is_stop` = 0 ORDER BY `created_at` DESC LIMIT ?; ")
 
 	var executeSQL *gorm.DB
 	executeSQL = t.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert
+	err = executeSQL.Error
+
+	return
+}
+
+// UPDATE topic
+// {{set}}
+//
+//	`tid` = @topic.Tid,
+//	`cid` = @topic.Cid,
+//	`title` = @topic.Title,
+//	`intro` = @topic.Intro,
+//	`content` = @topic.Content,
+//	`img_url` = @topic.ImgURL,
+//	`is_stop` = @topic.IsStop,
+//	`refund_end_time` = @topic.RefundEndTime,
+//	`end_time` = @topic.EndTime,
+//	`updated_at` = NOW()
+//
+// {{end}}
+// WHERE
+//
+//	`tid` = @topic.Tid;
+func (t topicDo) UpdateTopicInfo(ctx context.Context, topic *core.Topic) (err error) {
+	var params []interface{}
+
+	var generateSQL strings.Builder
+	generateSQL.WriteString("UPDATE topic ")
+	var setSQL0 strings.Builder
+	params = append(params, topic.Tid)
+	params = append(params, topic.Cid)
+	params = append(params, topic.Title)
+	params = append(params, topic.Intro)
+	params = append(params, topic.Content)
+	params = append(params, topic.ImgURL)
+	params = append(params, topic.IsStop)
+	params = append(params, topic.RefundEndTime)
+	params = append(params, topic.EndTime)
+	setSQL0.WriteString("`tid` = ?, `cid` = ?, `title` = ?, `intro` = ?, `content` = ?, `img_url` = ?, `is_stop` = ?, `refund_end_time` = ?, `end_time` = ?, `updated_at` = NOW() ")
+	helper.JoinSetBuilder(&generateSQL, setSQL0)
+	params = append(params, topic.Tid)
+	generateSQL.WriteString("WHERE `tid` = ?; ")
+
+	var executeSQL *gorm.DB
+	executeSQL = t.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert
 	err = executeSQL.Error
 
 	return
