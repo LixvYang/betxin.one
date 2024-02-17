@@ -2,18 +2,21 @@ package user
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
+	"github.com/lixvyang/betxin.one/internal/model/database/mongo"
+	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/pkg/jwt"
-	"github.com/pkg/errors"
-
-	"github.com/gin-gonic/gin"
 	"github.com/pandodao/passport-go/auth"
+	"github.com/pandodao/passport-go/mvm"
 	"github.com/rs/zerolog"
 )
 
@@ -25,13 +28,13 @@ type SigninReq struct {
 }
 
 type UserResp struct {
-	UID            string    `gorm:"column:uid;not null" json:"uid"`
-	IdentityNumber string    `gorm:"column:identity_number;not null" json:"identity_number"`
-	FullName       string    `gorm:"column:full_name" json:"full_name"`
-	AvatarURL      string    `gorm:"column:avatar_url" json:"avatar_url"`
-	Biography      string    `gorm:"column:biography" json:"biography"`
-	MvmPublicKey   string    `gorm:"column:mvm_public_key" json:"mvm_public_key"`
-	CreatedAt      time.Time `gorm:"column:created_at;not null" json:"created_at"`
+	UID            string    `json:"uid"`
+	IdentityNumber string    `json:"identity_number"`
+	FullName       string    `json:"full_name"`
+	AvatarURL      string    `json:"avatar_url"`
+	Biography      string    `json:"biography"`
+	MvmPublicKey   string    `json:"mvm_public_key"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type SigninResp struct {
@@ -40,7 +43,7 @@ type SigninResp struct {
 }
 
 func (uh *UserHandler) Connect(c *gin.Context) {
-	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
+	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
 	var req SigninReq
 	var err error
 	if err = c.ShouldBindJSON(&req); err != nil {
@@ -51,7 +54,7 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 
 	logger.Info().Any("req", req).Send()
 
-	err = uh.checkConnectArg(logger, &req)
+	err = uh.checkConnectArg(&logger, &req)
 	if err != nil {
 		logger.Error().Int("errmsg", errmsg.ERROR_INVAILD_ARGV).Msgf("check args error: %+v", err)
 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
@@ -99,7 +102,7 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 		return
 	}
 
-	user, jwtToken, err := LoginWithMixin(c, logger, uh.UserService, authUser, isMvmUser)
+	user, jwtToken, err := uh.LoginWithMixin(c, &logger, authUser, isMvmUser)
 	if err != nil {
 		logger.Error().Err(err).Str("req.LoginMethod", req.LoginMethod).Msg("[LoginWithMixin] failed")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -123,8 +126,8 @@ func (uh *UserHandler) checkConnectArg(logger *zerolog.Logger, req *SigninReq) e
 	return nil
 }
 
-func LoginWithMixin(ctx context.Context, logger *zerolog.Logger, userz core.UserService, authUser *auth.User, isMvmUser bool) (*core.User, string, error) {
-	user, err := userz.LoginWithMixin(ctx, logger, authUser, isMvmUser)
+func (uh *UserHandler) LoginWithMixin(ctx context.Context, logger *zerolog.Logger, authUser *auth.User, isMvmUser bool) (*schema.User, string, error) {
+	user, err := uh.loginWithMixin(ctx, logger, authUser, isMvmUser)
 	if err != nil {
 		return nil, "", err
 	}
@@ -138,47 +141,94 @@ func LoginWithMixin(ctx context.Context, logger *zerolog.Logger, userz core.User
 	return user, jwtToken, nil
 }
 
-// func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey string) (string, error) {
-// 	addr := common.HexToAddress(pubkey)
-// 	mvmUser, err := mvm.GetBridgeUser(c, addr)
-// 	if err != nil {
-// 		logger.Error().Err(err).Msgf("[loginMvm][mvm.GetBridgeUser] err")
-// 		return "", err
-// 	}
+func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey string) (string, error) {
+	addr := common.HexToAddress(pubkey)
+	mvmUser, err := mvm.GetBridgeUser(c, addr)
+	if err != nil {
+		logger.Error().Err(err).Msgf("[loginMvm][mvm.GetBridgeUser] err")
+		return "", err
+	}
 
-// 	contractAddr, err := mvm.GetUserContract(c, mvmUser.UserID)
-// 	if err != nil {
-// 		logger.Error().Err(err).Msgf("[loginMvm][mvm.GetUserContract] err")
-// 		return "", err
-// 	}
+	contractAddr, err := mvm.GetUserContract(c, mvmUser.UserID)
+	if err != nil {
+		logger.Error().Err(err).Msgf("[loginMvm][mvm.GetUserContract] err")
+		return "", err
+	}
 
-// 	logger.Info().Any("contractAddr", contractAddr).Msg("userInfo")
+	logger.Info().Any("contractAddr", contractAddr).Msg("userInfo")
 
-// 	// if contractAddr is not 0x000..00, it means the user has already registered a mvm account
-// 	emptyAddr := common.Address{}
-// 	if contractAddr == emptyAddr {
-// 		logger.Error().Err(err).Msgf("[loginMvm][mvm.emptyAddr] err")
-// 		return "", err
-// 	}
+	// if contractAddr is not 0x000..00, it means the user has already registered a mvm account
+	emptyAddr := common.Address{}
+	if contractAddr == emptyAddr {
+		logger.Error().Err(err).Msgf("[loginMvm][mvm.emptyAddr] err")
+		return "", err
+	}
 
-// 	logger.Info().Msgf("user: %+v", mvmUser)
+	logger.Info().Msgf("user: %+v", mvmUser)
 
-// 	user := &schema.User{
-// 		IsMvmUser:  true,
-// 		UID:        mvmUser.UserID,
-// 		FullName:   mvmUser.FullName,
-// 		Contract:   mvmUser.Contract,
-// 		PrivateKey: mvmUser.Key.PrivateKey,
-// 		ClientID:   mvmUser.Key.ClientID,
-// 		SessionID:  mvmUser.Key.SessionID,
-// 	}
-// 	logger.Info().Any("user", user).Msg("userInfo")
+	user := &schema.User{
+		IsMvmUser:  true,
+		UID:        mvmUser.UserID,
+		FullName:   mvmUser.FullName,
+		Contract:   mvmUser.Contract,
+		PrivateKey: mvmUser.Key.PrivateKey,
+		ClientID:   mvmUser.Key.ClientID,
+		SessionID:  mvmUser.Key.SessionID,
+	}
+	logger.Info().Any("user", user).Msg("userInfo")
 
-// 	jwtToken, err := jwt.GenToken(user.UID)
-// 	if err != nil {
-// 		logger.Error().Err(err).Msgf("[loginMvm][jwt.GenToken] err")
-// 		return "", err
-// 	}
+	jwtToken, err := jwt.GenToken(user.UID)
+	if err != nil {
+		logger.Error().Err(err).Msgf("[loginMvm][jwt.GenToken] err")
+		return "", err
+	}
 
-// 	return jwtToken, nil
-// }
+	return jwtToken, nil
+}
+
+func (uh *UserHandler) loginWithMixin(ctx context.Context, logger *zerolog.Logger, authUser *auth.User, isMvmUser bool) (*schema.User, error) {
+	var user = &schema.User{
+		UID:            authUser.UserID,
+		IdentityNumber: authUser.IdentityNumber,
+		FullName:       authUser.FullName,
+		AvatarURL:      authUser.AvatarURL,
+		MvmPublicKey:   authUser.MvmAddress.Hex(),
+		Biography:      authUser.Biography,
+		IsMvmUser:      isMvmUser,
+		MixinCreatedAt: authUser.CreatedAt,
+	}
+
+	existing, err := uh.userSrv.GetUserByUid(ctx, logger, user.UID)
+	if err != nil && err != mongo.ErrNoSuchUser {
+		logger.Error().Err(err).Msgf("[LoginWithMixin][GetUserByUid] err")
+		return nil, err
+	}
+
+	// create
+	if err == mongo.ErrNoSuchUser {
+		user.CreatedAt = time.Now()
+		user.UpdatedAt = user.CreatedAt
+		err = uh.userSrv.CreateUser(ctx, logger, user)
+		if err != nil && err != mongo.ErrUserExist {
+			logger.Error().Err(err).Msgf("[LoginWithMixin][CreateUser] err")
+			return nil, err
+		}
+		return user, nil
+	}
+
+	user.UpdatedAt = time.Now()
+	// update
+	err = uh.userSrv.UpdateUser(ctx, logger, existing.UID, user)
+	if err != nil {
+		fmt.Printf("err users.Updates: %v\n", err)
+		return nil, err
+	}
+
+	newUser, err := uh.userSrv.GetUserByUid(ctx, logger, user.UID)
+	if err != nil {
+		logger.Error().Err(err).Msgf("[LoginWithMixin][GetUserByUid] err")
+		return nil, err
+	}
+
+	return newUser, nil
+}

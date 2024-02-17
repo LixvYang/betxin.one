@@ -1,26 +1,27 @@
 package database
 
 import (
+	"context"
+
 	"github.com/lixvyang/betxin.one/config"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
+	"github.com/lixvyang/betxin.one/internal/model/database/mongo"
+	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/rs/zerolog"
 )
 
 type Database interface {
-	core.TopicStore
-	core.UserStore
-	core.CategoryStore
-	core.CollectStore
+	IUser
 }
 
-// type IUser interface {
-// 	CheckUser(context.Context, *zerolog.Logger, string) error
-// 	GetUserByUid(context.Context, *zerolog.Logger, string) (*schema.User, error)
-// 	CreateUser(context.Context, *zerolog.Logger, *schema.User) error
-// 	DeleteUser(context.Context, *zerolog.Logger, string) error
-// 	UpdateUser(context.Context, *zerolog.Logger, *schema.User) error
-// }
+type IUser interface {
+	// CheckUser(context.Context, *zerolog.Logger, string) error
+	// GetUserByUid(context.Context, *zerolog.Logger, string) (*schema.User, error)
+	// CreateUser(context.Context, *zerolog.Logger, *schema.User) error
+	// DeleteUser(context.Context, *zerolog.Logger, string) error
+	UpdateUser(ctx context.Context, log *zerolog.Logger, uid string, user *schema.User) error
+	GetUserByUid(ctx context.Context, log *zerolog.Logger, uid string) (*schema.User, error)
+	CreateUser(ctx context.Context, log *zerolog.Logger, user *schema.User) (err error)
+}
 
 // type ITopic interface {
 // 	StopTopic(context.Context, *zerolog.Logger, int64) error
@@ -38,14 +39,14 @@ type Database interface {
 // 	// ListTopics(context.Context, *zerolog.Logger) ([]*schema.Topic, int, error)
 // }
 
-// type ICategoty interface {
-// 	CheckCategory(ctx context.Context, logger *zerolog.Logger, name string) error
-// 	CreateCategory(ctx context.Context, logger *zerolog.Logger, name string) error
-// 	GetCategoryById(ctx context.Context, logger *zerolog.Logger, id int64) (*schema.Category, error)
-// 	ListCategories() ([]*schema.Category, error)
-// 	UpdateCategory(ctx context.Context, logger *zerolog.Logger, id int64, name string) error
-// 	DeleteCategory(ctx context.Context, logger *zerolog.Logger, id int64) error
-// }
+type ICategoty interface {
+	// CheckCategory(ctx context.Context, logger *zerolog.Logger, name string) error
+	CreateCategory(ctx context.Context, logger *zerolog.Logger, name string) error
+	GetCategoryById(ctx context.Context, logger *zerolog.Logger, id int64) (*schema.Category, error)
+	ListCategories() ([]*schema.Category, error)
+	UpdateCategory(ctx context.Context, logger *zerolog.Logger, id int64, name string) error
+	DeleteCategory(ctx context.Context, logger *zerolog.Logger, id int64) error
+}
 
 // type IBonuse interface {
 // 	CreateBonuse(*schema.Bonuse) error
@@ -102,8 +103,8 @@ type Database interface {
 
 func New(logger *zerolog.Logger, conf *config.AppConfig) Database {
 	switch conf.Driver {
-	case "mysql":
-		return mysql.NewMySqlService(logger, conf)
+	case "mongo":
+		return mongo.NewMongoService(logger, conf)
 	default:
 		logger.Panic().Msgf("driver: %s no impl", conf.Driver)
 		return nil

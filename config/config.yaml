@@ -4,11 +4,11 @@ port: 9091
 version: "v0.1.3"
 start_time: "2020-07-01"
 machine_id: 1
-driver: "mysql"
+driver: "mongo"
 
 log:
-  console_logging_enabled: true 
-  encode_logs_as_json: true 
+  console_logging_enabled: true
+  encode_logs_as_json: true
   file_logging_enabled: true
   directory: "./log"
   filename: "betxin.log"
@@ -30,10 +30,12 @@ mysql:
 
 mongo:
   host: "127.0.0.1"
+  port: 27017
+  db: "betxin_test"
 
 redis:
   host: "127.0.0.1"
   port: 6379
-  password: "123456"
+  password: "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"
   db: 0
   pool_size: 100

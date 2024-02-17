@@ -2,18 +2,17 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
+	"github.com/lixvyang/betxin.one/internal/model/database"
+	"github.com/rs/zerolog"
 )
 
 type UserHandler struct {
-	core.UserStore
-	core.UserService
+	userSrv database.IUser
 }
 
-func NewHandler(userStore core.UserStore, userService core.UserService) IUserHandler {
+func NewHandler(database database.Database, logger *zerolog.Logger) IUserHandler {
 	return &UserHandler{
-		userStore,
-		userService,
+		database,
 	}
 }
 

@@ -39,6 +39,7 @@ clean:
 	rm log/*
 
 make push:
+	rm log/*
 	git add .
 	git commit -m "update"
 	git push

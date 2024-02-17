@@ -63,6 +63,10 @@ func (r *Cache) GetRes(ctx context.Context, key string, res any) (err error) {
 	return nil
 }
 
+func (r *Cache) HGetAll(ctx context.Context, key string, field string) (map[string]string, error) {
+	return r.cli.HGetAll(ctx, key).Result()
+}
+
 func (r *Cache) Set(ctx context.Context, key string, value []byte, expireSeconds int32) (err error) {
 	return r.cli.Set(ctx, key, value, time.Duration(expireSeconds)*time.Second).Err()
 }

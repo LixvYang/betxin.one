@@ -1,12 +1,5 @@
 package topic
 
-import (
-	"github.com/gin-gonic/gin"
-	"github.com/lixvyang/betxin.one/internal/model/cache"
-	"github.com/lixvyang/betxin.one/internal/model/database"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
-)
-
 type TopicHandler struct {
 	topicStore   core.TopicStore
 	collectStore core.CollectStore
@@ -32,4 +25,3 @@ type ITopicHandler interface {
 	ListTopicsByCid(*gin.Context)
 	UpdateTopicInfo(*gin.Context)
 }
-

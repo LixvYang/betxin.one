@@ -1,42 +1,50 @@
 package schema
 
-// type User struct {
-// 	IdentityNumber string `json:"identity_number"`
-// 	UID            string `json:"uid"`
-// 	FullName       string `json:"full_name"`
-// 	AvatarURL      string `json:"avatar_url"`
-// 	SessionID      string `json:"session_id"`
-// 	Biography      string `json:"biography"`
-// 	PrivateKey     string `json:"private_key"`
-// 	ClientID       string `json:"client_id"`
-// 	Contract       string `json:"contract"`
-// 	IsMvmUser      bool   `json:"is_mvm_user"`
-// }
+import "time"
 
-// type Topic struct {
-// 	Tid           int64  `json:"tid"`
-// 	Cid           int64  `json:"cid"`
-// 	Title         string `json:"title"`
-// 	Intro         string `json:"intro"`
-// 	Content       string `json:"content"`
-// 	YesRatio      string `json:"yes_ratio"`
-// 	NoRatio       string `json:"no_ratio"`
-// 	YesCount      string `json:"yes_count"`
-// 	NoCount       string `json:"no_count"`
-// 	TotalCount    string `json:"total_count"`
-// 	CollectCount  int64  `json:"collect_count"`
-// 	ReadCount     int64  `json:"read_count"`
-// 	ImgURL        string `json:"img_url"`
-// 	IsStop        bool   `json:"is_stop"`
-// 	IsDeleted     bool   `json:"is_deleted"`
-// 	RefundEndTime int64  `json:"refund_end_time"`
-// 	EndTime       int64  `json:"end_time"`
-// }
+type User struct {
+	IdentityNumber string    `bson:"identity_number" json:"identity_number"`
+	UID            string    `bson:"uid" json:"uid"`
+	FullName       string    `bson:"full_name" json:"full_name"`
+	AvatarURL      string    `bson:"avatar_url" json:"avatar_url"`
+	SessionID      string    `bson:"session_id" json:"session_id"`
+	Biography      string    `bson:"biography" json:"biography"`
+	PrivateKey     string    `bson:"private_key" json:"private_key"`
+	ClientID       string    `bson:"client_id" json:"client_id"`
+	Contract       string    `bson:"contract" json:"contract"`
+	IsMvmUser      bool      `bson:"is_mvm_user" json:"is_mvm_user"`
+	MvmPublicKey   string    `bson:"mvm_public_key" json:"mvm_public_key"`
+	MixinCreatedAt time.Time `bson:"mixin_created_at" json:"mixin_created_at"`
+	CreatedAt      time.Time `bson:"created_at" json:"created_at"`
+	UpdatedAt      time.Time `bson:"updated_at" json:"updated_at"`
+}
 
-// type Category struct {
-// 	ID   int64  `json:"id"`
-// 	Name string `json:"name"`
-// }
+type Topic struct {
+	Tid           string    `bson:"tid" json:"tid"`
+	Cid           int64     `bson:"cid" json:"cid"`
+	Title         string    `bson:"title" json:"title"`
+	Intro         string    `bson:"intro" json:"intro"`
+	Content       string    `bson:"content" json:"content"`
+	YesRatio      string    `bson:"yes_ratio" json:"yes_ratio"`
+	NoRatio       string    `bson:"no_ratio" json:"no_ratio"`
+	YesCount      string    `bson:"yes_count" json:"yes_count"`
+	NoCount       string    `bson:"no_count" json:"no_count"`
+	TotalCount    string    `bson:"total_count" json:"total_count"`
+	CollectCount  int64     `bson:"collect_count" json:"collect_count"`
+	ReadCount     int64     `bson:"read_count" json:"read_count"`
+	ImgURL        string    `bson:"img_url" json:"img_url"`
+	IsStop        bool      `bson:"is_stop" json:"is_stop"`
+	RefundEndTime time.Time `bson:"refund_end_time" json:"refund_end_time"`
+	EndTime       time.Time `bson:"end_time" json:"end_time"`
+	CreatedAt     time.Time `bson:"created_at" json:"created_at"`
+	UpdatedAt     time.Time `bson:"updated_at" json:"updated_at"`
+	DeletedAt     time.Time `bson:"deleted_at" json:"deleted_at"`
+}
+
+type Category struct {
+	ID   int64  `json:"id" bson:"_id"`
+	Name string `json:"name" bson:"name"`
+}
 
 // type Bonuse struct {
 // 	UID       string `json:"uid"`      // uid

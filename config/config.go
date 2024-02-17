@@ -21,7 +21,11 @@ type AppConfig struct {
 	RedisConfig *RedisConfig `mapstructure:"redis"`
 }
 
-type MongoConfig struct{}
+type MongoConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+	DB   string `mapstructure:"db"`
+}
 
 type MySQLConfig struct {
 	Host         string `mapstructure:"host"`

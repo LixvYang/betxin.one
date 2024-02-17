@@ -67,17 +67,17 @@ func initRouter(logger *zerolog.Logger, conf *config.AppConfig) *gin.Engine {
 		api.POST("/connect", h.IUserHandler.Connect)
 		{
 			// 话题相关
-			api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
-			api.POST("/topic", h.ITopicHandler.Create)
-			api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
-			api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
-			api.GET("/topic/:tid", h.ITopicHandler.Get)
+			// api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
+			// api.POST("/topic", h.ITopicHandler.Create)
+			// api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
+			// api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
+			// api.GET("/topic/:tid", h.ITopicHandler.Get)
 
 			// 话题购买
 			// api.POST("/topic/purchase")
 		}
 		{
-			api.POST("/collect/:tid", h.ICollectHandler.Create)
+			// api.POST("/collect/:tid", h.ICollectHandler.Create)
 		}
 
 		// // 管理员权限
@@ -96,10 +96,10 @@ func initRouter(logger *zerolog.Logger, conf *config.AppConfig) *gin.Engine {
 		// 	api.GET("/backend/ram", sd.RAMCheck)
 		// }
 
-		// api.Use(middleware.JWTAuthMiddleware())
-		// {
-		// 	api.GET("/user", h.IUserHandler.Get)
-
+		api.Use(middleware.JWTAuthMiddleware())
+		{
+			api.GET("/user", h.IUserHandler.Get)
+		}
 	}
 
 	return e

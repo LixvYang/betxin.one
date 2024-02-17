@@ -3,9 +3,10 @@ package consts
 import "time"
 
 const (
-	LoggerKey = "logger"
-	Xid       = "xid"
-	Uid       = "uid"
+	DefaultLoggerKey = "logger"
+	DefaultXid       = "X-Reqid"
+
+	Uid = "uid"
 )
 
 const (
@@ -19,6 +20,16 @@ const (
 	RdsHashUserInfoKey = "betxin_user_info"
 	// hset betxin_topic_info tid {{ info }}
 	RdsHashTopicInfoKey = "betxin_topic_info"
+)
+
+// mongo coll name
+const (
+	UserCollection          = "user"
+	CategoryCollection      = "category"
+	RefundCollection        = "refund"
+	TopicCollection         = "topic"
+	TopicPurchaseCollection = "topic_purchase"
+	BonuseCollection        = "bonuse"
 )
 
 const (

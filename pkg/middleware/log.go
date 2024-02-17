@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/rs/zerolog"
 )
 
@@ -15,9 +16,9 @@ func GinLogger(Lg *zerolog.Logger) gin.HandlerFunc {
 		query := c.Request.URL.RawQuery
 
 		defer func() {
-			now := time.Since(start).Milliseconds()
+			logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
 
-			Lg.Info().
+			logger.Info().
 				Int("status", c.Writer.Status()).
 				Str("method", c.Request.Method).
 				Str("path", path).
@@ -25,7 +26,7 @@ func GinLogger(Lg *zerolog.Logger) gin.HandlerFunc {
 				Str("ip", c.ClientIP()).
 				Str("user-agent", c.Request.UserAgent()).
 				Str("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()).
-				Int64("cost(ms)", now).Send()
+				Int64("cost(ms)", time.Since(start).Milliseconds()).Send()
 		}()
 
 		c.Next()

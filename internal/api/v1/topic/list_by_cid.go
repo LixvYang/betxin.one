@@ -1,6 +1,7 @@
 package topic
 
 import (
+	"errors"
 	"math"
 	"strconv"
 	"time"
@@ -9,10 +10,9 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
-	"github.com/lixvyang/betxin.one/internal/model/database/mysql/core"
+	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/internal/utils/token"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
 
@@ -37,8 +37,8 @@ type TopicItem struct {
 	ImgURL        string    `json:"img_url"`
 	IsStop        bool      `json:"is_stop"`
 	IsDeleted     bool      `json:"is_deleted"`
-	RefundEndTime int64     `json:"refund_end_time"`
-	EndTime       int64     `json:"end_time"`
+	RefundEndTime time.Time `json:"refund_end_time"`
+	EndTime       time.Time `json:"end_time"`
 	CreatedAt     time.Time `json:"created_at"`
 }
 
@@ -46,7 +46,7 @@ type ListTopicData struct {
 	*TopicItem
 	Tid       string         `json:"tid"`
 	IsCollect bool           `json:"is_collect"`
-	Category  *core.Category `json:"category"`
+	Category  *schema.Category `json:"category"`
 }
 
 const (
@@ -55,7 +55,7 @@ const (
 )
 
 func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
-	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
+	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
 	cid, err := t.checkListTopicsByCidReq(c)
 	if err != nil {
 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
