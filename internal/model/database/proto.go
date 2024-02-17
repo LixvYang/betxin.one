@@ -11,6 +11,9 @@ import (
 
 type Database interface {
 	IUser
+	ICategory
+	ITopic
+	ICollect
 }
 
 type IUser interface {
@@ -23,27 +26,27 @@ type IUser interface {
 	CreateUser(ctx context.Context, log *zerolog.Logger, user *schema.User) (err error)
 }
 
-// type ITopic interface {
-// 	StopTopic(context.Context, *zerolog.Logger, int64) error
-// 	CheckTopicExist(context.Context, *zerolog.Logger, int64) error
-// 	CheckTopicStop(context.Context, *zerolog.Logger, int64) error
-// 	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, error)
-// 	GetTopicByTid(context.Context, *zerolog.Logger, int64) (*schema.Topic, error)
-// 	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
-// 	DeleteTopic(context.Context, *zerolog.Logger, int64) error
-// 	UpdateTopicInfo(context.Context, *zerolog.Logger, *schema.Topic) error
-// 	ListTopicByCid(c context.Context, logger *zerolog.Logger, cid int64, preId int64, pageSize int64) ([]*schema.Topic, error)
-// 	// TODO 字段
-// 	// UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error
-// 	// SearchTopic(context.Context, *zerolog.Logger, ...any) ([]*schema.Topic, int, error)
-// 	// ListTopics(context.Context, *zerolog.Logger) ([]*schema.Topic, int, error)
-// }
+type ITopic interface {
+	StopTopic(context.Context, *zerolog.Logger, string) error
+	// CheckTopicExist(context.Context, *zerolog.Logger, int64) error
+	// CheckTopicStop(context.Context, *zerolog.Logger, int64) error
+	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, error)
+	GetTopicByTid(context.Context, *zerolog.Logger, string) (*schema.Topic, error)
+	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
+	DeleteTopic(context.Context, *zerolog.Logger, string) error
+	UpdateTopic(context.Context, *zerolog.Logger, string, *schema.Topic) error
+	ListTopicByCid(c context.Context, logger *zerolog.Logger, cid int64, preId int64, pageSize int64) ([]*schema.Topic, error)
+	GetTopicsByTids(ctx context.Context, logger *zerolog.Logger, tids []string) ([]*schema.Topic, error)
+	// TODO 字段
+	// UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error
+	// SearchTopic(context.Context, *zerolog.Logger, ...any) ([]*schema.Topic, int, error)
+	// ListTopics(context.Context, *zerolog.Logger) ([]*schema.Topic, int, error)
+}
 
-type ICategoty interface {
-	// CheckCategory(ctx context.Context, logger *zerolog.Logger, name string) error
-	CreateCategory(ctx context.Context, logger *zerolog.Logger, name string) error
+type ICategory interface {
+	CreateCategory(ctx context.Context, logger *zerolog.Logger, category *schema.Category) error
 	GetCategoryById(ctx context.Context, logger *zerolog.Logger, id int64) (*schema.Category, error)
-	ListCategories() ([]*schema.Category, error)
+	ListCategories(c context.Context, logger *zerolog.Logger) ([]*schema.Category, error)
 	UpdateCategory(ctx context.Context, logger *zerolog.Logger, id int64, name string) error
 	DeleteCategory(ctx context.Context, logger *zerolog.Logger, id int64) error
 }
@@ -57,13 +60,13 @@ type ICategoty interface {
 // 	GetBonusesByUid(string) (*schema.Bonuse, error)
 // }
 
-// type ICollect interface {
-// 	CheckCollect(uid string, tid int64) (*schema.Collect, error)
-// 	CreateCollect(uid string, tid int64) error
-// 	ListCollects() ([]*schema.Collect, error)
-// 	GetCollectByUid(uid string) ([]*schema.Collect, error)
-// 	UpdateCollect(uid string, tid int64, status bool) (*schema.Collect, error)
-// }
+type ICollect interface {
+	// CheckCollect(uid string, tid int64) (*schema.Collect, error)
+	CreateCollect(ctx context.Context, logger *zerolog.Logger, uid string, tid int64) error
+	ListCollects(ctx context.Context, logger *zerolog.Logger) ([]*schema.Collect, error)
+	GetCollectByUid(ctx context.Context, logger *zerolog.Logger, uid string) ([]*schema.Collect, error)
+	UpdateCollect(ctx context.Context, logger *zerolog.Logger, uid string, tid int64, status bool) (*schema.Collect, error)
+}
 
 // type IFeedback interface {
 // 	CreateFeedback(*schema.Feedback) error

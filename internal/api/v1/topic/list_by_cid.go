@@ -44,8 +44,8 @@ type TopicItem struct {
 
 type ListTopicData struct {
 	*TopicItem
-	Tid       string         `json:"tid"`
-	IsCollect bool           `json:"is_collect"`
+	Tid       string           `json:"tid"`
+	IsCollect bool             `json:"is_collect"`
 	Category  *schema.Category `json:"category"`
 }
 
@@ -56,7 +56,7 @@ const (
 
 func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
-	cid, err := t.checkListTopicsByCidReq(c)
+	cid, err := t.checkListTopicsByCidReq(c, &logger)
 	if err != nil {
 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
 		return
@@ -86,14 +86,14 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 		pageSize = page.PageSize
 	}
 
-	topicList, err := t.topicStore.ListTopicsByCid(c, cid, cursor, pageSize+1)
+	topicList, err := t.topicSrv.ListTopicByCid(c, &logger, cid, cursor.Unix(), pageSize+1)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[t.ListTopicsByCid][ListTopicByCid] err")
 		handler.SendResponse(c, errmsg.ERROR, nil)
 		return
 	}
 
-	topicDataList := t.getTopicDataList(c, topicList)
+	topicDataList := t.getTopicDataList(c, &logger, topicList)
 
 	var (
 		hasPrePage   bool
@@ -125,12 +125,16 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	})
 }
 
-func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*core.Topic) []*ListTopicData {
+func (t *TopicHandler) getTopicDataList(c *gin.Context, logger *zerolog.Logger, args []*schema.Topic) []*ListTopicData {
 	topicDataList := make([]*ListTopicData, len(args))
 	copier.Copy(&topicDataList, &args)
 	for i := 0; i < len(topicDataList); i++ {
 		topicDataList[i].Tid = args[i].Tid
-		topicDataList[i].Category = t.categoryMap[topicDataList[i].Cid]
+		category, err := t.categorySrv.GetCategoryById(c, logger, topicDataList[i].Cid)
+		if err != nil {
+			logger.Error().Err(err).Msgf("[t.getTopicDataList][GetCategoryById] err")
+		}
+		topicDataList[i].Category = category
 	}
 	uidS, exists := c.Get("uid")
 	if !exists {
@@ -142,7 +146,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*core.Topic) []*L
 		return topicDataList
 	}
 
-	collects, err := t.collectStore.GetCollectByUid(c, uid)
+	collects, err := t.collectSrv.GetCollectByUid(c, logger, uid)
 	if err != nil {
 		return topicDataList
 	}
@@ -159,7 +163,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, args []*core.Topic) []*L
 	return topicDataList
 }
 
-func (t *TopicHandler) checkListTopicsByCidReq(c *gin.Context) (int64, error) {
+func (t *TopicHandler) checkListTopicsByCidReq(c *gin.Context, logger *zerolog.Logger) (int64, error) {
 	cidS := c.Param("cid")
 	if cidS == "" {
 		return 0, errors.New("cid error")
@@ -170,8 +174,8 @@ func (t *TopicHandler) checkListTopicsByCidReq(c *gin.Context) (int64, error) {
 		return 0, errors.New("cid convert error")
 	}
 
-	_, ok := t.categoryMap[cid]
-	if !ok {
+	_, err = t.categorySrv.GetCategoryById(c, logger, cid)
+	if err != nil {
 		return 0, errors.New("cid not exist")
 	}
 	return cid, nil

@@ -10,7 +10,7 @@ import (
 )
 
 func Create(c *gin.Context) {
-	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
+	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
 	uid := c.MustGet("uid").(string)
 	if uid == "" {
 		logger.Error().Send()

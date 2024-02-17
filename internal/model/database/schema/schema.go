@@ -58,13 +58,13 @@ type Category struct {
 // 	DeletedAt int64  `json:"deleted_at"`
 // }
 
-// type Collect struct {
-// 	UID       string `json:"uid"`
-// 	Tid       int64  `json:"tid"`
-// 	Status    bool   `json:"status"` // 状态
-// 	CreatedAt int64  `json:"created_at"`
-// 	UpdatedAt int64  `json:"updated_at"`
-// }
+type Collect struct {
+	UID       string    `json:"uid" bson:"uid"`
+	Tid       string    `json:"tid" bson:"tid"`
+	Status    bool      `json:"status" bson:"status"` // 状态
+	CreatedAt time.Time `json:"created_at" bson:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" bson:"created_at"`
+}
 
 // type Feedback struct {
 // 	UID       string `json:"uid"`

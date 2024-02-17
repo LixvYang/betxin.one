@@ -6,7 +6,7 @@ import (
 )
 
 type CategoryHandler struct {
-	storage database.ICategoty
+	storage database.ICategory
 }
 
 func NewHandler(db database.Database) *CategoryHandler {

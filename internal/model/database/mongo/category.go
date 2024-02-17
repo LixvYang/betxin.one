@@ -24,8 +24,8 @@ func (s *MongoService) ListCategories(c context.Context, logger *zerolog.Logger)
 	return nil, nil
 }
 
-func (s *MongoService) UpdateCategory(c context.Context, logger *zerolog.Logger, id int64, name string) error {
-	err := s.categoryColl.UpdateOne(c, bson.M{"_id": id}, bson.M{"$set": bson.M{"name": name}})
+func (s *MongoService) UpdateCategory(ctx context.Context, logger *zerolog.Logger, id int64, name string) error {
+	err := s.categoryColl.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"name": name}})
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return ErrNoSuchCategory
@@ -35,13 +35,37 @@ func (s *MongoService) UpdateCategory(c context.Context, logger *zerolog.Logger,
 	return nil
 }
 
-func (s *MongoService) CreateCategory(ctx context.Context, logger *zerolog.Logger, name string) error {
-	_, err := s.categoryColl.InsertOne(ctx, bson.M{"name": name})
+func (s *MongoService) CreateCategory(ctx context.Context, logger *zerolog.Logger, category *schema.Category) error {
+	_, err := s.categoryColl.InsertOne(ctx, category)
 	if err != nil {
 		if isMongoDupeKeyError(err) {
 			return ErrCategoryExist
 		}
 		logger.Error().Err(err).Msg("mongo: create category failed")
+	}
+	return nil
+}
+
+func (s *MongoService) GetCategoryById(ctx context.Context, logger *zerolog.Logger, id int64) (*schema.Category, error) {
+	var category schema.Category
+	err := s.categoryColl.Find(ctx, bson.M{"_id": id}).One(&category)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, ErrNoSuchCategory
+		}
+		logger.Error().Err(err).Msg("mongo: get category failed")
+		return nil, err
+	}
+	return &category, nil
+}
+
+func (s *MongoService) DeleteCategory(ctx context.Context, logger *zerolog.Logger, id int64) error {
+	err := s.categoryColl.Remove(ctx, bson.M{"_id": id})
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return ErrNoSuchCategory
+		}
+		logger.Error().Err(err).Msg("mongo: delete category failed")
 	}
 	return nil
 }

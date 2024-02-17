@@ -15,7 +15,7 @@ type CreateReq struct {
 
 // 话题购买
 func (tph *TopicPurchaseHandler) Create(c *gin.Context) {
-	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
+	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
 	uid, ok := c.MustGet("uid").(string)
 	if !ok || uid == "" {
 		logger.Error().Msg("uid not exist")

@@ -36,4 +36,3 @@ func (s *Session) WithLogger(conf *config.LogConfig) *Session {
 	s.Logger = logger.New(logConf)
 	return s
 }
-

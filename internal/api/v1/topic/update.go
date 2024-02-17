@@ -1,50 +1,64 @@
 package topic
 
-// func (th *TopicHandler) UpdateTopicInfo(c *gin.Context) {
-// 	logger := c.MustGet(consts.LoggerKey).(*zerolog.Logger)
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
+	"github.com/lixvyang/betxin.one/internal/consts"
+	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
+	"github.com/rs/zerolog"
+)
 
-// 	newTopic, err := th.checkUpdateTopicInfoReq(c)
-// 	if err != nil {
-// 		logger.Error().Str("tid", c.Param("tid")).Err(err).Msg("[UpdateTopicInfo][checkUpdateTopicInfoReq] err")
-// 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
-// 		return
-// 	}
+func (th *TopicHandler) UpdateTopicInfo(c *gin.Context) {
+	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
+	tid := c.Param("tid")
+	if tid == "" {
+		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
+		return
+	}
 
-// 	err = th.topicStore.UpdateTopicInfo(c, newTopic)
-// 	if err != nil {
-// 		logger.Error().Str("tid", c.Param("tid")).Err(err).Msg("[UpdateTopicInfo][storage.UpdateTopicInfo] err")
-// 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
-// 		return
-// 	}
+	newTopic, err := th.checkUpdateTopicInfoReq(c, &logger)
+	if err != nil {
+		logger.Error().Str("tid", tid).Err(err).Msg("[UpdateTopicInfo][checkUpdateTopicInfoReq] err")
+		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
+		return
+	}
 
-// 	getTopicResp, err := th.getTopicResp(c, newTopic.Tid)
-// 	if err != nil {
-// 		logger.Error().Err(err).Msg("[Get][storage.GetTopicByTid]")
-// 		handler.SendResponse(c, errmsg.ERROR, nil)
-// 		return
-// 	}
+	err = th.topicSrv.UpdateTopic(c, &logger, tid, newTopic)
+	if err != nil {
+		logger.Error().Str("tid", tid).Err(err).Msg("[UpdateTopicInfo][storage.UpdateTopicInfo] err")
+		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
+		return
+	}
 
-// 	logger.Info().Any("getTopicResp", getTopicResp).Msg("[UpdateTopicInfo][storage.UpdateTopicInfo]")
+	getTopicResp, err := th.getTopicResp(c, &logger, newTopic.Tid)
+	if err != nil {
+		logger.Error().Err(err).Msg("[Get][storage.GetTopicByTid]")
+		handler.SendResponse(c, errmsg.ERROR, nil)
+		return
+	}
 
-// 	handler.SendResponse(c, errmsg.SUCCSE, getTopicResp)
-// }
+	logger.Info().Any("getTopicResp", getTopicResp).Msg("[UpdateTopicInfo][storage.UpdateTopicInfo]")
 
-// func (th *TopicHandler) checkUpdateTopicInfoReq(c *gin.Context) (*core.Topic, error) {
-// 	tid, err := th.checkTid(c)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	var req CreateTopicReq
+	handler.SendResponse(c, errmsg.SUCCSE, getTopicResp)
+}
 
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		return nil, err
-// 	}
+func (th *TopicHandler) checkUpdateTopicInfoReq(c *gin.Context, logger *zerolog.Logger) (*schema.Topic, error) {
+	tid, err := th.checkTid(c)
+	if err != nil {
+		return nil, err
+	}
+	var req CreateTopicReq
 
-// 	newTopic, err := th.checkCreateReq(&req)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	newTopic.Tid = tid
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return nil, err
+	}
 
-// 	return newTopic, nil
-// }
+	newTopic, err := th.checkCreateReq(c, logger, &req)
+	if err != nil {
+		return nil, err
+	}
+	newTopic.Tid = tid
+
+	return newTopic, nil
+}
