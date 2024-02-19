@@ -21,7 +21,10 @@ type MongoService struct {
 func NewMongoService(logger *zerolog.Logger, conf *config.AppConfig) *MongoService {
 	ctx := context.Background()
 	mongoConf := conf.MongoConfig
-	client, err := qmgo.NewClient(ctx, &qmgo.Config{Uri: fmt.Sprintf("mongodb://%s:%d", mongoConf.Host, mongoConf.Port)})
+	client, err := qmgo.NewClient(ctx, &qmgo.Config{Uri: fmt.Sprintf("mongodb://%s:%d", mongoConf.Host, mongoConf.Port), Auth: &qmgo.Credential{
+		Username: conf.MongoConfig.Username,
+		Password: conf.MongoConfig.Password,
+	}})
 	if err != nil {
 		panic(err)
 	}

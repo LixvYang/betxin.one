@@ -32,8 +32,8 @@ mongo:
   host: "127.0.0.1"
   port: 27017
   db: "betxin_test"
-  username: ""
-  password: ""
+  username: "mongoadmin"
+  password: "mongoadmin"
 
 redis:
   host: "127.0.0.1"

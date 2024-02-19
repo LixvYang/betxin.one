@@ -20,7 +20,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&configFile, "f", "./config/config.yaml", "config file")
+	flag.StringVar(&configFile, "f", "./config/config_debug.yaml", "config file")
 	conf := new(config.AppConfig)
 	if err := config.Init(configFile, conf); err != nil {
 		log.Error().Err(err).Msgf("[configs.Init] err: %+v", err)
