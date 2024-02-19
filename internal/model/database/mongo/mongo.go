@@ -16,11 +16,14 @@ import (
 )
 
 type MongoService struct {
-	userColl     *qmgo.Collection
-	categoryColl *qmgo.Collection
-	bonuseColl *qmgo.Collection
-	collectColl  *qmgo.Collection
-	topicColl    *qmgo.Collection
+	userColl                 *qmgo.Collection
+	categoryColl             *qmgo.Collection
+	bonuseColl               *qmgo.Collection
+	collectColl              *qmgo.Collection
+	topicColl                *qmgo.Collection
+	refundColl               *qmgo.Collection
+	topicPurchaseColl        *qmgo.Collection
+	topicPurchaseHistoryColl *qmgo.Collection
 }
 
 func NewMongoService(logger *zerolog.Logger, conf *config.AppConfig) *MongoService {
@@ -67,10 +70,14 @@ func NewMongoService(logger *zerolog.Logger, conf *config.AppConfig) *MongoServi
 	})
 
 	ms := &MongoService{
-		userColl:     client.Database(mongoConf.DB).Collection(consts.UserCollection),
-		categoryColl: client.Database(mongoConf.DB).Collection(consts.CategoryCollection),
-		collectColl:  client.Database(mongoConf.DB).Collection(consts.CollectCollection),
-		topicColl:    client.Database(mongoConf.DB).Collection(consts.TopicCollection),
+		userColl:                 client.Database(mongoConf.DB).Collection(consts.UserCollection),
+		categoryColl:             client.Database(mongoConf.DB).Collection(consts.CategoryCollection),
+		collectColl:              client.Database(mongoConf.DB).Collection(consts.CollectCollection),
+		topicColl:                client.Database(mongoConf.DB).Collection(consts.TopicCollection),
+		refundColl:               client.Database(mongoConf.DB).Collection(consts.RefundCollection),
+		topicPurchaseColl:        client.Database(mongoConf.DB).Collection(consts.TopicPurchaseCollection),
+		topicPurchaseHistoryColl: client.Database(mongoConf.DB).Collection(consts.TopicPurchaseHistoryCollection),
+		bonuseColl:               client.Database(mongoConf.DB).Collection(consts.BonuseCollection),
 	}
 	ms.initCategory()
 	return ms

@@ -24,13 +24,14 @@ const (
 
 // mongo coll name
 const (
-	UserCollection          = "user"
-	CategoryCollection      = "category"
-	CollectCollection       = "collect"
-	RefundCollection        = "refund"
-	TopicCollection         = "topic"
-	TopicPurchaseCollection = "topic_purchase"
-	BonuseCollection        = "bonuse"
+	UserCollection                 = "user"
+	CategoryCollection             = "category"
+	CollectCollection              = "collect"
+	RefundCollection               = "refund"
+	TopicCollection                = "topic"
+	TopicPurchaseCollection        = "topic_purchase"
+	TopicPurchaseHistoryCollection = "topic_purchase_history"
+	BonuseCollection               = "bonuse"
 )
 
 const (

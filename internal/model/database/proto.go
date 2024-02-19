@@ -10,13 +10,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type Database interface {
-	IUser
-	ICategory
-	ITopic
-	ICollect
-}
-
 type IUser interface {
 	UpdateUser(ctx context.Context, log *zerolog.Logger, uid string, user *schema.User) error
 	GetUserByUid(ctx context.Context, log *zerolog.Logger, uid string) (*schema.User, error)
@@ -45,10 +38,7 @@ type ICategory interface {
 type IBonuse interface {
 	CreateBonuse(ctx context.Context, logger *zerolog.Logger, bonuse *schema.Bonuse) error
 	GetBonuseByTraceId(ctx context.Context, logger *zerolog.Logger, traceId string) (*schema.Bonuse, error)
-	QueryBonuses(ctx context.Context, logger *zerolog.Logger, uid, tid string)
-
-	// UpdateBonuse(ctx context.Context, logger *zerolog.Logger, bonuse *schema.Bonuse) error
-	// DeleteBonuse(ctx context.Context, logger *zerolog.Logger, id string) error
+	QueryBonuses(ctx context.Context, logger *zerolog.Logger, uid, tid string, limit, offset int64) ([]*schema.Bonuse, int64, error)
 }
 
 type ICollect interface {
@@ -56,6 +46,22 @@ type ICollect interface {
 	ListCollects(ctx context.Context, logger *zerolog.Logger) ([]*schema.Collect, error)
 	GetCollectByUid(ctx context.Context, logger *zerolog.Logger, uid string) ([]*schema.Collect, error)
 	UpdateCollect(ctx context.Context, logger *zerolog.Logger, uid string, tid int64, status bool) error
+}
+
+type IRefund interface {
+	CreateRefund(ctx context.Context, logger *zerolog.Logger, refund *schema.Refund) error
+	GetRefundByTraceId(ctx context.Context, logger *zerolog.Logger, tracdId string) (*schema.Refund, error)
+	ListRefundsWithQuery(ctx context.Context, logger *zerolog.Logger, limit, offset int64, tid, uid string, createdAt time.Time) ([]*schema.Refund, int64, error)
+}
+
+type ITopicPurchaseHistory interface {
+	CreateTopicPurchaseHistory(ctx context.Context, logger *zerolog.Logger, purchaseHistory *schema.TopicPurchaseHistory) error
+}
+
+type ITopicPurchase interface {
+	GetTopicPurchase(ctx context.Context, logger *zerolog.Logger, uid, tid string) (*schema.TopicPurchase, error)
+	CreateTopicPurchase(ctx context.Context, logger *zerolog.Logger, topicPurchase *schema.TopicPurchase) error
+	QueryTopicPurchase(ctx context.Context, logger *zerolog.Logger, uid, tid string) ([]*schema.TopicPurchase, error)
 }
 
 // type IFeedback interface {
@@ -80,19 +86,16 @@ type ICollect interface {
 // 	GetSnapshot(trace_id string) (*schema.Snapshot, error)
 // }
 
-// type IRefund interface {
-// 	CreateRefund(*schema.Refund) error
-// 	GetRefundByTraceId(string) (*schema.Refund, error)
-// 	ListRefunds() ([]*schema.Refund, error)
-// 	UpdateRefund()
-// 	DeleteRefund(trace_id string) error
-// 	GetRefundsByUid(uid string) ([]*schema.Refund, error)
-// }
-// type ITopicPurchase interface {
-// 	CheckTopicPurchase(uid, tid string) error
-// 	GetTopicPurchase(uid, tid string) (*schema.TopicPurchase, error)
-// 	CreateTopicPurchase(*schema.TopicPurchase) error
-// }
+type Database interface {
+	IUser
+	ICategory
+	ITopic
+	ICollect
+	IRefund
+	ITopicPurchase
+	ITopicPurchaseHistory
+	IBonuse
+}
 
 func New(logger *zerolog.Logger, conf *config.AppConfig) Database {
 	switch conf.Driver {

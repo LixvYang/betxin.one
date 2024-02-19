@@ -8,6 +8,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var (
@@ -25,17 +26,20 @@ func (s *MongoService) ListTopicByCid(ctx context.Context, logger *zerolog.Logge
 	total, err = find.Count()
 	if err != nil {
 		logger.Error().Err(err).Msg("mongo: get topics by cid failed")
-		return nil, 0, err
+		return nil, total, err
 	}
 
 	if total == 0 {
-		return topics, total, nil
+		return nil, total, ErrNoSuchTopic
 	}
 
 	err = find.Limit(pageSize).All(&topics)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, total, ErrNoSuchTopic
+		}
 		logger.Error().Err(err).Msg("mongo: get topics by cid failed")
-		return nil, 0, err
+		return nil, total, err
 	}
 	return topics, total, nil
 }
@@ -66,7 +70,7 @@ func (s *MongoService) GetTopicByTid(ctx context.Context, logger *zerolog.Logger
 	var topic *schema.Topic
 	err := s.topicColl.Find(ctx, bson.M{"tid": tid}).One(&topic)
 	if err != nil {
-		if isMongoDupeKeyError(err) {
+		if err == mongo.ErrNoDocuments {
 			return nil, ErrNoSuchTopic
 		}
 		logger.Error().Str("tid", tid).Err(err).Msg("mongo: get topic failed")

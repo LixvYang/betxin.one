@@ -40,7 +40,10 @@ func (s *MongoService) GetBonuseByTraceId(ctx context.Context, logger *zerolog.L
 	return &bonuse, nil
 }
 
-func (s *MongoService) QueryBonuses(ctx context.Context, logger *zerolog.Logger, uid, tid string) ([]*schema.Bonuse, error) {
+func (s *MongoService) QueryBonuses(ctx context.Context, logger *zerolog.Logger, uid, tid string, limit, offset int64) ([]*schema.Bonuse, int64, error) {
+	var err error
+	var bonuses []*schema.Bonuse
+	var total int64
 	find := bson.M{}
 	if tid != "" {
 		find["tid"] = tid
@@ -49,11 +52,21 @@ func (s *MongoService) QueryBonuses(ctx context.Context, logger *zerolog.Logger,
 		find["uid"] = uid
 	}
 
-	bonuses := make([]*schema.Bonuse, 0)
-	err := s.bonuseColl.Find(ctx, find).All(&bonuses)
+	total, err = s.bonuseColl.Find(ctx, find).Count()
+	if err != nil {
+		logger.Error().Err(err).Msg("mongo: get category failed")
+		return nil, 0, err
+	}
+
+	if total == 0 {
+		return nil, 0, ErrNoSuchBonuse
+	}
+
+	err = s.bonuseColl.Find(ctx, find).Sort("-created_at").Skip(offset).Limit(limit).All(&bonuses)
 	if err != nil {
 		logger.Error().Err(err).Msg("mongo: query category failed")
-		return nil, err
+		return nil, 0, err
 	}
-	return bonuses, nil
+
+	return bonuses, total, nil
 }

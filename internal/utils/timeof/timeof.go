@@ -11,6 +11,7 @@ var zoneStr = time.Now().Format("-0700")
 
 // 支持以下格式
 // 1. 时间戳(秒)
+// 2. 时间戳(毫秒)
 // 2. 20060102
 // 3. 20060102/00:00
 // 4. 2006-01-02
@@ -46,12 +47,19 @@ func TimeOf(str string) (t time.Time, ok bool) {
 		return time.Now().Add(-dur), true
 
 	} else {
-		var n uint64
-		if n, err = strconv.ParseUint(str, 10, 63); err != nil {
-			return
+		// then, try to parse the time as timestamp in seconds.
+		// this have bugs for parsing time before 2001-09-09...
+		if len(str) == 10 {
+			ts, err := strconv.ParseInt(str, 10, 64)
+			if err == nil {
+				return time.Unix(ts, 0), true
+			}
+		} else if len(str) == 13 {
+			ts, err := strconv.ParseInt(str, 10, 64)
+			if err == nil {
+				return time.UnixMilli(ts), true
+			}
 		}
-		t = time.Unix(int64(n), 0)
-		ok = true
 		return
 	}
 }

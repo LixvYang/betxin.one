@@ -99,22 +99,32 @@ type Collect struct {
 // 	CreatedAt      string `json:"created_at"`
 // }
 
-// type Refund struct {
-// 	UID       string `json:"uid"`
-// 	AssetID   string `json:"asset_id"`
-// 	TraceID   string `json:"trace_id"`
-// 	Price     string `json:"price"`  // 退款金额
-// 	Select    bool   `json:"select"` // 选择
-// 	Memo      string `json:"memo"`
-// 	CreatedAt int64  `json:"created_at"`
-// }
+type Refund struct {
+	Uid       string    `bson:"uid" json:"uid"`
+	Tid       string    `bson:"tid" json:"tid"`
+	AssetId   string    `bson:"asset_id" json:"asset_id"`
+	TraceId   string    `bson:"trace_id" json:"trace_id"`
+	Amount    string    `bson:"amount" json:"amount"` // 退款金额
+	Select    bool      `bson:"select" json:"select"` // 选择
+	Memo      string    `bson:"memo" json:"memo"`
+	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+}
 
-// type TopicPurchase struct {
-// 	UID       string `json:"uid"`
-// 	Tid       int64  `json:"tid"`
-// 	YesPrice  string `json:"yes_price"` // 支持金额
-// 	NoPrice   string `json:"no_price"`  // 反对金额
-// 	CreatedAt int64  `json:"created_at"`
-// 	UpdatedAt int64  `json:"updated_at"`
-// 	DeletedAt int64  `json:"deleted_at"`
-// }
+// 话题购买历史
+type TopicPurchaseHistory struct {
+	Uid       string    `bson:"uid" json:"uid"`
+	Tid       int64     `bson:"tid" json:"tid"`
+	Select    bool      `bson:"select" json:"select"` // 选择
+	Amount    string    `bson:"amount" json:"amount"` // 金额
+	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+}
+
+// 用户话题购买
+type TopicPurchase struct {
+	Uid       string    `bson:"uid" json:"uid"`
+	Tid       int64     `bson:"tid" json:"tid"`
+	YesPrice  string    `bson:"yes_price" json:"yes_price"` // 支持金额
+	NoPrice   string    `bson:"no_price" json:"no_price"`   // 反对金额
+	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
+}
