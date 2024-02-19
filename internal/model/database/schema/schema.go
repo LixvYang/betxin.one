@@ -4,7 +4,7 @@ import "time"
 
 type User struct {
 	IdentityNumber string    `bson:"identity_number" json:"identity_number"`
-	UID            string    `bson:"uid" json:"uid"`
+	Uid            string    `bson:"uid" json:"uid"`
 	FullName       string    `bson:"full_name" json:"full_name"`
 	AvatarURL      string    `bson:"avatar_url" json:"avatar_url"`
 	SessionID      string    `bson:"session_id" json:"session_id"`
@@ -46,22 +46,22 @@ type Category struct {
 	Name string `json:"name" bson:"name"`
 }
 
-// type Bonuse struct {
-// 	UID       string `json:"uid"`      // uid
-// 	Tid       int64  `json:"tid"`      // id
-// 	AssetID   string `json:"asset_id"` // id
-// 	Amount    string `json:"amount"`
-// 	Memo      string `json:"memo"`
-// 	TraceID   string `json:"trace_id"`
-// 	CreatedAt int64  `json:"created_at"`
-// 	UpdatedAt int64  `json:"updated_at"`
-// 	DeletedAt int64  `json:"deleted_at"`
-// }
+type Bonuse struct {
+	Uid       string    `bson:"uid" json:"uid"`
+	Tid       string    `bson:"tid" json:"tid"`
+	AssetId   string    `bson:"asset_id" json:"asset_id"`
+	Amount    string    `bson:"amount" json:"amount"`
+	Memo      string    `bson:"memo" json:"memo"`
+	TraceId   string    `bson:"trace_id" json:"trace_id"`
+	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
+	DeletedAt time.Time `bson:"deleted_at" json:"deleted_at"`
+}
 
 type Collect struct {
 	UID       string    `json:"uid" bson:"uid"`
 	Tid       string    `json:"tid" bson:"tid"`
-	Status    bool      `json:"status" bson:"status"` // 状态
+	Status    bool      `json:"status" bson:"status"`
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" bson:"created_at"`
 }

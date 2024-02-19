@@ -28,7 +28,7 @@ type SigninReq struct {
 }
 
 type UserResp struct {
-	UID            string    `json:"uid"`
+	Uid            string    `json:"Uid"`
 	IdentityNumber string    `json:"identity_number"`
 	FullName       string    `json:"full_name"`
 	AvatarURL      string    `json:"avatar_url"`
@@ -96,7 +96,7 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 			return
 		}
 		isMvmUser = true
-		logger.Info().Str("uid", authUser.UserID).Msg("oauth success")
+		logger.Info().Str("Uid", authUser.UserID).Msg("oauth success")
 	default:
 		handler.SendResponse(c, errmsg.ERROR, nil)
 		return
@@ -132,7 +132,7 @@ func (uh *UserHandler) LoginWithMixin(ctx context.Context, logger *zerolog.Logge
 		return nil, "", err
 	}
 
-	jwtToken, err := jwt.GenToken(user.UID)
+	jwtToken, err := jwt.GenToken(user.Uid)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][jwt.GenToken] err")
 		return nil, "", err
@@ -168,7 +168,7 @@ func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey s
 
 	user := &schema.User{
 		IsMvmUser:  true,
-		UID:        mvmUser.UserID,
+		Uid:        mvmUser.UserID,
 		FullName:   mvmUser.FullName,
 		Contract:   mvmUser.Contract,
 		PrivateKey: mvmUser.Key.PrivateKey,
@@ -177,7 +177,7 @@ func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey s
 	}
 	logger.Info().Any("user", user).Msg("userInfo")
 
-	jwtToken, err := jwt.GenToken(user.UID)
+	jwtToken, err := jwt.GenToken(user.Uid)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][jwt.GenToken] err")
 		return "", err
@@ -188,7 +188,7 @@ func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey s
 
 func (uh *UserHandler) loginWithMixin(ctx context.Context, logger *zerolog.Logger, authUser *auth.User, isMvmUser bool) (*schema.User, error) {
 	var user = &schema.User{
-		UID:            authUser.UserID,
+		Uid:            authUser.UserID,
 		IdentityNumber: authUser.IdentityNumber,
 		FullName:       authUser.FullName,
 		AvatarURL:      authUser.AvatarURL,
@@ -198,7 +198,7 @@ func (uh *UserHandler) loginWithMixin(ctx context.Context, logger *zerolog.Logge
 		MixinCreatedAt: authUser.CreatedAt,
 	}
 
-	existing, err := uh.userSrv.GetUserByUid(ctx, logger, user.UID)
+	existing, err := uh.userSrv.GetUserByUid(ctx, logger, user.Uid)
 	if err != nil && err != mongo.ErrNoSuchUser {
 		logger.Error().Err(err).Msgf("[LoginWithMixin][GetUserByUid] err")
 		return nil, err
@@ -218,13 +218,13 @@ func (uh *UserHandler) loginWithMixin(ctx context.Context, logger *zerolog.Logge
 
 	user.UpdatedAt = time.Now()
 	// update
-	err = uh.userSrv.UpdateUser(ctx, logger, existing.UID, user)
+	err = uh.userSrv.UpdateUser(ctx, logger, existing.Uid, user)
 	if err != nil {
 		fmt.Printf("err users.Updates: %v\n", err)
 		return nil, err
 	}
 
-	newUser, err := uh.userSrv.GetUserByUid(ctx, logger, user.UID)
+	newUser, err := uh.userSrv.GetUserByUid(ctx, logger, user.Uid)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[LoginWithMixin][GetUserByUid] err")
 		return nil, err

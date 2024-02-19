@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/model/database/mongo"
@@ -17,10 +18,6 @@ type Database interface {
 }
 
 type IUser interface {
-	// CheckUser(context.Context, *zerolog.Logger, string) error
-	// GetUserByUid(context.Context, *zerolog.Logger, string) (*schema.User, error)
-	// CreateUser(context.Context, *zerolog.Logger, *schema.User) error
-	// DeleteUser(context.Context, *zerolog.Logger, string) error
 	UpdateUser(ctx context.Context, log *zerolog.Logger, uid string, user *schema.User) error
 	GetUserByUid(ctx context.Context, log *zerolog.Logger, uid string) (*schema.User, error)
 	CreateUser(ctx context.Context, log *zerolog.Logger, user *schema.User) (err error)
@@ -28,19 +25,13 @@ type IUser interface {
 
 type ITopic interface {
 	StopTopic(context.Context, *zerolog.Logger, string) error
-	// CheckTopicExist(context.Context, *zerolog.Logger, int64) error
-	// CheckTopicStop(context.Context, *zerolog.Logger, int64) error
 	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, error)
 	GetTopicByTid(context.Context, *zerolog.Logger, string) (*schema.Topic, error)
 	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
 	DeleteTopic(context.Context, *zerolog.Logger, string) error
 	UpdateTopic(context.Context, *zerolog.Logger, string, *schema.Topic) error
-	ListTopicByCid(c context.Context, logger *zerolog.Logger, cid int64, preId int64, pageSize int64) ([]*schema.Topic, error)
+	ListTopicByCid(c context.Context, logger *zerolog.Logger, cid int64, createdAt time.Time, pageSize int64) ([]*schema.Topic, int64, error)
 	GetTopicsByTids(ctx context.Context, logger *zerolog.Logger, tids []string) ([]*schema.Topic, error)
-	// TODO 字段
-	// UpdateTopicTotalPrice(context.Context, *zerolog.Logger, *schema.Topic) error
-	// SearchTopic(context.Context, *zerolog.Logger, ...any) ([]*schema.Topic, int, error)
-	// ListTopics(context.Context, *zerolog.Logger) ([]*schema.Topic, int, error)
 }
 
 type ICategory interface {
@@ -51,21 +42,20 @@ type ICategory interface {
 	DeleteCategory(ctx context.Context, logger *zerolog.Logger, id int64) error
 }
 
-// type IBonuse interface {
-// 	CreateBonuse(*schema.Bonuse) error
-// 	GetBonuseByTraceId(string) (*schema.Bonuse, error)
-// 	ListBonuses() ([]*schema.Bonuse, error)
-// 	UpdateBonuse(*schema.Bonuse) error
-// 	DeleteBonuse(string) error
-// 	GetBonusesByUid(string) (*schema.Bonuse, error)
-// }
+type IBonuse interface {
+	CreateBonuse(ctx context.Context, logger *zerolog.Logger, bonuse *schema.Bonuse) error
+	GetBonuseByTraceId(ctx context.Context, logger *zerolog.Logger, traceId string) (*schema.Bonuse, error)
+	QueryBonuses(ctx context.Context, logger *zerolog.Logger, uid, tid string)
+
+	// UpdateBonuse(ctx context.Context, logger *zerolog.Logger, bonuse *schema.Bonuse) error
+	// DeleteBonuse(ctx context.Context, logger *zerolog.Logger, id string) error
+}
 
 type ICollect interface {
-	// CheckCollect(uid string, tid int64) (*schema.Collect, error)
-	CreateCollect(ctx context.Context, logger *zerolog.Logger, uid string, tid int64) error
+	CreateCollect(ctx context.Context, logger *zerolog.Logger, collect *schema.Collect) error
 	ListCollects(ctx context.Context, logger *zerolog.Logger) ([]*schema.Collect, error)
 	GetCollectByUid(ctx context.Context, logger *zerolog.Logger, uid string) ([]*schema.Collect, error)
-	UpdateCollect(ctx context.Context, logger *zerolog.Logger, uid string, tid int64, status bool) (*schema.Collect, error)
+	UpdateCollect(ctx context.Context, logger *zerolog.Logger, uid string, tid int64, status bool) error
 }
 
 // type IFeedback interface {

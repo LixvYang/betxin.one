@@ -86,7 +86,7 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 		pageSize = page.PageSize
 	}
 
-	topicList, err := t.topicSrv.ListTopicByCid(c, &logger, cid, cursor.Unix(), pageSize+1)
+	topicList, _, err := t.topicSrv.ListTopicByCid(c, &logger, cid, cursor, pageSize+1)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[t.ListTopicsByCid][ListTopicByCid] err")
 		handler.SendResponse(c, errmsg.ERROR, nil)

@@ -26,6 +26,7 @@ const (
 const (
 	UserCollection          = "user"
 	CategoryCollection      = "category"
+	CollectCollection       = "collect"
 	RefundCollection        = "refund"
 	TopicCollection         = "topic"
 	TopicPurchaseCollection = "topic_purchase"

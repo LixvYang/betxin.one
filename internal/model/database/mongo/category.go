@@ -42,6 +42,7 @@ func (s *MongoService) CreateCategory(ctx context.Context, logger *zerolog.Logge
 			return ErrCategoryExist
 		}
 		logger.Error().Err(err).Msg("mongo: create category failed")
+		return err
 	}
 	return nil
 }
@@ -66,6 +67,17 @@ func (s *MongoService) DeleteCategory(ctx context.Context, logger *zerolog.Logge
 			return ErrNoSuchCategory
 		}
 		logger.Error().Err(err).Msg("mongo: delete category failed")
+	}
+	return nil
+}
+
+func (s *MongoService) upsertCategory(ctx context.Context, logger *zerolog.Logger, id int64, name string) error {
+	_, err := s.categoryColl.Upsert(ctx, bson.M{"_id": id}, bson.M{"_id": id, "name": name})
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return ErrNoSuchCategory
+		}
+		logger.Error().Err(err).Msg("mongo: update category failed")
 	}
 	return nil
 }
