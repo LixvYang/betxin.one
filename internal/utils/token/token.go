@@ -2,7 +2,6 @@ package token
 
 import (
 	"encoding/base64"
-	"time"
 
 	"github.com/lixvyang/betxin.one/internal/utils/convert"
 )
@@ -10,9 +9,9 @@ import (
 type Token string
 
 type Page struct {
-	CreatedAt     time.Time `json:"created_at"`
-	NextTimeAtUTC int64     `json:"next_time_at_utc"`
-	PageSize      int64     `json:"page_size"`
+	CreatedAt     int64 `json:"created_at"` // unix毫秒级时间
+	NextTimeAtUTC int64 `json:"next_time_at_utc"`
+	PageSize      int64 `json:"page_size"`
 }
 
 func (p Page) Encode() Token {

@@ -63,7 +63,7 @@ type Collect struct {
 	Tid       string    `json:"tid" bson:"tid"`
 	Status    bool      `json:"status" bson:"status"`
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" bson:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
 }
 
 // type Feedback struct {

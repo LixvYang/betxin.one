@@ -21,24 +21,21 @@ func (s *MongoService) ListTopicByCid(ctx context.Context, logger *zerolog.Logge
 	var total int64
 	var err error
 
-	filter := bson.M{"cid": cid, "createdAt": bson.M{"$lte": createdAt}}
+	filter := bson.M{"created_at": bson.M{"$lte": createdAt}, "cid": cid}
 	find := s.topicColl.Find(ctx, filter)
 	total, err = find.Count()
 	if err != nil {
-		logger.Error().Err(err).Msg("mongo: get topics by cid failed")
 		return nil, total, err
 	}
 
 	if total == 0 {
 		return nil, total, ErrNoSuchTopic
 	}
-
-	err = find.Limit(pageSize).All(&topics)
+	err = find.Limit(pageSize).Sort("-created_at").All(&topics)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, total, ErrNoSuchTopic
 		}
-		logger.Error().Err(err).Msg("mongo: get topics by cid failed")
 		return nil, total, err
 	}
 	return topics, total, nil
@@ -50,7 +47,6 @@ func (s *MongoService) StopTopic(ctx context.Context, logger *zerolog.Logger, ti
 		if isMongoDupeKeyError(err) {
 			return ErrTopicExist
 		}
-		logger.Error().Any("tid", tid).Err(err).Msg("mongo: update topic failed")
 		return err
 	}
 	return nil
@@ -60,7 +56,6 @@ func (s *MongoService) GetTopicsByCid(ctx context.Context, logger *zerolog.Logge
 	var topics []*schema.Topic
 	err := s.topicColl.Find(ctx, bson.M{"cid": cid}).All(&topics)
 	if err != nil {
-		logger.Error().Err(err).Msg("mongo: get topics by cid failed")
 		return nil, err
 	}
 	return topics, nil
@@ -73,7 +68,6 @@ func (s *MongoService) GetTopicByTid(ctx context.Context, logger *zerolog.Logger
 		if err == mongo.ErrNoDocuments {
 			return nil, ErrNoSuchTopic
 		}
-		logger.Error().Str("tid", tid).Err(err).Msg("mongo: get topic failed")
 		return nil, err
 	}
 	return topic, nil
@@ -85,7 +79,6 @@ func (s *MongoService) CreateTopic(ctx context.Context, logger *zerolog.Logger, 
 		if isMongoDupeKeyError(err) {
 			return ErrTopicExist
 		}
-		logger.Error().Any("topic", topic).Err(err).Msg("mongo: create topic failed")
 		return err
 	}
 	return nil
@@ -97,7 +90,6 @@ func (s *MongoService) DeleteTopic(ctx context.Context, logger *zerolog.Logger, 
 		if isMongoDupeKeyError(err) {
 			return ErrTopicExist
 		}
-		logger.Error().Str("tid", tid).Err(err).Msg("mongo: delete topic failed")
 		return err
 	}
 	return nil
@@ -109,7 +101,6 @@ func (s *MongoService) UpdateTopic(ctx context.Context, logger *zerolog.Logger, 
 		if isMongoDupeKeyError(err) {
 			return ErrTopicExist
 		}
-		logger.Error().Any("topic", topic).Err(err).Msg("mongo: update topic failed")
 		return err
 	}
 	return nil
@@ -119,7 +110,6 @@ func (s *MongoService) GetTopicsByTids(ctx context.Context, logger *zerolog.Logg
 	var topics []*schema.Topic
 	err := s.topicColl.Find(ctx, bson.M{"tid": bson.M{"$in": tids}}).All(&topics)
 	if err != nil {
-		logger.Error().Err(err).Msg("mongo: get topics by tids failed")
 		return nil, err
 	}
 	return topics, nil

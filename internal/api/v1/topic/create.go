@@ -3,6 +3,7 @@ package topic
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
@@ -28,15 +29,8 @@ type CreateTopicReq struct {
 
 func (t *TopicHandler) Create(c *gin.Context) {
 	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
-	var req CreateTopicReq
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		logger.Error().Err(err).Msg("[Create][ShouldBindJSON] error")
-		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
-		return
-	}
 
-	createTopicArgs, err := t.checkCreateReq(c, &logger, &req)
+	createTopicArgs, err := t.checkCreateReq(c, &logger)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Create][checkCreateReq] error")
 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
@@ -60,17 +54,24 @@ func (t *TopicHandler) Create(c *gin.Context) {
 
 	createTopicResp := new(GetTopicResp)
 	copier.Copy(&createTopicResp, &resp)
-
+	createTopicResp.Category, _ = t.categorySrv.GetCategoryById(c, &logger, resp.Cid)
 	handler.SendResponse(c, errmsg.SUCCSE, createTopicResp)
 }
 
-func (t *TopicHandler) checkCreateReq(c *gin.Context, logger *zerolog.Logger, req *CreateTopicReq) (*schema.Topic, error) {
+func (t *TopicHandler) checkCreateReq(c *gin.Context, logger *zerolog.Logger) (*schema.Topic, error) {
+	var req CreateTopicReq
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		logger.Error().Err(err).Msg("[Create][ShouldBindJSON] error")
+		handler.SendResponse(c, errmsg.ERROR_BIND, nil)
+		return nil, err
+	}
+
 	if req.Cid < 0 {
 		return nil, errors.New("cid error")
 	}
 
-	_, err := t.categorySrv.GetCategoryById(c, logger, req.Cid)
-	// _, ok := t.categoryMap[req.Cid]
+	_, err = t.categorySrv.GetCategoryById(c, logger, req.Cid)
 	if err != nil {
 		return nil, errors.New("cid error")
 	}
@@ -80,7 +81,6 @@ func (t *TopicHandler) checkCreateReq(c *gin.Context, logger *zerolog.Logger, re
 		return nil, fmt.Errorf("timeof endTime err: %s", req.EndTime)
 	}
 	refundEndTime, _ := timeof.TimeOf(req.RefundEndTime)
-
 	if endTime.Before(refundEndTime) {
 		return nil, fmt.Errorf("endTime: %s before refundEndTime: %s", req.EndTime, req.EndTime)
 	}
@@ -94,6 +94,13 @@ func (t *TopicHandler) checkCreateReq(c *gin.Context, logger *zerolog.Logger, re
 	argv.EndTime = endTime
 	argv.RefundEndTime = refundEndTime
 	argv.Tid = utils.NewUUID()
+	argv.CreatedAt = time.Now()
+	argv.UpdatedAt = time.Now()
+	argv.YesCount = "0"
+	argv.NoCount = "0"
+	argv.NoCount = "0"
+	argv.YesRatio = "0"
+	argv.NoRatio = "0"
 
-	return nil, nil
+	return argv, nil
 }

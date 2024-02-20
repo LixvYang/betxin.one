@@ -64,6 +64,7 @@ func (th *TopicHandler) getTopicResp(c *gin.Context, logger *zerolog.Logger, tid
 	category, err := th.categorySrv.GetCategoryById(c, logger, topic.Cid)
 	if err != nil {
 		logger.Error().Err(err).Msg("[getTopicResp][categorySrv.GetCategoryById]")
+		return nil, err
 	}
 	getTopicResp.Category = category
 	return getTopicResp, nil

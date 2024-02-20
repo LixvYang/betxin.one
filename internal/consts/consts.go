@@ -1,12 +1,18 @@
 package consts
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 const (
 	DefaultLoggerKey = "logger"
 	DefaultXid       = "X-Reqid"
 
 	Uid = "uid"
+
+	DefaultLimit  int64 = 10
+	DefaultOffset int64 = 0
 )
 
 const (
@@ -37,4 +43,8 @@ const (
 const (
 	// 延时双删除时间
 	DelayedDeletionInterval = time.Second >> 1
+)
+
+var (
+	ErrUidNotExist = errors.New("uid not found")
 )

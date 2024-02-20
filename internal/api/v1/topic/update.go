@@ -48,13 +48,8 @@ func (th *TopicHandler) checkUpdateTopicInfoReq(c *gin.Context, logger *zerolog.
 	if err != nil {
 		return nil, err
 	}
-	var req CreateTopicReq
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		return nil, err
-	}
-
-	newTopic, err := th.checkCreateReq(c, logger, &req)
+	newTopic, err := th.checkCreateReq(c, logger)
 	if err != nil {
 		return nil, err
 	}

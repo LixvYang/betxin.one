@@ -2,7 +2,6 @@ package topic
 
 import (
 	"errors"
-	"math"
 	"strconv"
 	"time"
 
@@ -51,7 +50,6 @@ type ListTopicData struct {
 
 const (
 	defaultPageSize int64 = 10
-	defaultCursor   int64 = math.MaxInt64
 )
 
 func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
@@ -82,7 +80,7 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 			logger.Error().Msgf("bad page token invaild page info, page: %#v", page)
 			return
 		}
-		cursor = page.CreatedAt
+		cursor = time.UnixMilli(page.CreatedAt)
 		pageSize = page.PageSize
 	}
 
@@ -107,7 +105,7 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	// if has pre page
 	if hasPrePage {
 		prePageInfo := token.Page{
-			CreatedAt:     topicDataList[len(topicDataList)-1].CreatedAt,
+			CreatedAt:     topicDataList[len(topicDataList)-1].CreatedAt.UnixMilli(),
 			NextTimeAtUTC: time.Now().Add(time.Hour * 24).UnixMilli(),
 			PageSize:      pageSize,
 		}
@@ -146,7 +144,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, logger *zerolog.Logger, 
 		return topicDataList
 	}
 
-	collects, err := t.collectSrv.GetCollectByUid(c, logger, uid)
+	collects, err := t.collectSrv.ListCollects(c, logger, uid)
 	if err != nil {
 		return topicDataList
 	}

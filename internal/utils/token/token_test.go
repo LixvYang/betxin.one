@@ -11,13 +11,13 @@ func Test(t *testing.T) {
 	assert := assert.New(t)
 	now := time.Now()
 	p := Page{
-		CreatedAt:     now,
+		CreatedAt:     now.UnixMilli(),
 		NextTimeAtUTC: time.Now().UnixMilli(),
 		PageSize:      10,
 	}
 	encodeStr := p.Encode()
 	newPage := encodeStr.Decode()
-	assert.True(newPage.CreatedAt.Equal(p.CreatedAt))
+	assert.True(newPage.CreatedAt == p.CreatedAt)
 	assert.Equal(newPage.NextTimeAtUTC, p.NextTimeAtUTC)
 	assert.Equal(newPage.PageSize, p.PageSize)
 }

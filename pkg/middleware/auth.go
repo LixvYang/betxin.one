@@ -75,3 +75,13 @@ func JWTAuthNotMiddleware() func(c *gin.Context) {
 		c.Next()
 	}
 }
+
+/*
+1. 模拟 uid
+*/
+func DemoAuthNotMiddleware() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		c.Set("uid", "uid:123123")
+		c.Next()
+	}
+}

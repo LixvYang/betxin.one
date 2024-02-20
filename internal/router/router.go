@@ -64,7 +64,10 @@ func initRouter(logger *zerolog.Logger, conf *config.AppConfig) *gin.Engine {
 	api := e.Group("/api/v1")
 	{
 		// 用户
-		api.POST("/connect", h.IUserHandler.Connect)
+		{
+			api.POST("/connect", h.IUserHandler.Connect)
+		}
+
 		{
 			// 话题相关
 			api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
@@ -95,6 +98,13 @@ func initRouter(logger *zerolog.Logger, conf *config.AppConfig) *gin.Engine {
 		// 	api.GET("/backend/cpu", sd.CPUCheck)
 		// 	api.GET("/backend/ram", sd.RAMCheck)
 		// }
+
+		// 收藏相关
+		demoAPI := api.Use(middleware.DemoAuthNotMiddleware())
+		{
+			demoAPI.POST("/collect", h.ICollectHandler.Create)
+			demoAPI.DELETE("/collect", h.ICollectHandler.Delete)
+		}
 
 		api.Use(middleware.JWTAuthMiddleware())
 		{

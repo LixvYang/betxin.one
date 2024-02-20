@@ -42,10 +42,10 @@ type IBonuse interface {
 }
 
 type ICollect interface {
-	CreateCollect(ctx context.Context, logger *zerolog.Logger, collect *schema.Collect) error
-	ListCollects(ctx context.Context, logger *zerolog.Logger) ([]*schema.Collect, error)
-	GetCollectByUid(ctx context.Context, logger *zerolog.Logger, uid string) ([]*schema.Collect, error)
-	UpdateCollect(ctx context.Context, logger *zerolog.Logger, uid string, tid int64, status bool) error
+	GetCollectByUidTid(ctx context.Context, logger *zerolog.Logger, uid, tid string) (*schema.Collect, error)
+	ListCollects(ctx context.Context, logger *zerolog.Logger, uid string) ([]*schema.Collect, error)
+	GetCollectsByUid(ctx context.Context, logger *zerolog.Logger, uid string, limit, offset int64) ([]*schema.Collect, int64, error)
+	UpsertCollect(ctx context.Context, logger *zerolog.Logger, uid, tid string, req *schema.Collect) error
 }
 
 type IRefund interface {
@@ -95,6 +95,7 @@ type Database interface {
 	ITopicPurchase
 	ITopicPurchaseHistory
 	IBonuse
+	ICollect
 }
 
 func New(logger *zerolog.Logger, conf *config.AppConfig) Database {

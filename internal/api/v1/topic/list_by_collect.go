@@ -2,7 +2,7 @@ package topic
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid"
+	"github.com/jinzhu/copier"
 	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
@@ -11,22 +11,55 @@ import (
 	"github.com/samber/lo"
 )
 
+type ListTopicsByUidCollectResp struct {
+	List      []*ListTopicData `json:"list"`
+	Total     int64            `json:"total"`
+	ConnectId string           `json:"connect_id"`
+}
+
+type ListTopicsByUidCollectReq struct {
+	Uid    string `json:"-"`
+	Limit  int64  `form:"limit"`
+	Offset int64  `form:"offset"`
+}
+
+func checkListCollectsByUidReq(c *gin.Context) (*ListTopicsByUidCollectReq, error) {
+	var req ListTopicsByUidCollectReq
+	if err := c.ShouldBindQuery(&req); err != nil {
+		return nil, err
+	}
+
+	uidS, exists := c.Get(consts.Uid)
+	if !exists {
+		return nil, consts.ErrUidNotExist
+	}
+
+	uid := uidS.(string)
+
+	if req.Limit < 0 {
+		req.Limit = consts.DefaultLimit
+	}
+
+	if req.Offset < 0 {
+		req.Offset = consts.DefaultOffset
+	}
+
+	req.Uid = uid
+	return &req, nil
+}
+
 // 查询用户收藏的话题
 func (th *TopicHandler) ListTopicsByCollect(c *gin.Context) {
 	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
-	uid, ok := c.MustGet("uid").(string)
-	if !ok {
-		logger.Error().Msg("[CollectHandler][Create] MustGet(uid) error")
-		return
-	}
-	_, err := uuid.FromString(uid)
+
+	req, err := checkListCollectsByUidReq(c)
 	if err != nil {
-		logger.Error().Any("uid", uid).Msg("uid is not uuid")
-		handler.SendResponse(c, errmsg.ERROR, nil)
+		logger.Error().Err(err).Msg("[CollectHandler][ListTopicsByCollect][checkListCollectsByUidReq]")
+		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
 		return
 	}
 
-	collects, err := th.collectSrv.GetCollectByUid(c, &logger, uid)
+	collects, total, err := th.collectSrv.GetCollectsByUid(c, &logger, req.Uid, req.Limit, req.Offset)
 	if err != nil {
 		logger.Error().Err(err).Msg("[th.ListTopicsByCollect][GetCollectByUid]")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -45,6 +78,12 @@ func (th *TopicHandler) ListTopicsByCollect(c *gin.Context) {
 		return
 	}
 
-	resp := th.getTopicDataList(c, &logger, topics)
+	respTopics := th.getTopicDataList(c, &logger, topics)
+
+	var resp ListTopicsByUidCollectResp
+	copier.Copy(&resp.List, &respTopics)
+	resp.Total = total
+	resp.ConnectId = c.GetString(consts.DefaultXid)
+
 	handler.SendResponse(c, errmsg.SUCCSE, resp)
 }

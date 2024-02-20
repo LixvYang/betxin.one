@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/lixvyang/betxin.one/config"
 	"github.com/lixvyang/betxin.one/internal/api/v1/category"
+	"github.com/lixvyang/betxin.one/internal/api/v1/collect"
 	"github.com/lixvyang/betxin.one/internal/api/v1/topic"
 	"github.com/lixvyang/betxin.one/internal/api/v1/user"
 	"github.com/lixvyang/betxin.one/internal/model/cache"
@@ -14,6 +15,7 @@ type BetxinHandler struct {
 	user.IUserHandler
 	topic.ITopicHandler
 	category.ICategoryHandler
+	collect.ICollectHandler
 }
 
 func NewBetxinHandler(logger *zerolog.Logger, conf *config.AppConfig) *BetxinHandler {
@@ -24,5 +26,6 @@ func NewBetxinHandler(logger *zerolog.Logger, conf *config.AppConfig) *BetxinHan
 		IUserHandler:     user.NewHandler(db, logger),
 		ITopicHandler:    topic.NewHandler(db, cache),
 		ICategoryHandler: category.NewHandler(db),
+		ICollectHandler:  collect.NewHandler(db),
 	}
 }
