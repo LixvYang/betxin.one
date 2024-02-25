@@ -24,6 +24,7 @@ type MongoService struct {
 	refundColl               *qmgo.Collection
 	topicPurchaseColl        *qmgo.Collection
 	topicPurchaseHistoryColl *qmgo.Collection
+	mixinUtxoColl            *qmgo.Collection
 }
 
 func NewMongoService(logger *zerolog.Logger, conf *config.AppConfig) *MongoService {
@@ -78,8 +79,11 @@ func NewMongoService(logger *zerolog.Logger, conf *config.AppConfig) *MongoServi
 		topicPurchaseColl:        client.Database(mongoConf.DB).Collection(consts.TopicPurchaseCollection),
 		topicPurchaseHistoryColl: client.Database(mongoConf.DB).Collection(consts.TopicPurchaseHistoryCollection),
 		bonuseColl:               client.Database(mongoConf.DB).Collection(consts.BonuseCollection),
+		mixinUtxoColl:            client.Database(mongoConf.DB).Collection(consts.MixinUtxoCollection),
 	}
+
 	ms.initCategory()
+	// 定时同步utxos 并且定时聚合utxos
 	return ms
 }
 

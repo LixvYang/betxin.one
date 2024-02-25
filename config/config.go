@@ -21,6 +21,22 @@ type AppConfig struct {
 	RedisConfig *RedisConfig `mapstructure:"redis"`
 }
 
+type MixinKeyStore struct {
+	ClientID   string `mapstructure:"client_id"`
+	SessionID  string `mapstructure:"session_id"`
+	PrivateKey string `mapstructure:"private_key"`
+	PinToken   string `mapstructure:"pin_token"`
+	Scope      string `mapstructure:"scope"`
+
+	// AppID is equivalent to the ClientID
+	AppID string `mapstructure:"app_id"`
+	// ServerPublicKey is equivalent to the PinToken in hex format
+	ServerPublicKey string `mapstructure:"server_public_key"`
+	// SessionPrivateKey is equivalent to the PrivateKey in hex format
+	SessionPrivateKey string `mapstructure:"session_private_key"`
+	SpendKey          string `mapstructure:"redis"`
+}
+
 type MongoConfig struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`

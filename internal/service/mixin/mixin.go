@@ -1,25 +1,48 @@
 package mixin
 
+import (
+	"github.com/fox-one/mixin-sdk-go/v2"
+	"github.com/lixvyang/betxin.one/config"
+)
+
 type MixinService interface {
 	Transfer() error
 	SendMessage() error
 }
 
-type Mixin struct {
+type MixinCli struct {
+	client *mixin.Client
 }
 
-func (m *Mixin) Transfer() error {
+func New(conf config.MixinKeyStore) *MixinCli {
+	client, err := mixin.NewFromKeystore(&mixin.Keystore{
+		PinToken:          conf.PinToken,
+		Scope:             conf.Scope,
+		SessionID:         conf.SessionID,
+		ServerPublicKey:   conf.ServerPublicKey,
+		ClientID:          conf.ClientID,
+		PrivateKey:        conf.PrivateKey,
+		AppID:             conf.AppID,
+		SessionPrivateKey: conf.SessionPrivateKey,
+	})
+	if err != nil {
+		panic(err)
+	}
+	return &MixinCli{
+		client: client,
+	}
+}
+
+func (m *MixinCli) Transfer() error {
+	// m.client.sa
+
 	return nil
 }
 
-func (m *Mixin) SendMessage() error {
+func (m *MixinCli) SendMessage() error {
 	return nil
 }
 
-func (m *Mixin) NFTS() error {
+func (m *MixinCli) NFTS() error {
 	return nil
-}
-
-func NewMixinService() MixinService {
-	return &Mixin{}
 }

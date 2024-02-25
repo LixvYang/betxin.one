@@ -38,6 +38,7 @@ const (
 	TopicPurchaseCollection        = "topic_purchase"
 	TopicPurchaseHistoryCollection = "topic_purchase_history"
 	BonuseCollection               = "bonuse"
+	MixinUtxoCollection            = "mixin_utxo"
 )
 
 const (
