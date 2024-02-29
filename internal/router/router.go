@@ -10,6 +10,8 @@ import (
 	"github.com/lixvyang/betxin.one/config"
 	_ "github.com/lixvyang/betxin.one/docs"
 	"github.com/lixvyang/betxin.one/internal/api/v1/v1"
+	"github.com/lixvyang/betxin.one/internal/model/cache"
+	"github.com/lixvyang/betxin.one/internal/model/database"
 	"github.com/lixvyang/betxin.one/pkg/middleware"
 	"github.com/rs/zerolog"
 
@@ -60,7 +62,11 @@ func initRouter(logger *zerolog.Logger, conf *config.AppConfig) *gin.Engine {
 	)
 	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	h := v1.NewBetxinHandler(logger, conf)
+	// 初始化 db 缓存
+	db := database.New(logger, conf)
+	cache := cache.New(logger, conf.RedisConfig)
+
+	h := v1.NewBetxinHandler(logger, conf, db, cache)
 	api := e.Group("/api/v1")
 	{
 		// 用户

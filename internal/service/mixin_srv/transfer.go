@@ -1,4 +1,4 @@
-package mixin
+package mixin_srv
 
 // import "github.com/fox-one/mixin-sdk-go"
 

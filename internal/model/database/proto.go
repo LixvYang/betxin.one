@@ -95,7 +95,6 @@ type Database interface {
 	ITopicPurchase
 	ITopicPurchaseHistory
 	IBonuse
-	ICollect
 }
 
 func New(logger *zerolog.Logger, conf *config.AppConfig) Database {
