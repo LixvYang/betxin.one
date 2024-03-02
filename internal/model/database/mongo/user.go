@@ -18,7 +18,8 @@ var (
 func (s *MongoService) CreateUser(ctx context.Context, log *zerolog.Logger, user *schema.User) (err error) {
 	_, err = s.userColl.InsertOne(ctx, user)
 	if err != nil {
-		if isMongoDupeKeyError(err) {
+		// mongo.IsDuplicateKeyError(err)
+		if mongo.IsDuplicateKeyError(err) {
 			return ErrUserExist
 		}
 		log.Error().Msgf("failed to create user, error %v", err)

@@ -43,10 +43,6 @@ func NewMongoService(logger *zerolog.Logger, conf *config.AppConfig) *MongoServi
 			Key:          []string{"uid"},
 			IndexOptions: options.Index().SetUnique(true),
 		},
-		{
-			Key:          []string{"identity_number"},
-			IndexOptions: options.Index().SetUnique(true),
-		},
 	})
 
 	client.Database(mongoConf.DB).Collection(consts.CategoryCollection).CreateIndexes(ctx, []opts.IndexModel{

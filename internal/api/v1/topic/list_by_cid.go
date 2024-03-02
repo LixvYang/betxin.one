@@ -10,6 +10,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+	"github.com/lixvyang/betxin.one/internal/utils"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/internal/utils/token"
 	"github.com/rs/zerolog"
@@ -133,6 +134,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, logger *zerolog.Logger, 
 			logger.Error().Err(err).Msgf("[t.getTopicDataList][GetCategoryById] err")
 		}
 		topicDataList[i].Category = category
+		topicDataList[i].TotalCount = utils.DecimalAdd(args[i].YesCount, args[i].NoCount).String()
 	}
 	uidS, exists := c.Get("uid")
 	if !exists {

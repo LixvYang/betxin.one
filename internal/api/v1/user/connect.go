@@ -21,14 +21,14 @@ import (
 )
 
 type SigninReq struct {
-	LoginMethod string `json:"login_method"`
+	LoginMethod string `json:"channel"`
 	MixinToken  string `json:"mixin_token"`
 	Sign        string `json:"sign"`
 	SignedMsg   string `json:"sign_msg"`
 }
 
 type UserResp struct {
-	Uid            string    `json:"Uid"`
+	Uid            string    `json:"uid"`
 	IdentityNumber string    `json:"identity_number"`
 	FullName       string    `json:"full_name"`
 	AvatarURL      string    `json:"avatar_url"`
@@ -74,7 +74,7 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 	var isMvmUser bool
 	authUser := new(auth.User)
 	switch req.LoginMethod {
-	case "mixin_token":
+	case "mixin":
 		authUser, err = authorizer.Authorize(c, &auth.AuthorizationParams{
 			Method:     auth.AuthMethodMixinToken,
 			MixinToken: req.MixinToken,
@@ -119,14 +119,14 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 }
 
 func (uh *UserHandler) checkConnectArg(logger *zerolog.Logger, req *SigninReq) error {
-	if req.LoginMethod != "mixin_token" && req.LoginMethod != "mvm" {
+	if req.LoginMethod != "mixin" && req.LoginMethod != "mvm" {
 		logger.Error().Str("req.LoginMethod", req.LoginMethod).Msg("login_method invaild")
 		return errors.New("arg error")
 	}
 	return nil
 }
 
-func (uh *UserHandler) LoginWithMixin(ctx context.Context, logger *zerolog.Logger, authUser *auth.User, isMvmUser bool) (*schema.User, string, error) {
+func (uh *UserHandler) LoginWithMixin(ctx *gin.Context, logger *zerolog.Logger, authUser *auth.User, isMvmUser bool) (*schema.User, string, error) {
 	user, err := uh.loginWithMixin(ctx, logger, authUser, isMvmUser)
 	if err != nil {
 		return nil, "", err
@@ -141,18 +141,18 @@ func (uh *UserHandler) LoginWithMixin(ctx context.Context, logger *zerolog.Logge
 	return user, jwtToken, nil
 }
 
-func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey string) (string, error) {
+func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey string) (*schema.User, string, error) {
 	addr := common.HexToAddress(pubkey)
 	mvmUser, err := mvm.GetBridgeUser(c, addr)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][mvm.GetBridgeUser] err")
-		return "", err
+		return nil, "", err
 	}
 
 	contractAddr, err := mvm.GetUserContract(c, mvmUser.UserID)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][mvm.GetUserContract] err")
-		return "", err
+		return nil, "", err
 	}
 
 	logger.Info().Any("contractAddr", contractAddr).Msg("userInfo")
@@ -161,7 +161,7 @@ func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey s
 	emptyAddr := common.Address{}
 	if contractAddr == emptyAddr {
 		logger.Error().Err(err).Msgf("[loginMvm][mvm.emptyAddr] err")
-		return "", err
+		return nil, "", err
 	}
 
 	logger.Info().Msgf("user: %+v", mvmUser)
@@ -180,10 +180,10 @@ func (uh *UserHandler) loginMvm(c *gin.Context, logger *zerolog.Logger, pubkey s
 	jwtToken, err := jwt.GenToken(user.Uid)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[loginMvm][jwt.GenToken] err")
-		return "", err
+		return nil, "", err
 	}
 
-	return jwtToken, nil
+	return user, jwtToken, nil
 }
 
 func (uh *UserHandler) loginWithMixin(ctx context.Context, logger *zerolog.Logger, authUser *auth.User, isMvmUser bool) (*schema.User, error) {
@@ -213,7 +213,7 @@ func (uh *UserHandler) loginWithMixin(ctx context.Context, logger *zerolog.Logge
 			logger.Error().Err(err).Msgf("[LoginWithMixin][CreateUser] err")
 			return nil, err
 		}
-		return user, nil
+		return user, err
 	}
 
 	user.UpdatedAt = time.Now()

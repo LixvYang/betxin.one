@@ -19,9 +19,10 @@ type AppConfig struct {
 	MySQLConfig *MySQLConfig `mapstructure:"mysql"`
 	MongoConfig *MongoConfig `mapstructure:"mongo"`
 	RedisConfig *RedisConfig `mapstructure:"redis"`
+	MixinConfig *MixinConfig `mapstructure:"mixin"`
 }
 
-type MixinKeyStore struct {
+type MixinConfig struct {
 	ClientID   string `mapstructure:"client_id"`
 	SessionID  string `mapstructure:"session_id"`
 	PrivateKey string `mapstructure:"private_key"`
@@ -34,7 +35,7 @@ type MixinKeyStore struct {
 	ServerPublicKey string `mapstructure:"server_public_key"`
 	// SessionPrivateKey is equivalent to the PrivateKey in hex format
 	SessionPrivateKey string `mapstructure:"session_private_key"`
-	SpendKey          string `mapstructure:"redis"`
+	SpendKey          string `mapstructure:"spend_key"`
 }
 
 type MongoConfig struct {

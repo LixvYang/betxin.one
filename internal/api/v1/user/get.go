@@ -15,8 +15,6 @@ type GetUserResp struct {
 	FullName       string `json:"full_name"`
 	AvatarURL      string `json:"avatar_url"`
 	Biography      string `json:"biography"`
-	ClientID       string `json:"client_id"`
-	IsMvmUser      bool   `json:"is_mvm_user"`
 }
 
 func (uh *UserHandler) Get(c *gin.Context) {

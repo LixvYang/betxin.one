@@ -8,6 +8,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
+	"github.com/lixvyang/betxin.one/internal/utils"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/rs/zerolog"
 )
@@ -67,5 +68,6 @@ func (th *TopicHandler) getTopicResp(c *gin.Context, logger *zerolog.Logger, tid
 		return nil, err
 	}
 	getTopicResp.Category = category
+	getTopicResp.TotalCount = utils.DecimalAdd(getTopicResp.YesCount, getTopicResp.NoCount).String()
 	return getTopicResp, nil
 }
