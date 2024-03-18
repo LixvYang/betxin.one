@@ -33,5 +33,15 @@ func NewDecimalFromString(s string) decimal.Decimal {
 }
 
 func DecimalAdd(a string, b string) decimal.Decimal {
+	decimal.DivisionPrecision = 8
 	return NewDecimalFromString(a).Add(NewDecimalFromString(b))
+}
+
+func DecimalDiv(a string, b string) decimal.Decimal {
+	if NewDecimalFromString(b).IsZero() {
+		return decimal.NewFromInt(0)
+	}
+
+	decimal.DivisionPrecision = 2
+	return NewDecimalFromString(a).Div(NewDecimalFromString(b))
 }

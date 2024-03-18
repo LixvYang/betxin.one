@@ -69,5 +69,11 @@ func (th *TopicHandler) getTopicResp(c *gin.Context, logger *zerolog.Logger, tid
 	}
 	getTopicResp.Category = category
 	getTopicResp.TotalCount = utils.DecimalAdd(getTopicResp.YesCount, getTopicResp.NoCount).String()
+	getTopicResp.YesRatio = utils.DecimalDiv(getTopicResp.YesCount, getTopicResp.TotalCount).String()
+	getTopicResp.NoRatio = utils.DecimalDiv(getTopicResp.NoCount, getTopicResp.TotalCount).String()
+	if getTopicResp.YesCount == getTopicResp.NoCount {
+		getTopicResp.YesRatio = "50"
+		getTopicResp.NoRatio = "50"
+	}
 	return getTopicResp, nil
 }

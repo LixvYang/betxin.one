@@ -71,7 +71,7 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	if pageToken != "" {
 		// 解析分页
 		if page.NextTimeAtUTC < time.Now().UnixMilli() || time.Now().Unix()-page.NextTimeAtUTC > int64(time.Hour)*24 {
-			logger.Error().Msgf("bad page token invaild page time: %#v", page)
+			logger.Error().Any("req", c.Request.RequestURI).Msgf("bad page token invaild page time: %#v", page)
 			handler.SendResponse(c, errmsg.ERROR, nil)
 			return
 		}
@@ -88,7 +88,7 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	topicList, _, err := t.topicSrv.ListTopicByCid(c, &logger, cid, cursor, pageSize+1)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[t.ListTopicsByCid][ListTopicByCid] err")
-		handler.SendResponse(c, errmsg.ERROR, nil)
+		handler.SendResponse(c, errmsg.ERROR_TOPICS_NOT_FOUND, nil)
 		return
 	}
 
@@ -135,6 +135,12 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, logger *zerolog.Logger, 
 		}
 		topicDataList[i].Category = category
 		topicDataList[i].TotalCount = utils.DecimalAdd(args[i].YesCount, args[i].NoCount).String()
+		topicDataList[i].YesRatio = utils.DecimalDiv(topicDataList[i].YesCount, topicDataList[i].TotalCount).String()
+		topicDataList[i].NoRatio = utils.DecimalDiv(topicDataList[i].NoCount, topicDataList[i].TotalCount).String()
+		if topicDataList[i].YesCount == topicDataList[i].NoCount {
+			topicDataList[i].YesRatio = "50"
+			topicDataList[i].NoRatio = "50"
+		}
 	}
 	uidS, exists := c.Get("uid")
 	if !exists {

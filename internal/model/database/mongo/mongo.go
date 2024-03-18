@@ -100,31 +100,31 @@ func (m *MongoService) initCategory() {
 	var categorys []schema.Category = []schema.Category{
 		{
 			ID:   1,
-			Name: "Buisiness",
+			Name: "buisiness",
 		},
 		{
 			ID:   2,
-			Name: "Crypto",
+			Name: "crypto",
 		},
 		{
 			ID:   3,
-			Name: "Sports",
+			Name: "sports",
 		},
 		{
 			ID:   4,
-			Name: "Games",
+			Name: "games",
 		},
 		{
 			ID:   5,
-			Name: "News",
+			Name: "news",
 		},
 		{
 			ID:   6,
-			Name: "Trending",
+			Name: "trending",
 		},
 		{
 			ID:   7,
-			Name: "Others",
+			Name: "others",
 		},
 	}
 

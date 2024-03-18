@@ -25,11 +25,8 @@ type Topic struct {
 	Title         string    `bson:"title" json:"title"`
 	Intro         string    `bson:"intro" json:"intro"`
 	Content       string    `bson:"content" json:"content"`
-	YesRatio      string    `bson:"yes_ratio" json:"yes_ratio"`
-	NoRatio       string    `bson:"no_ratio" json:"no_ratio"`
 	YesCount      string    `bson:"yes_count" json:"yes_count"`
 	NoCount       string    `bson:"no_count" json:"no_count"`
-	TotalCount    string    `bson:"total_count" json:"total_count"`
 	CollectCount  int64     `bson:"collect_count" json:"collect_count"`
 	ReadCount     int64     `bson:"read_count" json:"read_count"`
 	ImgURL        string    `bson:"img_url" json:"img_url"`

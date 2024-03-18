@@ -99,8 +99,6 @@ func (t *TopicHandler) checkCreateReq(c *gin.Context, logger *zerolog.Logger) (*
 	argv.YesCount = "0"
 	argv.NoCount = "0"
 	argv.NoCount = "0"
-	argv.YesRatio = "0"
-	argv.NoRatio = "0"
 
 	return argv, nil
 }

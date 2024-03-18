@@ -17,6 +17,7 @@ type IUser interface {
 }
 
 type ITopic interface {
+	ListTopics(ctx context.Context, logger *zerolog.Logger, cid int64, limit, offset int64) ([]*schema.Topic, int64, error)
 	StopTopic(context.Context, *zerolog.Logger, string) error
 	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, error)
 	GetTopicByTid(context.Context, *zerolog.Logger, string) (*schema.Topic, error)

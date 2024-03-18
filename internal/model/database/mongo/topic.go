@@ -16,12 +16,39 @@ var (
 	ErrNoSuchTopic error = errors.New("topic no exist")
 )
 
+// cid 为 0 表示查找所有的话题
+func (s *MongoService) ListTopics(ctx context.Context, logger *zerolog.Logger, cid int64, limit, offset int64) ([]*schema.Topic, int64, error) {
+	var topics []*schema.Topic
+	var total int64
+	var err error
+
+	filter := bson.M{"is_stop": false}
+	if cid != 0 {
+		filter["cid"] = cid
+	}
+
+	find := s.topicColl.Find(ctx, filter)
+	total, err = find.Count()
+	if err != nil {
+		return nil, total, err
+	}
+
+	err = find.Limit(limit).Skip(offset).Sort("-created_at").All(&topics)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, total, ErrNoSuchTopic
+		}
+		return nil, total, err
+	}
+	return topics, total, nil
+}
+
 func (s *MongoService) ListTopicByCid(ctx context.Context, logger *zerolog.Logger, cid int64, createdAt time.Time, pageSize int64) ([]*schema.Topic, int64, error) {
 	var topics []*schema.Topic
 	var total int64
 	var err error
 
-	filter := bson.M{"created_at": bson.M{"$lte": createdAt}, "cid": cid}
+	filter := bson.M{"created_at": bson.M{"$lte": createdAt}, "cid": cid, "is_stop": false}
 	find := s.topicColl.Find(ctx, filter)
 	total, err = find.Count()
 	if err != nil {
@@ -54,7 +81,7 @@ func (s *MongoService) StopTopic(ctx context.Context, logger *zerolog.Logger, ti
 
 func (s *MongoService) GetTopicsByCid(ctx context.Context, logger *zerolog.Logger, cid int64) ([]*schema.Topic, error) {
 	var topics []*schema.Topic
-	err := s.topicColl.Find(ctx, bson.M{"cid": cid}).All(&topics)
+	err := s.topicColl.Find(ctx, bson.M{"cid": cid, "is_stop": false}).All(&topics)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +90,7 @@ func (s *MongoService) GetTopicsByCid(ctx context.Context, logger *zerolog.Logge
 
 func (s *MongoService) GetTopicByTid(ctx context.Context, logger *zerolog.Logger, tid string) (*schema.Topic, error) {
 	var topic *schema.Topic
-	err := s.topicColl.Find(ctx, bson.M{"tid": tid}).One(&topic)
+	err := s.topicColl.Find(ctx, bson.M{"tid": tid, "is_stop": false}).One(&topic)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, ErrNoSuchTopic

@@ -58,8 +58,6 @@ func New(conf *config.MixinConfig, db database.Database) *MixinCli {
 		conf.SpendKey = os.Getenv("SPEND_KEY")
 	}
 
-	fmt.Println(conf.SpendKey)
-
 	spendKey, err := mixinnet.ParseKeyWithPub(conf.SpendKey, user.SpendPublicKey)
 	if err != nil {
 		panic(err)

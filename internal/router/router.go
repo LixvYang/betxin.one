@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/config"
 	_ "github.com/lixvyang/betxin.one/docs"
-	"github.com/lixvyang/betxin.one/internal/api/v1/v1"
+	"github.com/lixvyang/betxin.one/internal/api/v1"
 	"github.com/lixvyang/betxin.one/internal/model/cache"
 	"github.com/lixvyang/betxin.one/internal/model/database"
 	"github.com/lixvyang/betxin.one/pkg/middleware"
@@ -76,6 +76,7 @@ func initRouter(logger *zerolog.Logger, conf *config.AppConfig) *gin.Engine {
 
 		{
 			// 话题相关
+			api.GET("/topic") // 根据query获取话题列表
 			api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
 			api.POST("/topic", h.ITopicHandler.Create)
 			api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)

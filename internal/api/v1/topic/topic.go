@@ -25,6 +25,7 @@ func NewHandler(db database.Database, cache *cache.Cache) ITopicHandler {
 }
 
 type ITopicHandler interface {
+	ListTopics(*gin.Context)
 	Create(*gin.Context)
 	Delete(*gin.Context)
 	Get(*gin.Context)

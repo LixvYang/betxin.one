@@ -50,6 +50,7 @@ const (
 	ERROR_LIST_TOPIC         = 5003
 	ERROR_GET_TOPIC          = 5003
 	ERROR_TOPIC_INVAILD_NAME = 5005
+	ERROR_TOPICS_NOT_FOUND   = 5006
 
 	// 收藏错误
 	ERROR_CREATE_COLLECT         = 6001
@@ -98,6 +99,7 @@ var codeMsg = map[int]string{
 	ERROR_DELETE_TOPIC:       "删除话题错误",
 	ERROR_LIST_TOPIC:         "查询话题列表错误",
 	ERROR_TOPIC_INVAILD_NAME: "invaild tid",
+	ERROR_TOPICS_NOT_FOUND:   "话题未找到",
 
 	ERROR_CREATE_COLLECT:         "创建收藏失败",
 	ERROR_CREATE_ALREADY_COLLECT: "收藏已存在",
