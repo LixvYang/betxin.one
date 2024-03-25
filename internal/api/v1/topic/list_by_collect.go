@@ -59,7 +59,7 @@ func (th *TopicHandler) ListTopicsByCollect(c *gin.Context) {
 		return
 	}
 
-	collects, total, err := th.collectSrv.GetCollectsByUid(c, &logger, req.Uid, req.Limit, req.Offset)
+	collects, total, err := th.storage.GetCollectsByUid(c, req.Uid, req.Limit, req.Offset)
 	if err != nil {
 		logger.Error().Err(err).Msg("[th.ListTopicsByCollect][GetCollectByUid]")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -71,7 +71,7 @@ func (th *TopicHandler) ListTopicsByCollect(c *gin.Context) {
 		tids[i] = item.Tid
 	})
 
-	topics, err := th.topicSrv.GetTopicsByTids(c, &logger, tids)
+	topics, err := th.storage.GetTopicsByTids(c, tids)
 	if err != nil {
 		logger.Error().Err(err).Msg("[th.ListTopicsByCollect][GetTopicsByTids]")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -85,5 +85,5 @@ func (th *TopicHandler) ListTopicsByCollect(c *gin.Context) {
 	resp.Total = total
 	resp.ConnectId = c.GetString(consts.DefaultXid)
 
-	handler.SendResponse(c, errmsg.SUCCSE, resp)
+	handler.SendResponse(c, errmsg.SUCCES, resp)
 }

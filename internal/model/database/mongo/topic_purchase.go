@@ -3,57 +3,59 @@ package mongo
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
-	"github.com/rs/zerolog"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var (
-	ErrTopicPurchaseExist  error = errors.New("topic_purchase already exist")
-	ErrNoSuchTopicPurchase error = errors.New("topic_purchase no exist")
-)
-
-func (s *MongoService) GetTopicPurchase(ctx context.Context, logger *zerolog.Logger, uid, tid string) (*schema.TopicPurchase, error) {
+func (s *MongoService) GetTopicPurchase(ctx context.Context, uid, tid string) (*schema.TopicPurchase, error) {
 	var topicPurchase schema.TopicPurchase
 	if uid == "" || tid == "" {
 		return nil, errors.New("uid and tid is empty")
 	}
 
 	find := bson.M{"uid": uid, "tid": tid}
-
-	err := s.topicColl.Find(ctx, find).One(&topicPurchase)
-	if err == mongo.ErrNoDocuments {
-		logger.Error().Err(err).Msg("mongo: not fount topic purchase")
-		return nil, ErrNoSuchRefund
-	}
+	err := s.topicPurchaseColl.Find(ctx, find).One(&topicPurchase)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			logger.Error().Err(err).Msg("mongo: not fount topic purchase")
-			return nil, ErrNoSuchRefund
+			return nil, ErrNoSuchItem
 		}
-		logger.Error().Str("tid", tid).Err(err).Msg("mongo: get topic failed")
 		return nil, err
 	}
 
 	return &topicPurchase, nil
 }
 
-func (s *MongoService) CreateTopicPurchase(ctx context.Context, logger *zerolog.Logger, topicPurchase *schema.TopicPurchase) error {
-	_, err := s.topicColl.InsertOne(ctx, topicPurchase)
+func (s *MongoService) CreateTopicPurchase(ctx context.Context, uid, tid string) error {
+	if uid == "" || tid == "" {
+		return errors.New("uid and tid is empty")
+	}
+
+	tmNow := time.Now()
+
+	topicPurchase := &schema.TopicPurchase{
+		Uid:       uid,
+		Tid:       tid,
+		YesAmount: "0",
+		NoAmount:  "0",
+		CreatedAt: tmNow,
+		UpdatedAt: tmNow,
+	}
+	_, err := s.topicPurchaseColl.InsertOne(ctx, topicPurchase)
 	if err != nil {
 		if isMongoDupeKeyError(err) {
-			return ErrTopicPurchaseExist
+			return ErrItemExist
 		}
-		logger.Error().Err(err).Msg("mongo: create topic purchase failed")
 		return err
 	}
 
 	return nil
 }
 
-func (s *MongoService) QueryTopicPurchase(ctx context.Context, logger *zerolog.Logger, uid, tid string) ([]*schema.TopicPurchase, error) {
+func (s *MongoService) QueryTopicPurchase(ctx context.Context, uid, tid string) ([]*schema.TopicPurchase, error) {
 	var topicPurchases []*schema.TopicPurchase
 	find := bson.M{}
 	if uid != "" {
@@ -63,9 +65,33 @@ func (s *MongoService) QueryTopicPurchase(ctx context.Context, logger *zerolog.L
 		find["tid"] = tid
 	}
 	err := s.topicColl.Find(ctx, find).All(&topicPurchases)
-	if err == mongo.ErrNoDocuments {
-		logger.Error().Err(err).Msg("mongo: not fount topic purchase")
-		return nil, ErrNoSuchRefund
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, ErrNoSuchItem
+		}
+		return nil, err
 	}
 	return topicPurchases, nil
+}
+
+func (s *MongoService) UpsertTopicPurchase(ctx context.Context, topicPurchase *schema.TopicPurchase) error {
+	topicPurchase.UpdatedAt = time.Now()
+	filter := bson.M{"uid": topicPurchase.Uid, "tid": topicPurchase.Tid}
+	_, err := s.topicPurchaseColl.Upsert(ctx, filter, topicPurchase)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *MongoService) UpdateTopicPurchase(ctx context.Context, topicPurchase *schema.TopicPurchase) error {
+	topicPurchase.UpdatedAt = time.Now()
+	filter := bson.M{"uid": topicPurchase.Uid, "tid": topicPurchase.Tid}
+	err := s.topicPurchaseColl.UpdateOne(ctx, filter, bson.M{"$set": topicPurchase})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

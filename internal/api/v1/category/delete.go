@@ -20,14 +20,14 @@ func (ch *CategoryHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	err = ch.storage.DeleteCategory(c, &logger, id)
+	err = ch.storage.DeleteCategory(c, id)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Delete][storage.GetCategoryById]")
 		handler.SendResponse(c, errmsg.ERROR, nil)
 		return
 	}
 	logger.Info().Int64("tid", id).Msg("[Delete]")
-	handler.SendResponse(c, errmsg.SUCCSE, nil)
+	handler.SendResponse(c, errmsg.SUCCES, nil)
 }
 
 func (ch *CategoryHandler) checkCategoryId(c *gin.Context) (int64, error) {

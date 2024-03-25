@@ -37,16 +37,16 @@ func (ch *CollectHandler) Delete(c *gin.Context) {
 	}
 
 	// 判断tid是否存在
-	_, err = ch.topicSrv.GetTopicByTid(c, &logger, req.Tid)
+	_, err = ch.storage.GetTopicByTid(c, req.Tid)
 	if err != nil {
 		logger.Error().Err(err).Msg("get topic by tid err")
 		handler.SendResponse(c, errmsg.ERROR_GET_TOPIC, nil)
 		return
 	}
 
-	collect, err := ch.storage.GetCollectByUidTid(c, &logger, req.uid, req.Tid)
+	collect, err := ch.storage.GetCollectByUidTid(c, req.uid, req.Tid)
 	if err != nil {
-		if err == mongo.ErrNoSuchCollect {
+		if err == mongo.ErrNoSuchItem {
 			logger.Error().Err(err).Msg("get collect by uid tid err")
 			handler.SendResponse(c, errmsg.ERROR_NOT_COLLECT, nil)
 			return
@@ -59,12 +59,12 @@ func (ch *CollectHandler) Delete(c *gin.Context) {
 	collect.Status = false
 	collect.UpdatedAt = time.Now()
 
-	if err := ch.storage.UpsertCollect(c, &logger, req.uid, req.Tid, collect); err != nil {
+	if err := ch.storage.UpsertCollect(c, req.uid, req.Tid, collect); err != nil {
 		logger.Error().Any("req", req).Err(err).Msg("DeleteCollect error")
 		handler.SendResponse(c, errmsg.ERROR, nil)
 		return
 	}
 
 	logger.Info().Any("req", req).Msg("DeleteCollect success")
-	handler.SendResponse(c, errmsg.SUCCSE, nil)
+	handler.SendResponse(c, errmsg.SUCCES, nil)
 }

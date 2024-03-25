@@ -1,7 +1,7 @@
 package errmsg
 
 const (
-	SUCCSE = 200
+	SUCCES = 200
 	ERROR  = 500
 
 	// 绑定参数错误
@@ -56,10 +56,13 @@ const (
 	ERROR_CREATE_COLLECT         = 6001
 	ERROR_CREATE_ALREADY_COLLECT = 6002
 	ERROR_NOT_COLLECT            = 6003
+
+	// 购买记录为空
+	ERROR_BUY_RECORD_EMPTY = 7001
 )
 
 var codeMsg = map[int]string{
-	SUCCSE:                 "SUCCESS",
+	SUCCES:                 "SUCCESS",
 	ERROR:                  "FAIL",
 	ERROR_BIND:             "输入参数错误",
 	ERROR_AUTH:             "认证错误",
@@ -104,6 +107,8 @@ var codeMsg = map[int]string{
 	ERROR_CREATE_COLLECT:         "创建收藏失败",
 	ERROR_CREATE_ALREADY_COLLECT: "收藏已存在",
 	ERROR_NOT_COLLECT:            "收藏不存在",
+
+	ERROR_BUY_RECORD_EMPTY: "购买记录为空",
 }
 
 func GetErrMsg(code int) string {

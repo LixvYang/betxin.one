@@ -30,10 +30,10 @@ mysql:
 
 mongo:
   host: "127.0.0.1"
-  port: 27017
+  port: 30001
   db: "betxin_test"
-  username: "mongoadmin"
-  password: "mongoadmin"
+  # username: "mongoadmin"
+  # password: "mongoadmin"
 
 redis:
   host: "127.0.0.1"

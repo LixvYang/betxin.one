@@ -2,21 +2,14 @@ package mongo
 
 import (
 	"context"
-	"errors"
 
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
 
-	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var (
-	ErrCollectExist  error = errors.New("collect already exist")
-	ErrNoSuchCollect error = errors.New("collect no exist")
-)
-
-func (s *MongoService) ListCollects(ctx context.Context, logger *zerolog.Logger, uid string) ([]*schema.Collect, error) {
+func (s *MongoService) ListCollects(ctx context.Context, uid string) ([]*schema.Collect, error) {
 	var collects []*schema.Collect
 	filter := bson.M{"uid": uid, "status": true}
 
@@ -29,7 +22,7 @@ func (s *MongoService) ListCollects(ctx context.Context, logger *zerolog.Logger,
 	return collects, nil
 }
 
-func (s *MongoService) GetCollectsByUid(ctx context.Context, logger *zerolog.Logger, uid string, limit, offset int64) ([]*schema.Collect, int64, error) {
+func (s *MongoService) GetCollectsByUid(ctx context.Context, uid string, limit, offset int64) ([]*schema.Collect, int64, error) {
 	var collects []*schema.Collect
 	filter := bson.M{"uid": uid, "status": true}
 
@@ -47,24 +40,24 @@ func (s *MongoService) GetCollectsByUid(ctx context.Context, logger *zerolog.Log
 	return nil, total, nil
 }
 
-func (s *MongoService) UpsertCollect(ctx context.Context, logger *zerolog.Logger, uid, tid string, req *schema.Collect) error {
+func (s *MongoService) UpsertCollect(ctx context.Context, uid, tid string, req *schema.Collect) error {
 	_, err := s.collectColl.Upsert(ctx, bson.M{"uid": uid, "tid": tid}, req)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return ErrNoSuchCollect
+			return ErrNoSuchItem
 		}
 		return err
 	}
 	return nil
 }
 
-func (s *MongoService) GetCollectByUidTid(ctx context.Context, logger *zerolog.Logger, uid, tid string) (*schema.Collect, error) {
+func (s *MongoService) GetCollectByUidTid(ctx context.Context, uid, tid string) (*schema.Collect, error) {
 	var collect schema.Collect
 	filter := bson.M{"uid": uid, "tid": tid}
 	err := s.collectColl.Find(ctx, filter).One(&collect)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, ErrNoSuchCollect
+			return nil, ErrNoSuchItem
 		}
 		return nil, err
 	}

@@ -12,7 +12,7 @@ import (
 func (ch *CategoryHandler) List(c *gin.Context) {
 	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
 
-	categories, err := ch.storage.ListCategories(c, &logger)
+	categories, err := ch.storage.ListCategories(c)
 	if err != nil {
 		logger.Error().Err(err).Msg("[List][ListCategories]")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -20,5 +20,5 @@ func (ch *CategoryHandler) List(c *gin.Context) {
 	}
 	logger.Info().Any("categories", categories).Msg("[List][ListCategories]")
 
-	handler.SendResponse(c, errmsg.SUCCSE, categories)
+	handler.SendResponse(c, errmsg.SUCCES, categories)
 }

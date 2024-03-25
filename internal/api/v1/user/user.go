@@ -2,15 +2,15 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lixvyang/betxin.one/internal/model/database"
+	"github.com/lixvyang/betxin.one/internal/model/database/mongo"
 	"github.com/rs/zerolog"
 )
 
 type UserHandler struct {
-	userSrv database.IUser
+	userSrv *mongo.MongoService
 }
 
-func NewHandler(database database.Database, logger *zerolog.Logger) IUserHandler {
+func NewHandler(database *mongo.MongoService, logger *zerolog.Logger) *UserHandler {
 	return &UserHandler{
 		database,
 	}

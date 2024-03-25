@@ -2,18 +2,16 @@ package collect
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lixvyang/betxin.one/internal/model/database"
+	"github.com/lixvyang/betxin.one/internal/model/database/mongo"
 )
 
 type CollectHandler struct {
-	storage  database.ICollect
-	topicSrv database.ITopic
+	storage *mongo.MongoService
 }
 
-func NewHandler(db database.Database) *CollectHandler {
+func NewHandler(db *mongo.MongoService) *CollectHandler {
 	return &CollectHandler{
-		storage:  db,
-		topicSrv: db,
+		storage: db,
 	}
 }
 

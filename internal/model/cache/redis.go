@@ -20,6 +20,7 @@ type Cache struct {
 }
 
 func New(logger *zerolog.Logger, conf *config.RedisConfig) *Cache {
+	return nil
 	cache := &Cache{}
 	cache.cli = redis.NewClient(&redis.Options{
 		Addr:         fmt.Sprintf("%s:%d", conf.Host, conf.Port),
@@ -81,4 +82,20 @@ func (r *Cache) HDel(ctx context.Context, key string, field string) (err error) 
 
 func (m *Cache) Delete(ctx context.Context, key string) (err error) {
 	return m.cli.Del(ctx, key).Err()
+}
+
+func (m *Cache) ZAdd(ctx context.Context, key string, score float64, val string) (err error) {
+	return m.cli.ZAdd(ctx, key, redis.Z{
+		Score:  score,
+		Member: val,
+	}).Err()
+}
+
+func (m *Cache) ZRangeByScore(ctx context.Context, key string, min, max string, offset, limit int64) (ret []string, err error) {
+	return m.cli.ZRangeByScore(ctx, key, &redis.ZRangeBy{
+		Min:    min,
+		Max:    max,
+		Offset: offset,
+		Count:  limit,
+	}).Result()
 }

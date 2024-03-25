@@ -24,7 +24,7 @@ func (th *TopicHandler) UpdateTopicInfo(c *gin.Context) {
 		return
 	}
 
-	err = th.topicSrv.UpdateTopic(c, &logger, tid, newTopic)
+	err = th.storage.UpdateTopic(c, tid, newTopic)
 	if err != nil {
 		logger.Error().Str("tid", tid).Err(err).Msg("[UpdateTopicInfo][storage.UpdateTopicInfo] err")
 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
@@ -40,7 +40,7 @@ func (th *TopicHandler) UpdateTopicInfo(c *gin.Context) {
 
 	logger.Info().Any("getTopicResp", getTopicResp).Msg("[UpdateTopicInfo][storage.UpdateTopicInfo]")
 
-	handler.SendResponse(c, errmsg.SUCCSE, getTopicResp)
+	handler.SendResponse(c, errmsg.SUCCES, getTopicResp)
 }
 
 func (th *TopicHandler) checkUpdateTopicInfoReq(c *gin.Context, logger *zerolog.Logger) (*schema.Topic, error) {

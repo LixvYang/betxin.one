@@ -39,6 +39,7 @@ const (
 	TopicPurchaseHistoryCollection = "topic_purchase_history"
 	BonuseCollection               = "bonuse"
 	MixinUtxoCollection            = "mixin_utxo"
+	SnapshotCollection             = "mixin_snapshot"
 )
 
 const (
@@ -48,4 +49,14 @@ const (
 
 var (
 	ErrUidNotExist = errors.New("uid not found")
+)
+
+const (
+	ASSET_CNB = "965e5c6e-434c-3fa9-b780-c50f43cd955c"
+
+	MAX_UTXO_NUM = 255
+)
+
+const (
+	TopicRefundFailedRequest = "topic_refund_failed_request"
 )

@@ -1,0 +1,43 @@
+db.topic.findOne({"tid":"ea3eb1af-8241-46fd-aca2-b60806512a69"})
+db.topic.findOne()
+db.topic.updateOne({"tid":"4acadf92-7b70-4ae6-bcc5-f3da6c349d32"}, {"$set":{"is_stop":true}})
+db.topic.findOne()
+db.topic.findOne9)
+show tables
+show dbs
+use betxinonetest
+show dbs
+db.topic_purchase_history.find()
+show tables
+show dbs
+db.topic.find({"tid":"0a18097a-b292-40da-9d1a-268ae25476e9"})
+db.topic.find({"tid":"82f5c5ab-86bc-485d-bffd-163b4c6cef3b"})
+db.topic.find({"tid":"6580a95a-5425-45bb-a4cb-cfc85df3c08b"})
+db.topic.find({"tid":"6fa9448e-08a1-4ee8-b729-497708c48a74"})
+show dbs
+db.topic.find({"tid":"0c0ef196-fac9-45b8-9d13-9a49c136922a"})
+show dbs
+db.topic.find({"tid":"fff27377-777b-4d51-8cf9-fc7bc2fcc190"})
+db.topic.find({"tid":"4acadf92-7b70-4ae6-bcc5-f3da6c349d32"})
+db.topic.delete({"tid":"2603af32-4e28-45ef-a95a-a41c1431138d"})
+db.topic.deleteOne({"tid":"2603af32-4e28-45ef-a95a-a41c1431138d"})
+db.topic.find()
+show tables
+use betxinonetest
+show dbs
+db.betxinonetest.drop()
+show dbs
+db.topic.drop()
+db.topic.find()
+db.topic.deleteOne({"_id": ObjectId('65fea66e836faf47a41cead6')})
+db.topic.find()
+db.topic.deleteOne({"_id": ObjectId('65fea1a2836faf47a41a811a')})
+db.topic.find()
+db.topic_purchase.find()
+show bds
+db.topic_purchase.update({"tid":"7b9590ec-0a96-47bc-a04d-275d44ce3d9c"}, {"yes_count:":"1"},{        upsert:true})
+db.topic_purchase.find()
+show tables
+use betxinonetest
+show dbs
+rs.initiate( { _id: 'my-replica-set', members: [ { _id: 0, host: "mongo1:30001" }, { _id: 1, host: "mongo2:30002" }, { _id: 2, host: "mongo3:30003" }] } )

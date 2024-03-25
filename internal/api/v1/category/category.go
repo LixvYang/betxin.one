@@ -3,13 +3,14 @@ package category
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/internal/model/database"
+	"github.com/lixvyang/betxin.one/internal/model/database/mongo"
 )
 
 type CategoryHandler struct {
 	storage database.ICategory
 }
 
-func NewHandler(db database.Database) *CategoryHandler {
+func NewHandler(db *mongo.MongoService) *CategoryHandler {
 	return &CategoryHandler{
 		storage: db,
 	}

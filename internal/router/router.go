@@ -9,7 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/config"
 	_ "github.com/lixvyang/betxin.one/docs"
-	"github.com/lixvyang/betxin.one/internal/api/v1"
+	"github.com/lixvyang/betxin.one/internal/api/sd"
+	v1 "github.com/lixvyang/betxin.one/internal/api/v1"
 	"github.com/lixvyang/betxin.one/internal/model/cache"
 	"github.com/lixvyang/betxin.one/internal/model/database"
 	"github.com/lixvyang/betxin.one/pkg/middleware"
@@ -68,43 +69,30 @@ func initRouter(logger *zerolog.Logger, conf *config.AppConfig) *gin.Engine {
 
 	h := v1.NewBetxinHandler(logger, conf, db, cache)
 	api := e.Group("/api/v1")
+	// api.Use(middleware.JWTAuthMiddleware())
 	{
 		// 用户
-		{
-			api.POST("/connect", h.IUserHandler.Connect)
-		}
+		api.POST("/connect", h.IUserHandler.Connect)
 
-		{
-			// 话题相关
-			api.GET("/topic") // 根据query获取话题列表
-			api.GET("/topics/:cid", h.ITopicHandler.ListTopicsByCid)
-			api.POST("/topic", h.ITopicHandler.Create)
-			api.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
-			api.DELETE("/topic/:tid", h.ITopicHandler.Delete)
-			api.GET("/topic/:tid", h.ITopicHandler.Get)
+		// 话题相关
+		api.GET("/topics", h.ITopicHandler.ListTopics) // 根据query获取话题列表
+		api.GET("/topic/:tid", h.ITopicHandler.GetTopicByTid)
 
-			// 话题购买
-			// api.POST("/topic/purchase")
-		}
-		{
-			// api.POST("/collect/:tid", h.ICollectHandler.Create)
-		}
+		api.POST("/topicpurchase/simulate", h.ITopicPurchaseHandler.Simulate)                           // 提供一个根据传入代币数量 模拟计算最终结果的接口
+		api.POST("/topicpurchase/action", h.ITopicPurchaseHandler.CreatePurchaseAction)                 // 话题购买行为表
+		api.GET("/topicpurchasehistory/:request_id", h.ITopicPurchaseHandler.QueryTopicPurchaseHistory) // 第二个接口供前端不断判断 是否已购买
 
-		// 管理员权限
-		{
-			api.POST("/category", h.ICategoryHandler.Create)
-			api.DELETE("/category/:id", h.ICategoryHandler.Delete)
-			api.PUT("/category/:id", h.ICategoryHandler.Update)
-			api.GET("/category/:id", h.ICategoryHandler.Get)
-			api.GET("/categories", h.ICategoryHandler.List)
-		}
+		// 话题退款
+		api.POST("/refund/topic/", h.IRefundHandler.CreateTopicRefund)
 
-		// {
-		// 	api.GET("/backend/health", sd.HealthCheck)
-		// 	api.GET("/backend/disk", sd.DiskCheck)
-		// 	api.GET("/backend/cpu", sd.CPUCheck)
-		// 	api.GET("/backend/ram", sd.RAMCheck)
-		// }
+		// 即将结束的话题
+
+		// 话题购买 其实就是传入uuid 然后根据uuid 查询 话题购买行为表 然后根据行为表 计算退款金额
+
+		//收藏相关
+		// 话题收藏
+		// 取消收藏
+		// 用户的话题收藏列表
 
 		// 收藏相关
 		demoAPI := api.Use(middleware.DemoAuthNotMiddleware())
@@ -112,11 +100,31 @@ func initRouter(logger *zerolog.Logger, conf *config.AppConfig) *gin.Engine {
 			demoAPI.POST("/collect", h.ICollectHandler.Create)
 			demoAPI.DELETE("/collect", h.ICollectHandler.Delete)
 		}
+		// 用户信息
+		api.GET("/user", h.IUserHandler.GetUserInfo)
+		// 用户信息修改
+	}
 
-		api.Use(middleware.JWTAuthMiddleware())
-		{
-			api.GET("/user", h.IUserHandler.Get)
-		}
+	admin := e.Group("/admin")
+	// admin.Use(middleware.AdminAuthMiddleware())
+	{
+		admin.POST("/topic", h.ITopicHandler.Create)
+		admin.PUT("/topic/:tid", h.ITopicHandler.UpdateTopicInfo)
+		admin.DELETE("/topic/:tid", h.ITopicHandler.Delete)
+
+		// 处理话题停止
+		admin.POST("/topic/action/stop", h.ITopicHandler.StopTopic)
+
+		admin.POST("/category", h.ICategoryHandler.Create)
+		admin.DELETE("/category/:id", h.ICategoryHandler.Delete)
+		admin.PUT("/category/:id", h.ICategoryHandler.Update)
+		admin.GET("/category/:id", h.ICategoryHandler.Get)
+		admin.GET("/categories", h.ICategoryHandler.List)
+
+		admin.GET("/backend/health", sd.HealthCheck)
+		admin.GET("/backend/disk", sd.DiskCheck)
+		admin.GET("/backend/cpu", sd.CPUCheck)
+		admin.GET("/backend/ram", sd.RAMCheck)
 	}
 
 	return e

@@ -2,17 +2,18 @@ package topicpurchase
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lixvyang/betxin.one/internal/model/database"
+	"github.com/lixvyang/betxin.one/internal/model/database/mongo"
 )
 
 type TopicPurchaseHandler struct {
-	// topic          database.ITopic
-	// topicPurchaase database.ITopicPurchase
+	storage *mongo.MongoService
 }
 
-func NewHandler(db database.Database) ITopicPurchaseHandler {
-	return nil
-	// return &TopicPurchaseHandler{db, db}
+func NewHandler(db *mongo.MongoService) *TopicPurchaseHandler {
+	tp := &TopicPurchaseHandler{
+		storage: db,
+	}
+	return tp
 }
 
 type ITopicPurchaseHandler interface {

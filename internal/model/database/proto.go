@@ -11,58 +11,58 @@ import (
 )
 
 type IUser interface {
-	UpdateUser(ctx context.Context, log *zerolog.Logger, uid string, user *schema.User) error
-	GetUserByUid(ctx context.Context, log *zerolog.Logger, uid string) (*schema.User, error)
-	CreateUser(ctx context.Context, log *zerolog.Logger, user *schema.User) (err error)
+	UpdateUser(ctx context.Context, uid string, user *schema.User) error
+	GetUserByUid(ctx context.Context, uid string) (*schema.User, error)
+	CreateUser(ctx context.Context, user *schema.User) (err error)
 }
 
 type ITopic interface {
-	ListTopics(ctx context.Context, logger *zerolog.Logger, cid int64, limit, offset int64) ([]*schema.Topic, int64, error)
-	StopTopic(context.Context, *zerolog.Logger, string) error
-	GetTopicsByCid(context.Context, *zerolog.Logger, int64) ([]*schema.Topic, error)
-	GetTopicByTid(context.Context, *zerolog.Logger, string) (*schema.Topic, error)
-	CreateTopic(context.Context, *zerolog.Logger, *schema.Topic) error
-	DeleteTopic(context.Context, *zerolog.Logger, string) error
-	UpdateTopic(context.Context, *zerolog.Logger, string, *schema.Topic) error
-	ListTopicByCid(c context.Context, logger *zerolog.Logger, cid int64, createdAt time.Time, pageSize int64) ([]*schema.Topic, int64, error)
-	GetTopicsByTids(ctx context.Context, logger *zerolog.Logger, tids []string) ([]*schema.Topic, error)
+	ListTopics(ctx context.Context, cid int64, limit, offset int64) ([]*schema.Topic, int64, error)
+	StopTopic(context.Context, string) error
+	GetTopicsByCid(context.Context, int64) ([]*schema.Topic, error)
+	GetTopicByTid(context.Context, string) (*schema.Topic, error)
+	CreateTopic(context.Context, *schema.Topic) error
+	DeleteTopic(context.Context, string) error
+	UpdateTopic(context.Context, string, *schema.Topic) error
+	ListTopicByCid(c context.Context, cid int64, createdAt time.Time, pageSize int64) ([]*schema.Topic, int64, error)
+	GetTopicsByTids(ctx context.Context, tids []string) ([]*schema.Topic, error)
 }
 
 type ICategory interface {
-	CreateCategory(ctx context.Context, logger *zerolog.Logger, category *schema.Category) error
-	GetCategoryById(ctx context.Context, logger *zerolog.Logger, id int64) (*schema.Category, error)
-	ListCategories(c context.Context, logger *zerolog.Logger) ([]*schema.Category, error)
-	UpdateCategory(ctx context.Context, logger *zerolog.Logger, id int64, name string) error
-	DeleteCategory(ctx context.Context, logger *zerolog.Logger, id int64) error
+	CreateCategory(ctx context.Context, category *schema.Category) error
+	GetCategoryById(ctx context.Context, id int64) (*schema.Category, error)
+	ListCategories(c context.Context) ([]*schema.Category, error)
+	UpdateCategory(ctx context.Context, id int64, name string) error
+	DeleteCategory(ctx context.Context, id int64) error
 }
 
 type IBonuse interface {
-	CreateBonuse(ctx context.Context, logger *zerolog.Logger, bonuse *schema.Bonuse) error
-	GetBonuseByTraceId(ctx context.Context, logger *zerolog.Logger, traceId string) (*schema.Bonuse, error)
-	QueryBonuses(ctx context.Context, logger *zerolog.Logger, uid, tid string, limit, offset int64) ([]*schema.Bonuse, int64, error)
+	CreateBonuse(ctx context.Context, bonuse *schema.Bonuse) error
+	GetBonuseByTraceId(ctx context.Context, traceId string) (*schema.Bonuse, error)
+	QueryBonuses(ctx context.Context, uid, tid string, limit, offset int64) ([]*schema.Bonuse, int64, error)
 }
 
 type ICollect interface {
-	GetCollectByUidTid(ctx context.Context, logger *zerolog.Logger, uid, tid string) (*schema.Collect, error)
-	ListCollects(ctx context.Context, logger *zerolog.Logger, uid string) ([]*schema.Collect, error)
-	GetCollectsByUid(ctx context.Context, logger *zerolog.Logger, uid string, limit, offset int64) ([]*schema.Collect, int64, error)
-	UpsertCollect(ctx context.Context, logger *zerolog.Logger, uid, tid string, req *schema.Collect) error
+	GetCollectByUidTid(ctx context.Context, uid, tid string) (*schema.Collect, error)
+	ListCollects(ctx context.Context, uid string) ([]*schema.Collect, error)
+	GetCollectsByUid(ctx context.Context, uid string, limit, offset int64) ([]*schema.Collect, int64, error)
+	UpsertCollect(ctx context.Context, uid, tid string, req *schema.Collect) error
 }
 
 type IRefund interface {
-	CreateRefund(ctx context.Context, logger *zerolog.Logger, refund *schema.Refund) error
-	GetRefundByTraceId(ctx context.Context, logger *zerolog.Logger, tracdId string) (*schema.Refund, error)
-	ListRefundsWithQuery(ctx context.Context, logger *zerolog.Logger, limit, offset int64, tid, uid string, createdAt time.Time) ([]*schema.Refund, int64, error)
+	CreateRefund(ctx context.Context, refund *schema.Refund) error
+	GetRefundByTraceId(ctx context.Context, tracdId string) (*schema.Refund, error)
+	ListRefundsWithQuery(ctx context.Context, limit, offset int64, tid, uid string, createdAt time.Time) ([]*schema.Refund, int64, error)
 }
 
 type ITopicPurchaseHistory interface {
-	CreateTopicPurchaseHistory(ctx context.Context, logger *zerolog.Logger, purchaseHistory *schema.TopicPurchaseHistory) error
+	CreateTopicPurchaseHistory(ctx context.Context, purchaseHistory *schema.TopicPurchaseHistory) error
 }
 
 type ITopicPurchase interface {
-	GetTopicPurchase(ctx context.Context, logger *zerolog.Logger, uid, tid string) (*schema.TopicPurchase, error)
-	CreateTopicPurchase(ctx context.Context, logger *zerolog.Logger, topicPurchase *schema.TopicPurchase) error
-	QueryTopicPurchase(ctx context.Context, logger *zerolog.Logger, uid, tid string) ([]*schema.TopicPurchase, error)
+	GetTopicPurchase(ctx context.Context, uid, tid string) (*schema.TopicPurchase, error)
+	CreateTopicPurchase(ctx context.Context, topicPurchase *schema.TopicPurchase) error
+	QueryTopicPurchase(ctx context.Context, uid, tid string) ([]*schema.TopicPurchase, error)
 }
 
 // type IFeedback interface {
@@ -80,12 +80,12 @@ type ITopicPurchase interface {
 // 	GetMessage(conversation_id string) (*schema.Message, error)
 // }
 
-// type ISnapshot interface {
-// 	CreateSnapshot(*schema.Snapshot) error
-// 	ListMessage(uid string) ([]*schema.Snapshot, error)
-// 	DeleteSnapshot(trace_id string) error
-// 	GetSnapshot(trace_id string) (*schema.Snapshot, error)
-// }
+type ISnapshot interface {
+	InsertSnapshot(ctx context.Context, snapshot *schema.Snapshot) error
+	GetSnapshotByRequestId(ctx context.Context, requestId string) (*schema.Snapshot, error)
+	GetLastestSnapshot(ctx context.Context) (*schema.Snapshot, error)
+	GetSnapshotCount(ctx context.Context) (int64, error)
+}
 
 type Database interface {
 	IUser
@@ -96,12 +96,13 @@ type Database interface {
 	ITopicPurchase
 	ITopicPurchaseHistory
 	IBonuse
+	ISnapshot
 }
 
-func New(logger *zerolog.Logger, conf *config.AppConfig) Database {
+func New(logger *zerolog.Logger, conf *config.AppConfig) *mongo.MongoService {
 	switch conf.Driver {
 	case "mongo":
-		return mongo.NewMongoService(logger, conf)
+		return mongo.NewMongoService(conf.MongoConfig)
 	default:
 		logger.Panic().Msgf("driver: %s no impl", conf.Driver)
 		return nil

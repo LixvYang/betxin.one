@@ -17,7 +17,7 @@ type GetUserResp struct {
 	Biography      string `json:"biography"`
 }
 
-func (uh *UserHandler) Get(c *gin.Context) {
+func (uh *UserHandler) GetUserInfo(c *gin.Context) {
 	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
 	uid := c.GetString("uid")
 	if uid == "" {
@@ -28,7 +28,7 @@ func (uh *UserHandler) Get(c *gin.Context) {
 
 	logger.Info().Str("uid", uid).Send()
 
-	user, err := uh.userSrv.GetUserByUid(c, &logger, uid)
+	user, err := uh.userSrv.GetUserByUid(c, uid)
 	if err != nil {
 		logger.Error().Err(err).Msg("[uh.Get][GetUserByUid] err")
 		handler.SendResponse(c, errmsg.ERROR_GET_USER, nil)
@@ -37,5 +37,5 @@ func (uh *UserHandler) Get(c *gin.Context) {
 
 	resp := new(GetUserResp)
 	copier.Copy(resp, user)
-	handler.SendResponse(c, errmsg.SUCCSE, resp)
+	handler.SendResponse(c, errmsg.SUCCES, resp)
 }

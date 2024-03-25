@@ -26,7 +26,7 @@ func (ch *CategoryHandler) Create(c *gin.Context) {
 		return
 	}
 
-	err := ch.storage.CreateCategory(c, &logger, &schema.Category{
+	err := ch.storage.CreateCategory(c, &schema.Category{
 		ID:   req.ID,
 		Name: req.Name,
 	})
@@ -36,5 +36,5 @@ func (ch *CategoryHandler) Create(c *gin.Context) {
 		handler.SendResponse(c, errmsg.ERROR, nil)
 		return
 	}
-	handler.SendResponse(c, errmsg.SUCCSE, nil)
+	handler.SendResponse(c, errmsg.SUCCES, nil)
 }

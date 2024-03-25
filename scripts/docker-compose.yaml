@@ -1,24 +1,74 @@
-version: "1.0"
+version: "2.0"
 services:
-  mongo:
+  # mongo:
+  #   image: mongo
+  #   restart: always
+  #   # command: --replSet rs0 --bind_ip_all --keyFile /data/mongodb/keyFile
+  #   # entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0"]
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: mongoadmin
+  #     MONGO_INITDB_ROOT_PASSWORD: mongoadmin
+  #     #MONGODB_AUTH_DATABASE: admin
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - ./workspace:/workspace
+  #     - type: volume
+  #       source: mongodb_data_volume
+  #       target: /data/db
+  #   networks:
+  #     - mynetwork
+
+  mongo0:
+    hostname: mongo0
+    container_name: mongo0
     image: mongo
-    restart: always
-    container_name: mongo-docker
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongoadmin
-      MONGO_INITDB_ROOT_PASSWORD: mongoadmin
-      #MONGODB_AUTH_DATABASE: admin
+    expose:
+      - 27017
     ports:
-      - "27017:27017"
+      - 27017:27017
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0"]
     volumes:
-      - ./workspace:/workspace
-      - type: volume
-        source: mongodb_data_volume
-        target: /data/db
+      - mongo-data0:/data/db
+      - mongo-data0:/data/configdb
+
+  mongo1:
+    hostname: mongo1
+    container_name: mongo1
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 27018:27017
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0"]
+    volumes:
+      - mongo-data1:/data/db
+      - mongo-data1:/data/configdb
+    depends_on:
+      - mongo0
+
+  mongo2:
+    # Host name = Container name
+    hostname: mongo2
+    container_name: mongo2
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 27019:27017
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0"]
+    volumes:
+      - mongo-data2:/data/db
+      - mongo-data2:/data/configdb
+    depends_on:
+      - mongo0
 
   mongo-express:
     image: mongo-express
-    container_name: mongo-express
+    container_name: mongo-express2.0
     restart: always
     ports:
       - "28081:8081"
@@ -30,12 +80,14 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: mongoadmin
       ME_CONFIG_MONGODB_ADMINPASSWORD: mongoadmin
       ME_CONFIG_MONGODB_URL: mongo://mongoadmin:mongoadmin@mongo:27017/
+    networks:
+      - mynetwork
     depends_on:
-      - mongo
+      - mongo0
 
   cache:
     image: redis:6.2-alpine
-    container_name: betxin-redis
+    container_name: betxin-redis2.0
     restart: always
     ports:
       - "6379:6379"
@@ -53,4 +105,10 @@ volumes:
   mongodb_data_volume:
     driver: local
   cache:
+    driver: local
+  mongo-data0:
+    driver: local
+  mongo-data1:
+    driver: local
+  mongo-data2:
     driver: local

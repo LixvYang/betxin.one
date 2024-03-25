@@ -1,6 +1,11 @@
 package schema
 
-import "time"
+import (
+	"context"
+	"time"
+
+	"github.com/shopspring/decimal"
+)
 
 type User struct {
 	IdentityNumber string    `bson:"identity_number" json:"identity_number"`
@@ -25,8 +30,8 @@ type Topic struct {
 	Title         string    `bson:"title" json:"title"`
 	Intro         string    `bson:"intro" json:"intro"`
 	Content       string    `bson:"content" json:"content"`
-	YesCount      string    `bson:"yes_count" json:"yes_count"`
-	NoCount       string    `bson:"no_count" json:"no_count"`
+	YesAmount     string    `bson:"yes_amount" json:"yes_amount"`
+	NoAmount      string    `bson:"no_amount" json:"no_amount"`
 	CollectCount  int64     `bson:"collect_count" json:"collect_count"`
 	ReadCount     int64     `bson:"read_count" json:"read_count"`
 	ImgURL        string    `bson:"img_url" json:"img_url"`
@@ -83,45 +88,88 @@ type Collect struct {
 // 	CreatedAt      int64  `json:"created_at"`
 // }
 
-// type Snapshot struct {
-// 	TraceID        string `json:"trace_id"`
-// 	Memo           string `json:"memo"`
-// 	Type           string `json:"type"`
-// 	SnapshotID     string `json:"snapshot_id"`
-// 	OpponentID     string `json:"opponent_id"`
-// 	AssetID        string `json:"asset_id"`
-// 	Amount         string `json:"amount"`
-// 	OpeningBalance string `json:"opening_balance"`
-// 	ClosingBalance string `json:"closing_balance"`
-// 	CreatedAt      string `json:"created_at"`
-// }
+type Snapshot struct {
+	SnapshotID string    `bson:"snapshot_id" json:"snapshot_id"`
+	RequestID  string    `bson:"request_id" json:"request_id"`
+	UserID     string    `bson:"user_id" json:"user_id"`
+	AssetID    string    `bson:"asset_id" json:"asset_id"`
+	Amount     string    `bson:"amount" json:"amount"`
+	Memo       string    `bson:"memo" json:"memo"`
+	CreatedAt  time.Time `bson:"created_at" json:"created_at"`
+}
 
 type Refund struct {
 	Uid       string    `bson:"uid" json:"uid"`
 	Tid       string    `bson:"tid" json:"tid"`
-	AssetId   string    `bson:"asset_id" json:"asset_id"`
-	TraceId   string    `bson:"trace_id" json:"trace_id"`
+	RequestID string    `bson:"request_id" json:"request_id"`
 	Amount    string    `bson:"amount" json:"amount"` // 退款金额
-	Select    bool      `bson:"select" json:"select"` // 选择
+	Action    bool      `bson:"select" json:"select"` // 选择
 	Memo      string    `bson:"memo" json:"memo"`
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 }
 
 // 话题购买历史
 type TopicPurchaseHistory struct {
-	Uid       string    `bson:"uid" json:"uid"`
-	Tid       int64     `bson:"tid" json:"tid"`
-	Select    bool      `bson:"select" json:"select"` // 选择
-	Amount    string    `bson:"amount" json:"amount"` // 金额
-	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+	RequestID  string    `bson:"request_id" json:"request_id"` // 请求ID
+	Uid        string    `bson:"uid" json:"uid"`
+	Tid        string    `bson:"tid" json:"tid"`
+	Action     bool      `bson:"action" json:"action"` // 选择 0 反对, 1 支持
+	Amount     string    `bson:"amount" json:"amount"` // 金额
+	Memo       string    `bson:"memo" json:"memo"`
+	Finished   bool      `bson:"finished" json:"finished"` // 是否完成
+	FinishedAt time.Time `bson:"finished_at" json:"finished_at"`
+	CreatedAt  time.Time `bson:"created_at" json:"created_at"`
 }
 
 // 用户话题购买
 type TopicPurchase struct {
 	Uid       string    `bson:"uid" json:"uid"`
-	Tid       int64     `bson:"tid" json:"tid"`
-	YesPrice  string    `bson:"yes_price" json:"yes_price"` // 支持金额
-	NoPrice   string    `bson:"no_price" json:"no_price"`   // 反对金额
+	Tid       string    `bson:"tid" json:"tid"`
+	YesAmount string    `bson:"yes_amount" json:"yes_amount"` // 支持金额
+	NoAmount  string    `bson:"no_amount" json:"no_amount"`   // 反对金额
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
+}
+
+func (t *Topic) AfterQuery(ctx context.Context) error {
+	t.ReadCount++
+	return nil
+}
+
+// 处理退款记录
+type TopicRefundAction struct {
+	RequestID string          `json:"request_id"` // 请求ID
+	Uid       string          `json:"uid"`
+	Tid       string          `json:"tid"`
+	Amount    decimal.Decimal `json:"amount"`
+	Action    bool            `json:"action"`
+	Memo      string          `json:"memo"`
+}
+
+type TopicBuyAction struct {
+	RequestID string          `json:"request_id"` // 请求ID
+	Uid       string          `json:"uid"`
+	Tid       string          `json:"tid"`
+	Action    bool            `json:"action"`
+	Amount    decimal.Decimal `json:"amount"`
+	Memo      string          `json:"memo"`
+}
+
+type TopicStopAction struct {
+	Tid string `json:"tid"`
+}
+
+type StopTopicActionResp struct {
+	Topic          Topic // 话题
+	TopicPurchases []*TopicPurchase
+}
+
+type TopicPurchaseRatio struct {
+	Uid       string          `json:"uid"`
+	WinRatio  string          `json:"win_ratio"`
+	WinAmount decimal.Decimal `json:"win_amount"`
+
+	// 购买了的
+	YesAmount decimal.Decimal `json:"yes_amount"`
+	NoAmount  decimal.Decimal `json:"no_amount"`
 }

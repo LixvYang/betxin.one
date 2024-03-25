@@ -2,46 +2,27 @@ package utils
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid"
 	"github.com/lixvyang/betxin.one/internal/consts"
-	"github.com/shopspring/decimal"
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
 )
-
-func NewUUID() string {
-	uuid, _ := uuid.NewV4()
-	return uuid.String()
-}
-
-func VaildUUID(str string) (uuid.UUID, error) {
-	return uuid.FromString(str)
-}
 
 func GetOrGenUid(c *gin.Context) string {
 	xid, ok := c.Get(consts.DefaultXid)
 	if !ok {
-		xid = NewUUID()
+		xid = convert.NewUUID()
 	}
 	return xid.(string)
 }
 
-func NewDecimalFromString(s string) decimal.Decimal {
-	d, err := decimal.NewFromString(s)
-	if err != nil {
-		return decimal.NewFromInt(0)
-	}
-	return d
-}
-
-func DecimalAdd(a string, b string) decimal.Decimal {
-	decimal.DivisionPrecision = 8
-	return NewDecimalFromString(a).Add(NewDecimalFromString(b))
-}
-
-func DecimalDiv(a string, b string) decimal.Decimal {
-	if NewDecimalFromString(b).IsZero() {
-		return decimal.NewFromInt(0)
+func GetUserId(c *gin.Context) (string, bool) {
+	uidS, ok := c.Get("uid")
+	if !ok {
+		return "", false
 	}
 
-	decimal.DivisionPrecision = 2
-	return NewDecimalFromString(a).Div(NewDecimalFromString(b))
+	uid, ok := uidS.(string)
+	if !ok {
+		return "", false
+	}
+	return uid, true
 }

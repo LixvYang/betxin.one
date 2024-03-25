@@ -19,12 +19,12 @@ func (ch *CategoryHandler) Get(c *gin.Context) {
 		return
 	}
 
-	category, err := ch.storage.GetCategoryById(c, &logger, id)
+	category, err := ch.storage.GetCategoryById(c, id)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Get][storage.GetCategoryById]")
 		handler.SendResponse(c, errmsg.ERROR, nil)
 		return
 	}
 	logger.Info().Any("category", category).Msg("[Get]")
-	handler.SendResponse(c, errmsg.SUCCSE, category)
+	handler.SendResponse(c, errmsg.SUCCES, category)
 }

@@ -18,7 +18,7 @@ func (th *TopicHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	err = th.topicSrv.DeleteTopic(c, &logger, tid)
+	err = th.storage.DeleteTopic(c, tid)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Delete][storage.DeleteTopic] error")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -26,7 +26,7 @@ func (th *TopicHandler) Delete(c *gin.Context) {
 	}
 
 	logger.Info().Str("tid", tid).Msg("[Delete][storage.DeleteTopic]")
-	handler.SendResponse(c, errmsg.SUCCSE, nil)
+	handler.SendResponse(c, errmsg.SUCCES, nil)
 }
 
 func (th *TopicHandler) checkTid(c *gin.Context) (string, error) {

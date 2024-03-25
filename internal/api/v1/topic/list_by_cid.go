@@ -10,7 +10,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
-	"github.com/lixvyang/betxin.one/internal/utils"
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/internal/utils/token"
 	"github.com/rs/zerolog"
@@ -35,8 +35,6 @@ type TopicItem struct {
 	CollectCount  int64     `json:"collect_count"`
 	ReadCount     int64     `json:"read_count"`
 	ImgURL        string    `json:"img_url"`
-	IsStop        bool      `json:"is_stop"`
-	IsDeleted     bool      `json:"is_deleted"`
 	RefundEndTime time.Time `json:"refund_end_time"`
 	EndTime       time.Time `json:"end_time"`
 	CreatedAt     time.Time `json:"created_at"`
@@ -44,7 +42,6 @@ type TopicItem struct {
 
 type ListTopicData struct {
 	*TopicItem
-	Tid       string           `json:"tid"`
 	IsCollect bool             `json:"is_collect"`
 	Category  *schema.Category `json:"category"`
 }
@@ -55,7 +52,7 @@ const (
 
 func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 	logger := c.MustGet(consts.DefaultLoggerKey).(zerolog.Logger)
-	cid, err := t.checkListTopicsByCidReq(c, &logger)
+	cid, err := t.checkListTopicsByCidReq(c)
 	if err != nil {
 		handler.SendResponse(c, errmsg.ERROR_INVAILD_ARGV, nil)
 		return
@@ -85,7 +82,7 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 		pageSize = page.PageSize
 	}
 
-	topicList, _, err := t.topicSrv.ListTopicByCid(c, &logger, cid, cursor, pageSize+1)
+	topicList, _, err := t.storage.ListTopicByCid(c, cid, cursor, pageSize+1)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[t.ListTopicsByCid][ListTopicByCid] err")
 		handler.SendResponse(c, errmsg.ERROR_TOPICS_NOT_FOUND, nil)
@@ -112,13 +109,13 @@ func (t *TopicHandler) ListTopicsByCid(c *gin.Context) {
 		}
 
 		prePageToken = string(prePageInfo.Encode())
-		handler.SendResponse(c, errmsg.SUCCSE, &ListTopicByCidResp{
+		handler.SendResponse(c, errmsg.SUCCES, &ListTopicByCidResp{
 			PrePageToken: prePageToken,
 			List:         topicDataList[:len(topicDataList)-1],
 		})
 		return
 	}
-	handler.SendResponse(c, errmsg.SUCCSE, &ListTopicByCidResp{
+	handler.SendResponse(c, errmsg.SUCCES, &ListTopicByCidResp{
 		PrePageToken: prePageToken,
 		List:         topicDataList,
 	})
@@ -129,14 +126,14 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, logger *zerolog.Logger, 
 	copier.Copy(&topicDataList, &args)
 	for i := 0; i < len(topicDataList); i++ {
 		topicDataList[i].Tid = args[i].Tid
-		category, err := t.categorySrv.GetCategoryById(c, logger, topicDataList[i].Cid)
+		category, err := t.storage.GetCategoryById(c, topicDataList[i].Cid)
 		if err != nil {
 			logger.Error().Err(err).Msgf("[t.getTopicDataList][GetCategoryById] err")
 		}
 		topicDataList[i].Category = category
-		topicDataList[i].TotalCount = utils.DecimalAdd(args[i].YesCount, args[i].NoCount).String()
-		topicDataList[i].YesRatio = utils.DecimalDiv(topicDataList[i].YesCount, topicDataList[i].TotalCount).String()
-		topicDataList[i].NoRatio = utils.DecimalDiv(topicDataList[i].NoCount, topicDataList[i].TotalCount).String()
+		topicDataList[i].TotalCount = convert.DecimalAdd(args[i].YesAmount, args[i].NoAmount).String()
+		topicDataList[i].YesRatio = convert.DecimalDiv(topicDataList[i].YesCount, topicDataList[i].TotalCount).String()
+		topicDataList[i].NoRatio = convert.DecimalDiv(topicDataList[i].NoCount, topicDataList[i].TotalCount).String()
 		if topicDataList[i].YesCount == topicDataList[i].NoCount {
 			topicDataList[i].YesRatio = "50"
 			topicDataList[i].NoRatio = "50"
@@ -152,7 +149,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, logger *zerolog.Logger, 
 		return topicDataList
 	}
 
-	collects, err := t.collectSrv.ListCollects(c, logger, uid)
+	collects, err := t.storage.ListCollects(c, uid)
 	if err != nil {
 		return topicDataList
 	}
@@ -169,7 +166,7 @@ func (t *TopicHandler) getTopicDataList(c *gin.Context, logger *zerolog.Logger, 
 	return topicDataList
 }
 
-func (t *TopicHandler) checkListTopicsByCidReq(c *gin.Context, logger *zerolog.Logger) (int64, error) {
+func (t *TopicHandler) checkListTopicsByCidReq(c *gin.Context) (int64, error) {
 	cidS := c.Param("cid")
 	if cidS == "" {
 		return 0, errors.New("cid error")
@@ -180,7 +177,7 @@ func (t *TopicHandler) checkListTopicsByCidReq(c *gin.Context, logger *zerolog.L
 		return 0, errors.New("cid convert error")
 	}
 
-	_, err = t.categorySrv.GetCategoryById(c, logger, cid)
+	_, err = t.storage.GetCategoryById(c, cid)
 	if err != nil {
 		return 0, errors.New("cid not exist")
 	}

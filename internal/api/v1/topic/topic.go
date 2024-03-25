@@ -3,22 +3,21 @@ package topic
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lixvyang/betxin.one/internal/model/cache"
-	"github.com/lixvyang/betxin.one/internal/model/database"
+	"github.com/lixvyang/betxin.one/internal/model/database/mongo"
+	"github.com/lixvyang/betxin.one/internal/service/mixin_srv"
 )
 
 type TopicHandler struct {
-	topicSrv    database.ITopic
-	collectSrv  database.ICollect
-	categorySrv database.ICategory
-	cache       *cache.Cache
+	storage  *mongo.MongoService
+	cache    *cache.Cache
+	mixinSrv *mixin_srv.MixinSrv
 }
 
-func NewHandler(db database.Database, cache *cache.Cache) ITopicHandler {
+func NewHandler(db *mongo.MongoService, cache *cache.Cache, mixinSrv *mixin_srv.MixinSrv) *TopicHandler {
 	topicHandler := &TopicHandler{
-		topicSrv:    db,
-		collectSrv:  db,
-		categorySrv: db,
-		cache:       cache,
+		storage:  db,
+		cache:    cache,
+		mixinSrv: mixinSrv,
 	}
 
 	return topicHandler
@@ -32,21 +31,3 @@ type ITopicHandler interface {
 	ListTopicsByCid(*gin.Context)
 	UpdateTopicInfo(*gin.Context)
 }
-
-// type CategorySrv struct {
-// 	categorySrv database.ICategory
-// }
-
-// func NewCategorySrv(categorySrv database.Database) *CategorySrv {
-// 	return &CategorySrv{
-// 		categorySrv: categorySrv,
-// 	}
-// }
-
-// func (c *CategorySrv) Get(id int64) (*schema.Category, error) {
-// 	category, err := c.categorySrv.GetCategoryById(context.Background(), &log.Logger, id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return category, nil
-// }

@@ -32,14 +32,14 @@ func (ch *CategoryHandler) Update(c *gin.Context) {
 		return
 	}
 
-	err = ch.storage.UpdateCategory(c, logger, id, req.Name)
+	err = ch.storage.UpdateCategory(c, id, req.Name)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Update][storage.GetCategoryById]")
 		handler.SendResponse(c, errmsg.ERROR, nil)
 		return
 	}
 	logger.Info().Any("name", req.Name).Msg("[Update] success")
-	handler.SendResponse(c, errmsg.SUCCSE, nil)
+	handler.SendResponse(c, errmsg.SUCCES, nil)
 }
 
 func (ch *CategoryHandler) checkUpdateReq(c *gin.Context, logger *zerolog.Logger, name string) (int64, error) {
@@ -48,7 +48,7 @@ func (ch *CategoryHandler) checkUpdateReq(c *gin.Context, logger *zerolog.Logger
 		return 0, errors.New("checkCategoryId error")
 	}
 
-	_, err = ch.storage.GetCategoryById(c, logger, id)
+	_, err = ch.storage.GetCategoryById(c, id)
 	if err != nil {
 		return 0, err
 	}

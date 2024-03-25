@@ -8,7 +8,7 @@ import (
 	"github.com/lixvyang/betxin.one/internal/api/v1/handler"
 	"github.com/lixvyang/betxin.one/internal/consts"
 	"github.com/lixvyang/betxin.one/internal/model/database/schema"
-	"github.com/lixvyang/betxin.one/internal/utils"
+	"github.com/lixvyang/betxin.one/internal/utils/convert"
 	"github.com/lixvyang/betxin.one/internal/utils/errmsg"
 	"github.com/lixvyang/betxin.one/internal/utils/timeof"
 
@@ -37,7 +37,7 @@ func (t *TopicHandler) Create(c *gin.Context) {
 		return
 	}
 
-	err = t.topicSrv.CreateTopic(c, &logger, createTopicArgs)
+	err = t.storage.CreateTopic(c, createTopicArgs)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Create][CreateTopic] error")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -45,7 +45,7 @@ func (t *TopicHandler) Create(c *gin.Context) {
 	}
 	logger.Info().Any("topic", createTopicArgs).Msg("[Create][CreateTopic] info")
 
-	resp, err := t.topicSrv.GetTopicByTid(c, &logger, createTopicArgs.Tid)
+	resp, err := t.storage.GetTopicByTid(c, createTopicArgs.Tid)
 	if err != nil {
 		logger.Error().Err(err).Msg("[Create][GetTopicByTid] error")
 		handler.SendResponse(c, errmsg.ERROR, nil)
@@ -54,8 +54,8 @@ func (t *TopicHandler) Create(c *gin.Context) {
 
 	createTopicResp := new(GetTopicResp)
 	copier.Copy(&createTopicResp, &resp)
-	createTopicResp.Category, _ = t.categorySrv.GetCategoryById(c, &logger, resp.Cid)
-	handler.SendResponse(c, errmsg.SUCCSE, createTopicResp)
+	createTopicResp.Category, _ = t.storage.GetCategoryById(c, resp.Cid)
+	handler.SendResponse(c, errmsg.SUCCES, createTopicResp)
 }
 
 func (t *TopicHandler) checkCreateReq(c *gin.Context, logger *zerolog.Logger) (*schema.Topic, error) {
@@ -71,7 +71,7 @@ func (t *TopicHandler) checkCreateReq(c *gin.Context, logger *zerolog.Logger) (*
 		return nil, errors.New("cid error")
 	}
 
-	_, err = t.categorySrv.GetCategoryById(c, logger, req.Cid)
+	_, err = t.storage.GetCategoryById(c, req.Cid)
 	if err != nil {
 		return nil, errors.New("cid error")
 	}
@@ -93,12 +93,11 @@ func (t *TopicHandler) checkCreateReq(c *gin.Context, logger *zerolog.Logger) (*
 	copier.Copy(&argv, req)
 	argv.EndTime = endTime
 	argv.RefundEndTime = refundEndTime
-	argv.Tid = utils.NewUUID()
+	argv.Tid = convert.NewUUID()
 	argv.CreatedAt = time.Now()
 	argv.UpdatedAt = time.Now()
-	argv.YesCount = "0"
-	argv.NoCount = "0"
-	argv.NoCount = "0"
+	argv.YesAmount = "0"
+	argv.NoAmount = "0"
 
 	return argv, nil
 }

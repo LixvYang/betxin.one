@@ -112,7 +112,7 @@ func (uh *UserHandler) Connect(c *gin.Context) {
 	respUser := new(UserResp)
 	copier.Copy(&respUser, &user)
 
-	handler.SendResponse(c, errmsg.SUCCSE, &SigninResp{
+	handler.SendResponse(c, errmsg.SUCCES, &SigninResp{
 		Token: jwtToken,
 		User:  respUser,
 	})
@@ -198,18 +198,18 @@ func (uh *UserHandler) loginWithMixin(ctx context.Context, logger *zerolog.Logge
 		MixinCreatedAt: authUser.CreatedAt,
 	}
 
-	existing, err := uh.userSrv.GetUserByUid(ctx, logger, user.Uid)
-	if err != nil && err != mongo.ErrNoSuchUser {
+	existing, err := uh.userSrv.GetUserByUid(ctx, user.Uid)
+	if err != nil && err != mongo.ErrNoSuchItem {
 		logger.Error().Err(err).Msgf("[LoginWithMixin][GetUserByUid] err")
 		return nil, err
 	}
 
 	// create
-	if err == mongo.ErrNoSuchUser {
+	if err == mongo.ErrNoSuchItem {
 		user.CreatedAt = time.Now()
 		user.UpdatedAt = user.CreatedAt
-		err = uh.userSrv.CreateUser(ctx, logger, user)
-		if err != nil && err != mongo.ErrUserExist {
+		err = uh.userSrv.CreateUser(ctx, user)
+		if err != nil && err != mongo.ErrItemExist {
 			logger.Error().Err(err).Msgf("[LoginWithMixin][CreateUser] err")
 			return nil, err
 		}
@@ -218,13 +218,13 @@ func (uh *UserHandler) loginWithMixin(ctx context.Context, logger *zerolog.Logge
 
 	user.UpdatedAt = time.Now()
 	// update
-	err = uh.userSrv.UpdateUser(ctx, logger, existing.Uid, user)
+	err = uh.userSrv.UpdateUser(ctx, existing.Uid, user)
 	if err != nil {
 		fmt.Printf("err users.Updates: %v\n", err)
 		return nil, err
 	}
 
-	newUser, err := uh.userSrv.GetUserByUid(ctx, logger, user.Uid)
+	newUser, err := uh.userSrv.GetUserByUid(ctx, user.Uid)
 	if err != nil {
 		logger.Error().Err(err).Msgf("[LoginWithMixin][GetUserByUid] err")
 		return nil, err

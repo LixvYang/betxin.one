@@ -29,7 +29,7 @@ func (ch *CollectHandler) Create(c *gin.Context) {
 	}
 
 	// 判断tid是否存在
-	_, err = ch.topicSrv.GetTopicByTid(c, &logger, req.Tid)
+	_, err = ch.storage.GetTopicByTid(c, req.Tid)
 	if err != nil {
 		logger.Error().Any("req", req).Err(err).Msg("get topic by tid err")
 		handler.SendResponse(c, errmsg.ERROR_GET_TOPIC, nil)
@@ -44,9 +44,9 @@ func (ch *CollectHandler) Create(c *gin.Context) {
 		UpdatedAt: time.Now(),
 	}
 
-	err = ch.storage.UpsertCollect(c, &logger, req.Uid, argv.Tid, &argv)
+	err = ch.storage.UpsertCollect(c, req.Uid, argv.Tid, &argv)
 	if err != nil {
-		if err == mongo.ErrCollectExist {
+		if err == mongo.ErrItemExist {
 			logger.Error().Err(err).Msg("collect already exists")
 			handler.SendResponse(c, errmsg.ERROR_CREATE_ALREADY_COLLECT, nil)
 			return
@@ -56,7 +56,7 @@ func (ch *CollectHandler) Create(c *gin.Context) {
 		return
 	}
 
-	handler.SendResponse(c, errmsg.SUCCSE, nil)
+	handler.SendResponse(c, errmsg.SUCCES, nil)
 }
 
 func checkCreateCollect(c *gin.Context) (*CreateCollectParams, error) {
